@@ -96,10 +96,33 @@ public sealed class CartService(IAppDbContext db, DeliveryOptions delivery, Time
     {
         var lines = await db.OrderItems.AsNoTracking()
             .Where(i => i.OrderId == orderNumber && db.Orders.Any(o => o.Id == orderNumber && o.CustomerId == customerId))
-            .Select(i => new { i.ProductId, i.Name, i.Quantity })
+            .Select(i => new CartLine(i.ProductId, i.Name, i.Quantity))
             .ToListAsync(ct);
         if (lines.Count == 0) return Result<ReorderResult>.NotFound();
+        return Result<ReorderResult>.Ok(await AddLinesAsync(customerId, lines, ct));
+    }
 
+    /// <summary>
+    /// "Ҳамаашро ба сабад": молҳои маҷмӯа (агар ҳоло дар фурӯш бошанд) — мисли "Боз харидан".
+    /// Маҷмӯаи пинҳон ё нест → NotFound.
+    /// </summary>
+    public async Task<Result<ReorderResult>> AddBundleAsync(int customerId, int bundleId, CancellationToken ct)
+    {
+        if (!await db.Bundles.AnyAsync(b => b.Id == bundleId && b.IsActive, ct)) return Result<ReorderResult>.NotFound();
+        var lines = await db.BundleItems.AsNoTracking()
+            .Where(i => i.BundleId == bundleId)
+            .OrderBy(i => i.SortOrder)
+            .Select(i => new CartLine(i.ProductId, i.Product!.NameTg, i.Quantity))
+            .ToListAsync(ct);
+        if (lines.Count == 0) return Result<ReorderResult>.NotFound();
+        return Result<ReorderResult>.Ok(await AddLinesAsync(customerId, lines, ct));
+    }
+
+    private sealed record CartLine(int? ProductId, string Name, int Quantity);
+
+    /// <summary>Сатрҳоро ба сабад ҷамъ мекунад (то 99 дона, то 200 мол); молҳои дар фурӯш набуда — дар Unavailable.</summary>
+    private async Task<ReorderResult> AddLinesAsync(int customerId, IReadOnlyList<CartLine> lines, CancellationToken ct)
+    {
         var ids = lines.Where(l => l.ProductId != null).Select(l => l.ProductId!.Value).Distinct().ToList();
         var activeIds = await db.Products.AsNoTracking()
             .Where(p => ids.Contains(p.Id) && p.IsActive && p.Category!.IsActive)
@@ -123,7 +146,7 @@ public sealed class CartService(IAppDbContext db, DeliveryOptions delivery, Time
             item.UpdatedAt = now;
         }
         await db.SaveChangesAsync(ct);
-        return Result<ReorderResult>.Ok(new ReorderResult(await GetAsync(customerId, ct), unavailable));
+        return new ReorderResult(await GetAsync(customerId, ct), unavailable);
     }
 
     public async Task<CartDto> ClearAsync(int customerId, CancellationToken ct)

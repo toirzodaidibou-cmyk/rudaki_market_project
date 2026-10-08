@@ -254,5 +254,17 @@
     "share": "Ulashish",
     "copied": "Havola nusxalandi",
     "photo": "Rasm {n}"
+  },
+  "bundles": {
+    "title": "To‘plamlar",
+    "subtitle": "Kerakli hamma narsa — bitta tugma bilan",
+    "items": "{n} dona",
+    "addAll": "Hammasini savatga",
+    "added": "Savatga qo‘shildi!",
+    "unavailable": "Hozir sotuvda yo‘q: {names}",
+    "back": "Bosh sahifa",
+    "inside": "To‘plamda",
+    "total": "Jami",
+    "error": "Xatolik. Qayta urinib ko‘ring."
   }
 }

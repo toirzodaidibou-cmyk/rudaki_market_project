@@ -23,6 +23,8 @@ type CustomerState = {
   clearCart: () => Promise<void>;
   /** Сабадро аз сервер аз нав мегирад (масалан, баъд аз фармоиш) */
   refreshCart: () => Promise<void>;
+  /** Агар ворид нашуда бошад — равзанаи даромад; баъд аз даромад амал иҷро мешавад. */
+  requireLogin: (action: () => void) => void;
   /** Формаи даромад инро баъд аз тасдиқи рамз даъват мекунад */
   completeLogin: (user: Customer) => Promise<void>;
   logout: () => Promise<void>;
@@ -202,10 +204,11 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
       setCartQuantity,
       clearCart,
       refreshCart,
+      requireLogin,
       completeLogin,
       logout,
     }),
-    [user, favoriteIds, toggleFavorite, cart, cartQuantity, cartCount, setCartQuantity, clearCart, refreshCart, completeLogin, logout],
+    [user, favoriteIds, toggleFavorite, cart, cartQuantity, cartCount, setCartQuantity, clearCart, refreshCart, requireLogin, completeLogin, logout],
   );
 
   return (

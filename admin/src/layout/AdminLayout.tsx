@@ -1,6 +1,6 @@
 import { NavLink, Navigate, Outlet } from 'react-router'
 import { useAuth } from '../auth/AuthContext'
-import { BoxIcon, ExternalIcon, GridIcon, LogoutIcon, Logo, MoonIcon, ReceiptIcon, SunIcon } from '../components/icons'
+import { BasketIcon, BoxIcon, ExternalIcon, GridIcon, LogoutIcon, Logo, MoonIcon, ReceiptIcon, SunIcon } from '../components/icons'
 import { Spinner } from '../components/ui'
 import { OrderWatchProvider, useOrderWatch } from '../pages/orders/OrderWatch'
 
@@ -10,6 +10,7 @@ const nav = [
   { to: '/orders', label: 'Фармоишҳо', Icon: ReceiptIcon },
   { to: '/products', label: 'Молҳо', Icon: BoxIcon },
   { to: '/categories', label: 'Категорияҳо', Icon: GridIcon },
+  { to: '/bundles', label: 'Маҷмӯаҳо', Icon: BasketIcon },
 ]
 
 export function AdminLayout() {

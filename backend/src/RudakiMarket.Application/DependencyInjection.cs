@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using RudakiMarket.Application.Auth;
+using RudakiMarket.Application.Bundles;
 using RudakiMarket.Application.Categories;
 using RudakiMarket.Application.Customers;
 using RudakiMarket.Application.Orders;
@@ -21,6 +22,7 @@ public static class DependencyInjection
         services.AddScoped<CartService>();
         services.AddScoped<OrderService>();
         services.AddScoped<AdminOrderService>();
+        services.AddScoped<BundleService>();
         return services;
     }
 }

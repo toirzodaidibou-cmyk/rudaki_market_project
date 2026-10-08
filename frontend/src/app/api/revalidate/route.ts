@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 
 // Backend баъд аз тағйирот дар админ инро даъват мекунад, то сайт фавран нав шавад.
 // Танҳо бо калиди махфӣ (REVALIDATE_SECRET) ва танҳо барои тегҳои маълум.
-const ALLOWED_TAGS = new Set(["products", "categories"]);
+const ALLOWED_TAGS = new Set(["products", "categories", "bundles"]);
 
 function secretMatches(given: string | null): boolean {
   const expected = process.env.REVALIDATE_SECRET;

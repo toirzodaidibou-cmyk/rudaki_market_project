@@ -254,5 +254,17 @@
     "share": "Share",
     "copied": "Link copied",
     "photo": "Photo {n}"
+  },
+  "bundles": {
+    "title": "Bundles",
+    "subtitle": "Everything you need — in one tap",
+    "items": "{n} items",
+    "addAll": "Add all to cart",
+    "added": "Added to cart!",
+    "unavailable": "Not available now: {names}",
+    "back": "Home",
+    "inside": "In this bundle",
+    "total": "Total",
+    "error": "Something went wrong. Try again."
   }
 }

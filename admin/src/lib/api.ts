@@ -65,6 +65,36 @@ export type SaveProductRequest = {
 
 export type Paged<T> = { items: T[]; total: number; page: number; pageSize: number }
 
+export type BundleItem = {
+  productId: number
+  name: LocalizedNames
+  sizeLabel: string | null
+  price: number
+  isActive: boolean
+  thumb: string | null
+  quantity: number
+}
+
+export type Bundle = {
+  id: number
+  name: LocalizedNames
+  description: LocalizedNames
+  emoji: string
+  sortOrder: number
+  isActive: boolean
+  total: number
+  items: BundleItem[]
+}
+
+export type SaveBundleRequest = {
+  name: LocalizedNames
+  description: LocalizedNames
+  emoji: string
+  sortOrder: number
+  isActive: boolean
+  items: { productId: number; quantity: number }[]
+}
+
 export const ORDER_STATUSES = ['new', 'confirmed', 'delivering', 'delivered', 'cancelled'] as const
 export type OrderStatus = (typeof ORDER_STATUSES)[number]
 
@@ -184,6 +214,13 @@ export const api = {
       form.append('icon', file)
       return request<Category>(`/api/admin/categories/${id}/icon`, { method: 'POST', body: form })
     },
+  },
+
+  bundles: {
+    list: () => request<Bundle[]>("/api/admin/bundles"),
+    create: (data: SaveBundleRequest) => request<Bundle>("/api/admin/bundles", json("POST", data)),
+    update: (id: number, data: SaveBundleRequest) => request<Bundle>(`/api/admin/bundles/${id}`, json("PUT", data)),
+    remove: (id: number) => request<void>(`/api/admin/bundles/${id}`, { method: "DELETE" }),
   },
 
   orders: {

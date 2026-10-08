@@ -90,6 +90,10 @@ internal static class CustomerEndpoints
         cart.MapPost("/reorder/{orderNumber:int}", async (int orderNumber, ClaimsPrincipal user, CartService s, CancellationToken ct) =>
             (await s.ReorderAsync(CustomerId(user), orderNumber, ct)).ToHttp(Results.Ok));
 
+        // "Ҳамаашро ба сабад": молҳои маҷмӯа
+        cart.MapPost("/bundle/{bundleId:int}", async (int bundleId, ClaimsPrincipal user, CartService s, CancellationToken ct) =>
+            (await s.AddBundleAsync(CustomerId(user), bundleId, ct)).ToHttp(Results.Ok));
+
 
         // Таърихи харид (профил)
         app.MapGet("/api/orders", async (int? page, ClaimsPrincipal user, OrderService s, CancellationToken ct) =>

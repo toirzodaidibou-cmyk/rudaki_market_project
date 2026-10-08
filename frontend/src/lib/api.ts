@@ -81,3 +81,21 @@ export const getProduct = (id: number) => get<ProductDetail>(`/api/products/${id
 
 /** Саҳифаи асосӣ: то 20 мол — аксиядорҳо аввал, баъд навтаринҳо (боқимонда — дар каталог). */
 export const getHomeProducts = () => get<Product[]>("/api/products/home", ["products", "products:home"]);
+
+export type Bundle = {
+  id: number;
+  name: Record<Locale, string>;
+  description: Record<Locale, string>;
+  emoji: string;
+  total: number;
+  itemCount: number;
+  /** То 4 сурати хурди молҳо */
+  images: string[];
+};
+
+export type BundleDetail = Omit<Bundle, "itemCount" | "images"> & { items: { product: Product; quantity: number }[] };
+
+/** Маҷмӯаҳои фаъол ("Дастархони чой", ...). */
+export const getBundles = () => get<Bundle[]>("/api/bundles", ["bundles", "products"]);
+
+export const getBundle = (id: number) => get<BundleDetail>(`/api/bundles/${id}`, ["bundles", "products"]);

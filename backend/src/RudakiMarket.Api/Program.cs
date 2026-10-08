@@ -144,5 +144,7 @@ app.MapProductEndpoints();
 app.MapAdminProductEndpoints();
 app.MapCustomerEndpoints();
 app.MapAdminOrderEndpoints();
+app.MapBundleEndpoints();
+app.MapAdminBundleEndpoints();
 
 app.Run();

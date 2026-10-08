@@ -100,6 +100,9 @@ export const clientApi = {
   addFavorite: (id: number) => request<void>(`/api/favorites/${id}`, "PUT"),
   removeFavorite: (id: number) => request<void>(`/api/favorites/${id}`, "DELETE"),
   cart: () => request<Cart>("/api/cart"),
+  /** "Ҳамаашро ба сабад": молҳои маҷмӯа. */
+  addBundle: (bundleId: number) =>
+    request<{ cart: Cart; unavailable: string[] }>(`/api/cart/bundle/${bundleId}`, "POST"),
   /** "Боз харидан": молҳои фармоиши гузашта ба сабад; unavailable — номи молҳое, ки дигар нестанд. */
   reorder: (orderNumber: number) =>
     request<{ cart: Cart; unavailable: string[] }>(`/api/cart/reorder/${orderNumber}`, "POST"),
