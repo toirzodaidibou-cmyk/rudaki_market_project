@@ -1055,6 +1055,16 @@
 - ✅ **Санҷиши пурра бо телефони воқеӣ:** соҳиби лоиҳа ворид шуд — «зӯр кор кард» (Start → рақамро фиристодан → рамз → даромад).
 - Барои production: ҳамин ду калидро дар танзимоти сервер гузоштан лозим; SMS (OsonSMS) — ҳамчун роҳи дуюм, вақте лозим шавад.
 
+**№47. Пайванди муваққатии ройгон дар интернет (Cloudflare Tunnel)**
+- **Нақшаи хостинг** пешниҳод шуд (домени .tj ~199 с./сол; VPS Eruhost 65 с./моҳ ё Hetzner ~€4,35; Oracle Always Free 2 CPU/12 GB). Соҳиби лоиҳа: аввал **пайванди муваққатии ройгон** (компютери худ + Cloudflare Tunnel).
+- **Як суроға барои ҳама** (лозим барои телефон ва production): `next.config.ts` — `rewrites`: `/backend/:path*` → backend; `NEXT_PUBLIC_API_URL=/backend`; `fileUrl` суроғаи оммавиро аз `NEXT_PUBLIC_API_URL` мегирад; `proxy.ts` — `/backend` аз проксии забонҳо истисно (пештар 307 → `/tg/backend`); `HeroSlider` — суратҳои API бе оптимизатсияи Next.
+- **Сайти production** (`next build` + `next start -p 3200`) — тезтар аз dev; сервери dev (3123) дахолат намебинад (Next 16: `.next/dev` алоҳида).
+  - ⚠️ Git Bash `/backend`-ро ба `C:/Program Files/Git/backend` табдил медод (MSYS path conversion) → суратҳо ва даромад кор намекарданд → `MSYS_NO_PATHCONV=1`.
+- **cloudflared 2026.10.0** → `E:/rudaki-market/tools/cloudflared.exe`; quick tunnel `https://<тасодуфӣ>.trycloudflare.com` (ройгон, бе домен, HTTPS).
+- **Санҷиш** (Edge, телефон, тавассути пайванди оммавӣ): асосӣ 2,1 с; суратҳо 17/17; ҷустуҷӯ «чой» → 66; саҳифаи мол; даромад «Тавассути Telegram»; хато нест.
+- **`scripts/demo-link.ps1`** (UTF-8 BOM): як клик — backend (агар хомӯш), build ва сайти production (3200), пайванди Cloudflare; пайвандро нишон медиҳад, ба буфер нусха мекунад ва мекушояд.
+- Маҳдудиятҳо: компютер бояд фурӯзон бошад; пайванд ҳар бор нав; ҳамаи меҳмонон барои backend як IP (127.0.0.1) менамоянд — маҳдудияти «5 рамз дар 10 дақ» умумӣ мешавад (дар production бо `X-Forwarded-For` ҳал мешавад).
+
 *Тарзи сар кардан (development):*
 ```
 # 0. Лоиҳа дар E:\RUDAKI MARKET\RYDAKIMARKET (роҳи кӯҳна дар C: — junction ба ҳамон ҷо)

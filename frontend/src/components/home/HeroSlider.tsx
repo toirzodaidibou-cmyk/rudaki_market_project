@@ -155,8 +155,8 @@ export function HeroSlider({ slides: fromAdmin }: { slides?: HeroSlide[] }) {
                   <div className="relative h-full w-full motion-safe:animate-hero-float">
                     <Image
                       src={slide.image}
-                      // Сурат аз API (localhost) — Next 16 суроғаи маҳаллиро оптимизатсия намекунад
-                      unoptimized={slide.image.startsWith("http")}
+                      // Сурат аз API (localhost ё /backend) — бе оптимизатсияи Next (суратҳо аллакай WebP ва хурд)
+                      unoptimized={!slide.image.startsWith("/banners/")}
                       alt={slide.title}
                       fill
                       sizes="(min-width: 1280px) 640px, (min-width: 768px) 52vw, 60vw"

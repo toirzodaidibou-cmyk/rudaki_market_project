@@ -17,6 +17,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // _next, api ва файлҳо (бо нуқта: favicon.ico, logo.svg, ...) истисно мешаванд.
-  matcher: ["/((?!_next|api|.*\\..*).*)"],
+  // _next, api, backend (прокси ба API — next.config.ts) ва файлҳо (бо нуқта: favicon.ico, ...) истисно мешаванд.
+  matcher: ["/((?!_next|api|backend|.*\\..*).*)"],
 };

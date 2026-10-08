@@ -25,7 +25,9 @@ export type Product = {
 export type Paged<T> = { items: T[]; total: number; page: number; pageSize: number };
 
 /** Роҳи нисбии файл ("/uploads/...") → URL-и пурра. */
-export const fileUrl = (path: string | null) => (path ? `${API_URL}${path}` : null);
+// Суроғаи суратҳо барои браузер: NEXT_PUBLIC_API_URL (масалан "/backend"), вагарна API_URL
+const PUBLIC_URL = process.env.NEXT_PUBLIC_API_URL || API_URL;
+export const fileUrl = (path: string | null) => (path ? `${PUBLIC_URL}${path}` : null);
 
 /**
  * Кэш 30 сония: тағйирот дар админ дар сайт пас аз ~30 сония пайдо мешавад,
