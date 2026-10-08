@@ -1,0 +1,258 @@
+{
+  "meta": {
+    "title": "RUDAKI MARKET",
+    "description": "RUDAKI MARKET — onlayn doʻkon"
+  },
+  "header": {
+    "homeAria": "RUDAKI MARKET — bosh sahifa",
+    "chooseCity": "Shaharni tanlash",
+    "toggleTheme": "Mavzuni almashtirish (yorugʻ/qorongʻi)",
+    "language": "Til"
+  },
+  "search": {
+    "placeholder": "Mahsulotlarni qidirish",
+    "submit": "Qidirish",
+    "clear": "Tozalash",
+    "recent": "Soʻnggi qidiruvlar",
+    "clearAll": "Tozalash",
+    "remove": "«{term}» ni oʻchirish",
+    "title": "Qidiruv",
+    "resultsFor": "«{q}» bo‘yicha natijalar",
+    "found": "{n} ta mahsulot topildi",
+    "notFound": "«{q}» bo‘yicha hech narsa topilmadi",
+    "notFoundHint": "Boshqa yoki qisqaroq so‘z yozing. Masalan: «choy», «shokolad», «Lay's».",
+    "prompt": "Qidiruvga mahsulot nomini yozing"
+  },
+  "nav": {
+    "menu": "Asosiy menyu",
+    "home": "Asosiy",
+    "catalog": "Katalog",
+    "cart": "Savat",
+    "favorites": "Sevimlilar",
+    "profile": "Profil"
+  },
+  "notFound": {
+    "title": "Sahifa topilmadi",
+    "text": "Bunday sahifa mavjud emas yoki u koʻchirilgan.",
+    "back": "Bosh sahifaga"
+  },
+  "hero": {
+    "label": "Maxsus takliflar",
+    "cta": "Xarid qilish",
+    "prev": "Oldingi slayd",
+    "next": "Keyingi slayd",
+    "slideOf": "{n} / {total}",
+    "slides": {
+      "drinks": {
+        "badge": "Ichimliklar",
+        "title": "Har tomchida tetiklik",
+        "text": "Coca-Cola va boshqa sevimli ichimliklaringiz — bir joyda."
+      },
+      "waffles": {
+        "badge": "Shirinliklar",
+        "title": "Qarsildoq vaflilar",
+        "text": "Choyga, mehmonlarga va kayfiyat uchun."
+      },
+      "cakes": {
+        "badge": "Tortlar",
+        "title": "Har bir bayram uchun tort",
+        "text": "Tugʻilgan kun, toʻy yoki oddiy kun — uni shirinroq qiling."
+      },
+      "detergents": {
+        "badge": "Maishiy kimyo",
+        "title": "Tozalik va xushboʻylik",
+        "text": "Toza va xushboʻy kiyimlar uchun kir yuvish kukunlari."
+      },
+      "baby": {
+        "badge": "Bolalar uchun",
+        "title": "Bolalar ozuqasi",
+        "text": "Eng kichkintoylar uchun mashhur brendlarning sut aralashmalari."
+      }
+    }
+  },
+  "catalog": {
+    "loadError": "Kategoriyalarni yuklab boʻlmadi. Keyinroq urinib koʻring."
+  },
+  "product": {
+    "addToCart": "Savatga",
+    "isNew": "Yangi",
+    "favoriteAdd": "Sevimlilarga",
+    "favoriteRemove": "Sevimlilardan olib tashlash",
+    "empty": "Bu kategoriyada hozircha mahsulot yoʻq.",
+    "back": "Katalog",
+    "prev": "Oldingi",
+    "next": "Keyingi",
+    "count": "{n} ta mahsulot",
+    "currency": "TJS"
+  },
+  "home": {
+    "newArrivals": "Yangi mahsulotlar",
+    "title": "Aksiyalar va yangi mahsulotlar",
+    "allProducts": "Barcha mahsulotlar"
+  },
+  "auth": {
+    "title": "Kirish",
+    "subtitle": "Savat va sevimlilarni saqlash uchun telefon raqamingiz bilan kiring.",
+    "phoneLabel": "Telefon raqami",
+    "getCode": "Kodni olish",
+    "codeTitle": "Kodni kiriting",
+    "codeSent": "Kod {phone} raqamiga yuborildi",
+    "codeLabel": "SMS dagi kod",
+    "confirm": "Tasdiqlash",
+    "resendIn": "Yangi kod {s} soniyadan keyin",
+    "resend": "Yangi kod olish",
+    "changePhone": "Raqamni oʻzgartirish",
+    "devCode": "Test kodi (SMS hali ulanmagan): {code}",
+    "close": "Yopish",
+    "logout": "Chiqish",
+    "loggedInAs": "Siz kirdingiz: {phone}",
+    "errors": {
+      "invalid_phone": "Raqam notoʻgʻri. Masalan: 92 123 45 67",
+      "too_soon": "Biroz kuting va yangi kodni keyinroq oling.",
+      "too_many": "Urinishlar juda koʻp. 1 soatdan keyin qayta urining.",
+      "wrong_code": "Kod notoʻgʻri.",
+      "expired": "Kodning muddati tugadi. Yangisini oling.",
+      "rate": "Urinishlar juda koʻp. Biroz kuting.",
+      "network": "Ulanish yoʻq. Internetni tekshiring.",
+      "unknown": "Xatolik yuz berdi. Qayta urinib koʻring.",
+      "sms_failed": "SMS yuborilmadi. Birozdan keyin qayta urinib koʻring.",
+      "telegram_failed": "Telegramga yuborilmadi. Qayta urinib koʻring.",
+      "unavailable": "Bu usul hozir mavjud emas."
+    },
+    "viaTelegram": "Telegram orqali",
+    "viaSms": "SMS orqali",
+    "openTelegram": "Telegramni ochish",
+    "tgSteps": "1. «Telegramni ochish»ni bosing\n2. Botda «Start»ni bosing\n3. «📱 Raqamni yuborish»ni bosing\n4. Telegramdagi kodni shu yerga kiriting",
+    "codeSentTelegram": "Kod Telegramingizga yuborildi",
+    "newLink": "Yangi havola"
+  },
+  "favorites": {
+    "title": "Sevimlilar",
+    "empty": "Hozircha hech narsa yoʻq. Mahsulotga ❤️ bosing!",
+    "toCatalog": "Katalogga"
+  },
+  "cart": {
+    "title": "Savat",
+    "empty": "Savat boʻsh. Katalogdan mahsulot qoʻshing!",
+    "toCatalog": "Katalogga",
+    "summary": "Buyurtmangiz",
+    "items": "Mahsulotlar ({n} dona)",
+    "total": "Jami",
+    "checkout": "Buyurtma berish",
+    "checkoutSoon": "Buyurtma berish tez orada qoʻshiladi",
+    "remove": "Oʻchirish",
+    "clear": "Savatni tozalash",
+    "unavailable": "Hozircha mavjud emas",
+    "increase": "Koʻpaytirish",
+    "decrease": "Kamaytirish",
+    "perItem": "{price} / dona"
+  },
+  "checkout": {
+    "delivery": "Yetkazib berish",
+    "free": "bepul",
+    "freeHint": "Yana {amount} qoʻshing — yetkazib berish bepul boʻladi!",
+    "freeReached": "🎉 Bepul yetkazib berish!",
+    "address": "Yetkazib berish manzili",
+    "addressPlaceholder": "Shahar, koʻcha, uy, xonadon, moʻljal",
+    "comment": "Izoh (ixtiyoriy)",
+    "commentPlaceholder": "Masalan: kelishdan oldin qoʻngʻiroq qiling",
+    "confirm": "Buyurtmani tasdiqlash",
+    "successTitle": "№{n} buyurtma qabul qilindi!",
+    "successText": "Tasdiqlash uchun xabarni doʻkonning WhatsAppiga yuboring. Tez orada siz bilan bogʻlanamiz.",
+    "sendWhatsApp": "WhatsAppga yuborish",
+    "continueShopping": "Xaridni davom ettirish",
+    "errors": {
+      "address_required": "Toʻliq manzilni kiriting.",
+      "too_long": "Matn juda uzun.",
+      "cart_empty": "Savat boʻsh.",
+      "unknown": "Xatolik yuz berdi. Qayta urinib koʻring."
+    },
+    "successTextCall": "Buyurtma doʻkonga yuborildi. Tez orada {phone} raqamiga qoʻngʻiroq qilamiz.",
+    "writeWhatsAppOptional": "WhatsAppga yozish (ixtiyoriy)"
+  },
+  "profile": {
+    "title": "Profil",
+    "myOrders": "Buyurtmalarim",
+    "noOrders": "Sizda hozircha buyurtma yoʻq.",
+    "orderNo": "№{n} buyurtma",
+    "status": {
+      "new": "Qabul qilindi",
+      "confirmed": "Tasdiqlandi — yig‘ilmoqda",
+      "delivering": "Yo‘lda — kuryer kelmoqda",
+      "delivered": "Yetkazildi",
+      "cancelled": "Bekor qilindi"
+    },
+    "address": "Manzil",
+    "goods": "Mahsulotlar",
+    "loadMore": "Yana koʻrsatish",
+    "ordersCount": "{n} ta buyurtma",
+    "itemsCount": "{n} dona",
+    "reorder": "Yana sotib olish",
+    "reorderUnavailable": "Hozir sotuvda yo‘q: {names}",
+    "reorderError": "Xatolik. Qayta urinib ko‘ring."
+  },
+  "map": {
+    "title": "Yetkazib berish hududi",
+    "subtitle": "Rudakiy tumani — joyingizni tanlang va yetkazish vaqtini bilib oling",
+    "layersLabel": "Xarita turi",
+    "layers": {
+      "scheme": "Sxema",
+      "satellite": "Sputnik",
+      "hybrid": "Gibrid"
+    },
+    "zones": {
+      "near": "Yaqin",
+      "mid": "O‘rtacha",
+      "far": "Uzoq"
+    },
+    "minutes": "{a}–{b} daq",
+    "myLocation": "Men qayerda",
+    "locating": "Qidirilmoqda…",
+    "store": "Do‘kon",
+    "recenter": "Do‘konga",
+    "zoomIn": "Yaqinlashtirish",
+    "zoomOut": "Uzoqlashtirish",
+    "tapHint": "Xaritaga bosing yoki «Men qayerda» — masofa, yo‘l va yetkazish vaqtini ko‘rsatamiz.",
+    "outside": "Bu joy Rudakiy tumanidan tashqarida. Hozircha faqat tuman ichida yetkazamiz.",
+    "geoDenied": "Joylashuvga ruxsat berilmadi. Joyingizni xaritada belgilang.",
+    "geoUnavailable": "Joylashuv aniqlanmadi. Joyingizni xaritada belgilang.",
+    "zone": "Hudud",
+    "distance": "Masofa",
+    "eta": "Vaqt",
+    "etaValue": "~{n} daq",
+    "km": "{n} km",
+    "approx": "taxminan",
+    "delivery": "Yetkazish",
+    "deliveryValue": "{fee} · {free} dan bepul",
+    "addressLoading": "Manzil aniqlanmoqda…",
+    "orderHere": "Shu manzilga buyurtma",
+    "loadError": "Xarita yuklanmadi. Internetni tekshiring."
+  },
+  "sort": {
+    "label": "Saralash",
+    "relevance": "Mos",
+    "new": "Yangi",
+    "cheap": "Arzonroq",
+    "expensive": "Qimmatroq",
+    "discount": "Aksiya"
+  },
+  "filter": {
+    "price": "Narx",
+    "from": "dan",
+    "to": "gacha",
+    "apply": "Ko‘rsatish",
+    "reset": "Tozalash",
+    "title": "Filtr"
+  },
+  "productPage": {
+    "description": "Tarkibi va tavsifi",
+    "similar": "O‘xshash mahsulotlar",
+    "delivery": "Rudakiy tumani bo‘ylab yetkazish",
+    "deliveryText": "{fee} · {free} dan — bepul",
+    "more": "Ko‘proq",
+    "less": "Kamroq",
+    "share": "Ulashish",
+    "copied": "Havola nusxalandi",
+    "photo": "Rasm {n}"
+  }
+}

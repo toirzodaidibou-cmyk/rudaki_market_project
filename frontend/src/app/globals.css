@@ -1,0 +1,196 @@
+@import "tailwindcss";
+
+/* Dark mode тавассути атрибути data-theme дар <html> */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root,
+[data-theme="light"] {
+  --background: #ffffff;
+  --foreground: #111111;
+  --muted: #8a8f98;
+  --surface: #f2f3f5;
+  --surface-hover: #e6e8eb;
+  --border: #eeeff1;
+  --brand-from: #ffc400;
+  --brand-to: #ff8a00;
+  --accent: #ffc940;
+  --accent-glow: rgba(255, 201, 64, 0.28);
+  --on-accent: #111111;
+  --nav-icon: #6f7177;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --background: #0e0f11;
+  --foreground: #f2f3f5;
+  --muted: #9aa0a8;
+  --surface: #1c1e22;
+  --surface-hover: #272a2f;
+  --border: #1f2125;
+  --brand-from: #ffc400;
+  --brand-to: #ff8a00;
+  --accent: #ffc940;
+  --accent-glow: rgba(255, 201, 64, 0.18);
+  --on-accent: #111111;
+  --nav-icon: #8b9097;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-border: var(--border);
+  --color-brand-from: var(--brand-from);
+  --color-brand-to: var(--brand-to);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-nav-icon: var(--nav-icon);
+  --font-sans: var(--font-inter);
+
+  /* Иконаи фаъоли менюи поён ҳангоми интихоб каме "меҷаҳад" */
+  --animate-nav-pop: nav-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  @keyframes nav-pop {
+    0% {
+      transform: scale(0.75);
+    }
+    60% {
+      transform: scale(1.12);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  /* Swiper: "шинокунии" мол */
+  --animate-hero-float: hero-float 5s ease-in-out infinite;
+  @keyframes hero-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  /* Пайдоиши мулоими менюҳои кушодашаванда (масалан, интихоби забон) */
+  --animate-menu-in: menu-in 0.16s ease-out;
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+/* --- Харитаи расонидан (Leaflet) --- */
+.rm-map .leaflet-container {
+  font: inherit;
+  background: var(--surface);
+}
+.rm-map .leaflet-bar {
+  border: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.18);
+}
+.rm-map .leaflet-bar a {
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 20px;
+  background: var(--background);
+  color: var(--foreground);
+  border-color: var(--border);
+}
+.rm-map .leaflet-bar a:hover {
+  background: var(--surface-hover);
+}
+.rm-map .leaflet-control-attribution {
+  font-size: 9px;
+  background: rgb(255 255 255 / 0.7);
+}
+[data-theme="dark"] .rm-map .leaflet-control-attribution {
+  background: rgb(0 0 0 / 0.55);
+  color: #bbb;
+}
+[data-theme="dark"] .rm-map .leaflet-control-attribution a {
+  color: #ddd;
+}
+/* Нишонаи мағоза ва нишонаи мизоҷ */
+.rm-pin {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px 9999px 9999px 4px;
+  transform: rotate(-45deg);
+  background: linear-gradient(135deg, #ffc940, #ff8a00);
+  border: 3px solid #fff;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 0.35);
+}
+.rm-pin > span {
+  transform: rotate(45deg);
+  font-size: 20px;
+  line-height: 1;
+}
+.rm-me {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: #2563eb;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
+}
+.rm-me::after {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  border-radius: 9999px;
+  background: rgb(37 99 235 / 0.35);
+  animation: rm-pulse 1.8s ease-out infinite;
+}
+.rm-me[data-outside="true"] {
+  background: #ef4444;
+}
+.rm-me[data-outside="true"]::after {
+  background: rgb(239 68 68 / 0.35);
+}
+@keyframes rm-pulse {
+  from {
+    transform: scale(0.4);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rm-me::after {
+    animation: none;
+  }
+}
+/* "Схема" дар мавзӯи торик: тайлҳои OSM торик карда мешаванд */
+.rm-map[data-dark-tiles="true"] .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9);
+}

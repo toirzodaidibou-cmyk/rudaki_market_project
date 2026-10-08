@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\RudakiMarket.Infrastructure\RudakiMarket.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>d27e99bd-443e-41b4-8536-a7f860e371a5</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Иконаҳои категорияҳои ибтидоӣ (seed) ҳангоми publish ҳамроҳ мешаванд -->
+    <Content Include="SeedData\**" CopyToPublishDirectory="PreserveNewest" />
+    <!-- Файлҳои боршуда ба publish дохил намешаванд -->
+    <Content Remove="wwwroot\uploads\**" />
+  </ItemGroup>
+
+</Project>

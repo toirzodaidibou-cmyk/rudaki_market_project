@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/RudakiMarket.Api/RudakiMarket.Api.csproj" />
+    <Project Path="src/RudakiMarket.Application/RudakiMarket.Application.csproj" />
+    <Project Path="src/RudakiMarket.Domain/RudakiMarket.Domain.csproj" />
+    <Project Path="src/RudakiMarket.Infrastructure/RudakiMarket.Infrastructure.csproj" />
+  </Folder>
+</Solution>

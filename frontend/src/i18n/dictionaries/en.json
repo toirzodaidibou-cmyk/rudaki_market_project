@@ -1,0 +1,258 @@
+{
+  "meta": {
+    "title": "RUDAKI MARKET",
+    "description": "RUDAKI MARKET — online store"
+  },
+  "header": {
+    "homeAria": "RUDAKI MARKET — home page",
+    "chooseCity": "Choose city",
+    "toggleTheme": "Toggle theme (light/dark)",
+    "language": "Language"
+  },
+  "search": {
+    "placeholder": "Search products",
+    "submit": "Search",
+    "clear": "Clear",
+    "recent": "Recent searches",
+    "clearAll": "Clear all",
+    "remove": "Remove “{term}”",
+    "title": "Search",
+    "resultsFor": "Results for “{q}”",
+    "found": "{n} products found",
+    "notFound": "Nothing found for “{q}”",
+    "notFoundHint": "Try another or shorter word. For example: “tea”, “chocolate”, “Lay's”.",
+    "prompt": "Type a product name in the search"
+  },
+  "nav": {
+    "menu": "Main menu",
+    "home": "Home",
+    "catalog": "Catalog",
+    "cart": "Cart",
+    "favorites": "Favorites",
+    "profile": "Profile"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "text": "This page doesn’t exist or has been moved.",
+    "back": "Back to home"
+  },
+  "hero": {
+    "label": "Featured offers",
+    "cta": "Shop now",
+    "prev": "Previous slide",
+    "next": "Next slide",
+    "slideOf": "{n} of {total}",
+    "slides": {
+      "drinks": {
+        "badge": "Drinks",
+        "title": "Refreshment in every drop",
+        "text": "Coca-Cola and your other favorite drinks — all in one place."
+      },
+      "waffles": {
+        "badge": "Sweets",
+        "title": "Crispy wafers",
+        "text": "For tea time, for guests, for a good mood."
+      },
+      "cakes": {
+        "badge": "Cakes",
+        "title": "A cake for every celebration",
+        "text": "Birthday, wedding or just an ordinary day — make it sweeter."
+      },
+      "detergents": {
+        "badge": "Household",
+        "title": "Clean & fresh",
+        "text": "Laundry detergents for clean, fresh-smelling clothes."
+      },
+      "baby": {
+        "badge": "For kids",
+        "title": "Baby nutrition",
+        "text": "Infant formula from well-known brands for the little ones."
+      }
+    }
+  },
+  "catalog": {
+    "loadError": "Could not load categories. Please try again later."
+  },
+  "product": {
+    "addToCart": "Add to cart",
+    "isNew": "New",
+    "favoriteAdd": "Add to favorites",
+    "favoriteRemove": "Remove from favorites",
+    "empty": "No products in this category yet.",
+    "back": "Catalog",
+    "prev": "Previous",
+    "next": "Next",
+    "count": "Items: {n}",
+    "currency": "TJS"
+  },
+  "home": {
+    "newArrivals": "New arrivals",
+    "title": "Deals & new arrivals",
+    "allProducts": "All products"
+  },
+  "auth": {
+    "title": "Sign in",
+    "subtitle": "Sign in with your phone number to save your cart and favorites.",
+    "phoneLabel": "Phone number",
+    "getCode": "Get code",
+    "codeTitle": "Enter the code",
+    "codeSent": "Code sent to {phone}",
+    "codeLabel": "Code from SMS",
+    "confirm": "Confirm",
+    "resendIn": "New code in {s}s",
+    "resend": "Get a new code",
+    "changePhone": "Change number",
+    "devCode": "Test code (SMS not connected yet): {code}",
+    "close": "Close",
+    "logout": "Log out",
+    "loggedInAs": "Signed in: {phone}",
+    "errors": {
+      "invalid_phone": "Invalid number. Example: 92 123 45 67",
+      "too_soon": "Please wait a bit before requesting a new code.",
+      "too_many": "Too many attempts. Try again in an hour.",
+      "wrong_code": "Wrong code.",
+      "expired": "The code has expired. Request a new one.",
+      "rate": "Too many attempts. Please wait a bit.",
+      "network": "No connection. Check your internet.",
+      "unknown": "Something went wrong. Please try again.",
+      "sms_failed": "Could not send the SMS. Please try again shortly.",
+      "telegram_failed": "Could not send to Telegram. Please try again.",
+      "unavailable": "This option is not available right now."
+    },
+    "viaTelegram": "Via Telegram",
+    "viaSms": "Via SMS",
+    "openTelegram": "Open Telegram",
+    "tgSteps": "1. Tap “Open Telegram”\n2. Press “Start” in the bot\n3. Tap “📱 Share number”\n4. Enter the code from Telegram here",
+    "codeSentTelegram": "The code was sent to your Telegram",
+    "newLink": "New link"
+  },
+  "favorites": {
+    "title": "Favorites",
+    "empty": "Nothing here yet. Tap ❤️ on a product!",
+    "toCatalog": "Go to catalog"
+  },
+  "cart": {
+    "title": "Cart",
+    "empty": "Your cart is empty. Add products from the catalog!",
+    "toCatalog": "Go to catalog",
+    "summary": "Your order",
+    "items": "Items ({n} pcs)",
+    "total": "Total",
+    "checkout": "Place order",
+    "checkoutSoon": "Checkout is coming soon",
+    "remove": "Remove",
+    "clear": "Clear cart",
+    "unavailable": "Currently unavailable",
+    "increase": "Increase",
+    "decrease": "Decrease",
+    "perItem": "{price} / pc"
+  },
+  "checkout": {
+    "delivery": "Delivery",
+    "free": "free",
+    "freeHint": "Add {amount} more to get free delivery!",
+    "freeReached": "🎉 Free delivery!",
+    "address": "Delivery address",
+    "addressPlaceholder": "City, street, house, apartment, landmark",
+    "comment": "Comment (optional)",
+    "commentPlaceholder": "E.g.: call before arriving",
+    "confirm": "Confirm order",
+    "successTitle": "Order #{n} received!",
+    "successText": "To confirm, send the message to the store’s WhatsApp. We will contact you soon.",
+    "sendWhatsApp": "Send to WhatsApp",
+    "continueShopping": "Continue shopping",
+    "errors": {
+      "address_required": "Please enter your full address.",
+      "too_long": "The text is too long.",
+      "cart_empty": "Your cart is empty.",
+      "unknown": "Something went wrong. Please try again."
+    },
+    "successTextCall": "Your order has been sent to the store. We will call you at {phone} soon.",
+    "writeWhatsAppOptional": "Message us on WhatsApp (optional)"
+  },
+  "profile": {
+    "title": "Profile",
+    "myOrders": "My orders",
+    "noOrders": "You have no orders yet.",
+    "orderNo": "Order #{n}",
+    "status": {
+      "new": "Received",
+      "confirmed": "Confirmed — packing",
+      "delivering": "On the way",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "address": "Address",
+    "goods": "Items",
+    "loadMore": "Show more",
+    "ordersCount": "Orders: {n}",
+    "itemsCount": "{n} pcs",
+    "reorder": "Buy again",
+    "reorderUnavailable": "Not available now: {names}",
+    "reorderError": "Something went wrong. Please try again."
+  },
+  "map": {
+    "title": "Delivery area",
+    "subtitle": "Rudaki District — pick your spot and see the delivery time",
+    "layersLabel": "Map type",
+    "layers": {
+      "scheme": "Map",
+      "satellite": "Satellite",
+      "hybrid": "Hybrid"
+    },
+    "zones": {
+      "near": "Near",
+      "mid": "Medium",
+      "far": "Far"
+    },
+    "minutes": "{a}–{b} min",
+    "myLocation": "My location",
+    "locating": "Locating…",
+    "store": "Store",
+    "recenter": "To store",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "tapHint": "Tap the map or “My location” — we'll show the distance, route and delivery time.",
+    "outside": "This place is outside Rudaki District. For now we deliver only inside the district.",
+    "geoDenied": "Location access was denied. Tap your place on the map.",
+    "geoUnavailable": "Couldn't get your location. Tap your place on the map.",
+    "zone": "Zone",
+    "distance": "Distance",
+    "eta": "Time",
+    "etaValue": "~{n} min",
+    "km": "{n} km",
+    "approx": "approx.",
+    "delivery": "Delivery",
+    "deliveryValue": "{fee} · free from {free}",
+    "addressLoading": "Finding the address…",
+    "orderHere": "Order to this address",
+    "loadError": "The map didn't load. Check your connection."
+  },
+  "sort": {
+    "label": "Sort",
+    "relevance": "Best match",
+    "new": "Newest",
+    "cheap": "Cheapest",
+    "expensive": "Most expensive",
+    "discount": "Deals"
+  },
+  "filter": {
+    "price": "Price",
+    "from": "from",
+    "to": "to",
+    "apply": "Show",
+    "reset": "Reset",
+    "title": "Filter"
+  },
+  "productPage": {
+    "description": "Ingredients & description",
+    "similar": "Similar products",
+    "delivery": "Delivery in Rudaki District",
+    "deliveryText": "{fee} · free from {free}",
+    "more": "More",
+    "less": "Less",
+    "share": "Share",
+    "copied": "Link copied",
+    "photo": "Photo {n}"
+  }
+}

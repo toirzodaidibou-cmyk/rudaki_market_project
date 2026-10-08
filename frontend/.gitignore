@@ -1,0 +1,19 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# debug
+npm-debug.log*
+
+# env files (калидҳои махфӣ — ба git намеафтанд)
+.env*
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts

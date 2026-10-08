@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root,
+[data-theme="light"] {
+  --background: #f5f6f8;
+  --surface: #ffffff;
+  --surface-2: #f2f3f5;
+  --surface-hover: #e8eaed;
+  --foreground: #111111;
+  --muted: #868b94;
+  --border: #e6e8eb;
+  --accent: #ffc940;
+  --accent-glow: rgba(255, 201, 64, 0.3);
+  --on-accent: #111111;
+  --danger: #e5484d;
+  --success: #2f9e66;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --background: #0b0c0e;
+  --surface: #141518;
+  --surface-2: #1c1e22;
+  --surface-hover: #262930;
+  --foreground: #f2f3f5;
+  --muted: #9aa0a8;
+  --border: #24272c;
+  --accent: #ffc940;
+  --accent-glow: rgba(255, 201, 64, 0.18);
+  --on-accent: #111111;
+  --danger: #ff6369;
+  --success: #3dd68c;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-hover: var(--surface-hover);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --font-sans: "Inter", system-ui, sans-serif;
+
+  --animate-fade-in: fade-in 0.15s ease-out;
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  --animate-pop-in: pop-in 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.97);
+    }
+  }
+  --animate-slide-in: slide-in 0.25s ease-out;
+  @keyframes slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Майдонҳои форма — як услуб дар ҳама ҷо */
+@utility field {
+  width: 100%;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  padding: 0.625rem 0.875rem;
+  font-size: 15px;
+  color: var(--foreground);
+  outline: none;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+  &::placeholder {
+    color: var(--muted);
+  }
+  &:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-glow);
+  }
+  &[aria-invalid="true"] {
+    border-color: var(--danger);
+  }
+}
