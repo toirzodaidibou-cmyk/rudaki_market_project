@@ -1,11 +1,16 @@
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using RudakiMarket.Application.Abstractions;
 using RudakiMarket.Domain.Entities;
 
 namespace RudakiMarket.Infrastructure.Persistence;
 
-public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options), IAppDbContext
+public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
+    : DbContext(options), IAppDbContext, IDataProtectionKeyContext
 {
+    // Калидҳои рамзгузории cookie — дар база, то пас аз бозоғозии сервер логинҳо бекор нашаванд
+    public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
+
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductImage> ProductImages => Set<ProductImage>();

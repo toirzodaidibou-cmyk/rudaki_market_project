@@ -30,7 +30,18 @@ public static class DependencyInjection
             .UseSnakeCaseNamingConvention());
         services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
         services.AddSingleton<IPasswordService, PasswordService>();
-        services.AddSingleton<IFileStorage>(new LocalFileStorage(webRootPath));
+        // Файлҳо: Storage:Provider = "Supabase" — дар абр (сервери абрӣ диски доимӣ надорад); вагарна дар wwwroot/uploads.
+        if (SupabaseStorage(config) is { } supabase)
+        {
+            services.AddSingleton(supabase);
+            services.AddHttpClient(SupabaseFileStorage.HttpClientName, c => c.Timeout = TimeSpan.FromSeconds(60));
+            services.AddSingleton<IFileStorage>(sp => new SupabaseFileStorage(
+                sp.GetRequiredService<IHttpClientFactory>().CreateClient(SupabaseFileStorage.HttpClientName), supabase));
+        }
+        else
+        {
+            services.AddSingleton<IFileStorage>(new LocalFileStorage(webRootPath));
+        }
         services.AddSingleton<IImageProcessor, SkiaImageProcessor>();
         services.AddSingleton<IPriceSheet, ClosedXmlPriceSheet>();
         services.AddSingleton<ITextSearch, PostgresTextSearch>();
@@ -109,6 +120,17 @@ public static class DependencyInjection
     /// <summary>Оё боти Telegram танзим шудааст.</summary>
     public static bool IsTelegram(IConfiguration config) =>
         !string.IsNullOrWhiteSpace(config["Telegram:BotToken"]) && !string.IsNullOrWhiteSpace(config["Telegram:BotUsername"]);
+
+    /// <summary>Танзимоти Supabase Storage, агар Storage:Provider = Supabase бошад; вагарна null.</summary>
+    public static SupabaseStorageOptions? SupabaseStorage(IConfiguration config)
+    {
+        if (!string.Equals(config["Storage:Provider"], "Supabase", StringComparison.OrdinalIgnoreCase)) return null;
+        string Required(string key) => config[key] is { Length: > 0 } v
+            ? v
+            : throw new InvalidOperationException($"{key} муқаррар нашудааст (Storage:Provider = Supabase).");
+        return new SupabaseStorageOptions(Required("Storage:Supabase:Url"), Required("Storage:Supabase:ServiceKey"),
+            config["Storage:Supabase:Bucket"] is { Length: > 0 } bucket ? bucket : "uploads");
+    }
 
     /// <summary>Оё SMS-и воқеӣ (OsonSMS) фаъол аст.</summary>
     public static bool IsOsonSms(IConfiguration config) =>

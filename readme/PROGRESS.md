@@ -1065,6 +1065,22 @@
 - **`scripts/demo-link.ps1`** (UTF-8 BOM): як клик — backend (агар хомӯш), build ва сайти production (3200), пайванди Cloudflare; пайвандро нишон медиҳад, ба буфер нусха мекунад ва мекушояд.
 - Маҳдудиятҳо: компютер бояд фурӯзон бошад; пайванд ҳар бор нав; ҳамаи меҳмонон барои backend як IP (127.0.0.1) менамоянд — маҳдудияти «5 рамз дар 10 дақ» умумӣ мешавад (дар production бо `X-Forwarded-For` ҳал мешавад).
 
+**№48. Тайёрӣ ба хостинги ройгон: Vercel + Render + Supabase**
+- **Сабаб:** соҳиби лоиҳа: хостинг бояд ройгон бошад, мардум бе мушкил бинанд (пайванди Cloudflare аз компютер вобаста аст). Oracle — Тоҷикистон дар рӯйхат нест. Видеои намоишӣ дигар лозим нест.
+- **Нақша:** сайт ва админ — **Vercel**; API (.NET) — **Render** (Docker, ройгон); база ва суратҳо — **Supabase** (PostgreSQL + Storage). Ҳама бе корт.
+- **Backend:**
+  - `SkiaSharp.NativeAssets.Linux.NoDependencies` 4.153.1 — коркарди сурат дар Linux (боргирӣ бори аввал қатъ шуд → `dotnet restore --disable-parallel`).
+  - **`SupabaseFileStorage`** (`Storage:Provider = Supabase`, `Storage:Supabase:Url/ServiceKey/Bucket`): роҳи `/uploads/{folder}/{file}` дар база тағйир намеёбад — дар bucket калиди `{folder}/{file}`; муҳофизат аз `..`. Бе танзим — мисли пештара `wwwroot/uploads`.
+  - `GET /uploads/{**path}` → redirect ба суроғаи оммавии Supabase (танҳо вақте Supabase фаъол).
+  - **Калидҳои cookie дар база** (`DataProtectionKeys`, миграция `AddDataProtectionKeys`) — пас аз бозоғозии сервер мизоҷон ва админ аз ҳисоб намебароянд.
+  - **`Proxy:ForwardLimit`** (Render: 2 — Vercel → Render): IP-и воқеии мизоҷ аз `X-Forwarded-For` — маҳдудиятҳо (рамз, логин) барои ҳар мизоҷ алоҳида.
+  - `GET /health` — барои UptimeRobot (ҳар 5 дақ., то сервери ройгон хоб наравад).
+  - `backend/Dockerfile` (.NET 10, порт 10000, корбари бе root) + `.dockerignore` (бе `wwwroot/uploads`, `bin/obj`).
+  - `render.yaml` — тавсифи сервер дар Render; калидҳо `sync: false` (дастӣ дар Render, **на дар git**).
+- **Сайт:** `lib/files.ts` — агар `NEXT_PUBLIC_FILES_URL` бошад, суратҳо мустақим аз Supabase (тез, ҳатто вақте Render хоб аст). **Админ:** ҳамин бо `VITE_FILES_URL`; `admin/vercel.json` — `/backend` → Render, SPA fallback, сарлавҳаҳои амниятӣ.
+- **Санҷиш** (API-и дуюм, порт 5081, бе WhatsApp/Telegram): миграция гузашт; `/health` 200; молҳо ва сурат (`image/webp`) — 200; логини нодуруст бо IP 9.9.9.9 — 5×401, 6-ум 429, IP-и дигар — 401 (маҳдудият алоҳида); пас аз бозоғозӣ калиди нав сохта нашуд (аз база). `dotnet build`, `tsc` (сайт, админ) — тоза.
+- **Боқӣ (бо ҳисобҳои соҳиби лоиҳа):** Supabase (URL, service_role, Session pooler) → интиқоли база ва суратҳо; Render; Vercel (сайт, админ); UptimeRobot; Telegram polling дар компютер хомӯш (як бот — як сервер).
+
 *Тарзи сар кардан (development):*
 ```
 # 0. Лоиҳа дар E:\RUDAKI MARKET\RYDAKIMARKET (роҳи кӯҳна дар C: — junction ба ҳамон ҷо)
@@ -1118,4 +1134,4 @@ RYDAKIMARKET/
 ```
 
 ## Қадами оянда (интизори иҷозат)
-- Интизори фармони соҳиби лоиҳа (интизор: маълумоти OsonSMS аз соҳиби лоиҳа; пешниҳод: «Фармоишҳо» дар админ; саҳифаи мол; профил).
+- Хостинги ройгон (№48): интизори маълумоти Supabase ва ҳисоби Render аз соҳиби лоиҳа. Инчунин: маҷмӯаҳо (нест ё нигоҳ), пайванди Google Maps, нархҳои RC Cola.

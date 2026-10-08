@@ -1,5 +1,6 @@
 // Маълумот аз backend (RudakiMarket.Api). Танҳо дар server истифода мешавад.
 import type { Locale } from "@/i18n/config";
+import { toFileUrl } from "@/lib/files";
 
 const API_URL = process.env.API_URL ?? "http://localhost:5080";
 
@@ -27,7 +28,7 @@ export type Paged<T> = { items: T[]; total: number; page: number; pageSize: numb
 /** Роҳи нисбии файл ("/uploads/...") → URL-и пурра. */
 // Суроғаи суратҳо барои браузер: NEXT_PUBLIC_API_URL (масалан "/backend"), вагарна API_URL
 const PUBLIC_URL = process.env.NEXT_PUBLIC_API_URL || API_URL;
-export const fileUrl = (path: string | null) => (path ? `${PUBLIC_URL}${path}` : null);
+export const fileUrl = (path: string | null) => (path ? toFileUrl(PUBLIC_URL, path) : null);
 
 /**
  * Кэш 30 сония: тағйирот дар админ дар сайт пас аз ~30 сония пайдо мешавад,

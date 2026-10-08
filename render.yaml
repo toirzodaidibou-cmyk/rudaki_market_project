@@ -1,0 +1,48 @@
+# Render Blueprint: RUDAKI MARKET API (ройгон). Қиматҳои "sync: false" дар Render дастӣ ворид мешаванд —
+# калидҳо дар git нигоҳ дошта намешаванд.
+services:
+  - type: web
+    name: rudaki-market-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: Database__MigrateOnStartup
+        value: "true"
+      - key: Proxy__ForwardLimit
+        value: "2"
+      - key: Storage__Provider
+        value: Supabase
+      - key: Storage__Supabase__Bucket
+        value: uploads
+      - key: Sms__Provider
+        value: None
+      - key: ConnectionStrings__Default
+        sync: false
+      - key: Storage__Supabase__Url
+        sync: false
+      - key: Storage__Supabase__ServiceKey
+        sync: false
+      - key: Auth__OtpSecret
+        sync: false
+      - key: Site__RevalidateUrl
+        sync: false
+      - key: Site__RevalidateSecret
+        sync: false
+      - key: Telegram__BotUsername
+        sync: false
+      - key: Telegram__BotToken
+        sync: false
+      - key: Orders__TelegramChatId
+        sync: false
+      - key: Orders__CallMeBotApiKey
+        sync: false
+      - key: Cors__SiteOrigins__0
+        sync: false
+      - key: Cors__AdminOrigins__0
+        sync: false

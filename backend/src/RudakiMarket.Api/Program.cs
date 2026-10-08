@@ -1,5 +1,7 @@
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using RudakiMarket.Api;
 using RudakiMarket.Api.Endpoints;
@@ -19,6 +21,28 @@ builder.Services
     .AddInfrastructure(builder.Configuration, builder.Environment.WebRootPath);
 
 builder.Services.AddProblemDetails();
+
+// Калидҳои рамзгузории cookie дар база: сервери абрӣ диски доимӣ надорад — бе ин пас аз ҳар бозоғозӣ
+// ҳамаи мизоҷон ва админ аз ҳисоб мебаромаданд.
+builder.Services.AddDataProtection()
+    .SetApplicationName("RudakiMarket")
+    .PersistKeysToDbContext<AppDbContext>();
+
+// Паси прокси (Render, Vercel): IP-и воқеии мизоҷ ва https аз X-Forwarded-*.
+// Proxy:ForwardLimit — шумораи проксиҳо дар пеши сервер (Vercel → Render = 2). Бе ин маҳдудият
+// барои ҳама як IP мешуд (ҳамаи мизоҷон якҷоя 5 рамз дар 10 дақиқа).
+var forwardLimit = builder.Configuration.GetValue<int?>("Proxy:ForwardLimit");
+if (forwardLimit is > 0)
+{
+    builder.Services.Configure<ForwardedHeadersOptions>(o =>
+    {
+        o.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        o.ForwardLimit = forwardLimit;
+        // Суроғаҳои проксиҳои абрӣ пешакӣ маълум нестанд
+        o.KnownIPNetworks.Clear();
+        o.KnownProxies.Clear();
+    });
+}
 
 // Ду логини алоҳида (cookie-и HttpOnly — JavaScript онҳоро хонда наметавонад):
 //  • админ  — "rm_admin",   SameSite=Strict, 8 соат (схемаи пешфарз);
@@ -102,6 +126,8 @@ builder.Services.AddRateLimiter(o =>
 
 var app = builder.Build();
 
+if (forwardLimit is > 0) app.UseForwardedHeaders();
+
 if (app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
 {
     using var scope = app.Services.CreateScope();
@@ -144,6 +170,17 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGet("/", () => Results.Ok(new { name = "RUDAKI MARKET API" }));
+// Санҷиши зинда будан (UptimeRobot ҳар 5 дақиқа — то сервери ройгон хоб наравад)
+app.MapGet("/health", () => Results.Ok(new { ok = true }));
+
+// Файлҳо дар Supabase: "/uploads/..." → суроғаи оммавии Supabase (барои пайвандҳои кӯҳна ва админ).
+if (RudakiMarket.Infrastructure.DependencyInjection.SupabaseStorage(app.Configuration) is { } supabase)
+{
+    app.MapGet("/uploads/{**path}", (string path) =>
+        RudakiMarket.Infrastructure.Storage.SupabaseFileStorage.ToKey("/uploads/" + path) is { } key
+            ? Results.Redirect(supabase.PublicUrl(key), permanent: true)
+            : Results.NotFound());
+}
 app.MapCategoryEndpoints();
 app.MapAdminAuthEndpoints();
 app.MapAdminCategoryEndpoints();

@@ -1,5 +1,6 @@
 // Дархостҳо аз браузер ба backend (бо cookie-и мизоҷ). Барои server — src/lib/api.ts.
 import type { Product } from "@/lib/api";
+import { toFileUrl } from "@/lib/files";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5080";
 
@@ -128,7 +129,7 @@ export const clientApi = {
 };
 
 /** Роҳи нисбии файл ("/uploads/...") → URL-и пурра (дар браузер). */
-export const clientFileUrl = (path: string) => `${API_URL}${path}`;
+export const clientFileUrl = (path: string) => toFileUrl(API_URL, path);
 
 /** "+992900000001" → "+992 90 000 00 01" */
 export function formatPhone(e164: string) {

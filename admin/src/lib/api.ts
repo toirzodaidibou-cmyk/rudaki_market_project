@@ -343,5 +343,13 @@ export const api = {
   },
 }
 
+// Суратҳо: агар VITE_FILES_URL бошад (Supabase: ".../storage/v1/object/public/uploads") — мустақим аз он.
+const FILES_URL: string | undefined = import.meta.env.VITE_FILES_URL?.replace(/\/+$/, '')
+
 /** Роҳи нисбии файл ("/uploads/...") → URL-и пурра. */
-export const fileUrl = (path: string | null) => (path ? `${API_URL}${path}` : null)
+export const fileUrl = (path: string | null) =>
+  !path
+    ? null
+    : FILES_URL && path.startsWith('/uploads/')
+      ? `${FILES_URL}${path.slice('/uploads'.length)}`
+      : `${API_URL}${path}`
