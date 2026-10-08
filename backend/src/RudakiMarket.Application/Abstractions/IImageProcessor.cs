@@ -10,4 +10,7 @@ public interface IImageProcessor
 
     /// <summary>Танҳо сурати хурд барои корт (барои аз нав сохтани суратҳои мавҷуда). Агар сурат набошад — null.</summary>
     byte[]? Thumbnail(byte[] input);
+
+    /// <summary>Сурати баннер: шаффофӣ нигоҳ дошта мешавад (бе заминаи сафед), то 1000px, WebP.</summary>
+    byte[]? Banner(byte[] input);
 }

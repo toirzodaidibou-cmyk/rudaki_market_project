@@ -40,6 +40,7 @@ export const LockIcon = icon('M6 11h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6a1 1 0 0 1
 export const ReceiptIcon = icon('M6 3h12v18l-3-2-3 2-3-2-3 2V3ZM9 8h6M9 12h6M9 16h4')
 export const BasketIcon = icon("M5 10h14l-1.5 9a2 2 0 0 1-2 1.7h-7a2 2 0 0 1-2-1.7L5 10ZM3 10h18M8 10l3-6M16 10l-3-6M10 14v3M14 14v3")
 export const ChartIcon = icon("M4 20h16M7 16v-5M12 16V6M17 16v-8")
+export const SlidesIcon = icon("M3 6h18v12H3zM7 18l3-4 2 2 3-4 4 6M8 10.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3")
 export const BoxIcon = icon('M21 8 12 3 3 8v8l9 5 9-5V8ZM3 8l9 5 9-5M12 13v8')
 export const ArrowLeftIcon = icon('M15 18l-6-6 6-6')
 export const ArrowRightIcon = icon('M9 18l6-6-6-6')

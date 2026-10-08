@@ -29,7 +29,22 @@ public sealed class SkiaImageProcessor : IImageProcessor
         return oriented is null ? null : Encode(oriented, ThumbSize);
     }
 
+    private const int BannerSize = 1000;
+
+    public byte[]? Banner(byte[] input)
+    {
+        // Сурати баннер аксаран шаффоф аст (мол бе замина) — FitOnWhite не, шаффофӣ мемонад
+        using var oriented = DecodeOriented(input);
+        return oriented is null ? null : Encode(oriented, BannerSize);
+    }
+
     private static SKBitmap? Decode(byte[] input)
+    {
+        using var oriented = DecodeOriented(input);
+        return oriented is null ? null : FitOnWhite(oriented);
+    }
+
+    private static SKBitmap? DecodeOriented(byte[] input)
     {
         using var data = SKData.CreateCopy(input);
         using var codec = SKCodec.Create(data);
@@ -37,9 +52,7 @@ public sealed class SkiaImageProcessor : IImageProcessor
         if ((long)codec.Info.Width * codec.Info.Height > MaxPixels) return null;
 
         using var decoded = SKBitmap.Decode(codec);
-        if (decoded is null) return null;
-        using var oriented = ApplyOrigin(decoded, codec.EncodedOrigin);
-        return FitOnWhite(oriented);
+        return decoded is null ? null : ApplyOrigin(decoded, codec.EncodedOrigin);
     }
 
     private const byte Light = 236;        // аз ин равшантар — "сафед" (садои JPEG дар заминаи сафед)

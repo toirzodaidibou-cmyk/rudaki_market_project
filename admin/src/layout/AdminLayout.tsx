@@ -1,6 +1,6 @@
 import { NavLink, Navigate, Outlet } from 'react-router'
 import { useAuth } from '../auth/AuthContext'
-import { BasketIcon, BoxIcon, ChartIcon, ExternalIcon, GridIcon, LogoutIcon, Logo, MoonIcon, ReceiptIcon, SunIcon } from '../components/icons'
+import { BasketIcon, BoxIcon, ChartIcon, SlidesIcon, ExternalIcon, GridIcon, LogoutIcon, Logo, MoonIcon, ReceiptIcon, SunIcon } from '../components/icons'
 import { Spinner } from '../components/ui'
 import { OrderWatchProvider, useOrderWatch } from '../pages/orders/OrderWatch'
 
@@ -11,6 +11,7 @@ const nav = [
   { to: '/reports', label: 'Ҳисобот', Icon: ChartIcon },
   { to: '/products', label: 'Молҳо', Icon: BoxIcon },
   { to: '/categories', label: 'Категорияҳо', Icon: GridIcon },
+  { to: '/banners', label: 'Баннерҳо', Icon: SlidesIcon },
   { to: '/bundles', label: 'Маҷмӯаҳо', Icon: BasketIcon },
 ]
 
@@ -119,11 +120,11 @@ function Shell({ username, logout }: { username: string; logout: () => void }) {
             key={to}
             to={to}
             className={({ isActive }) =>
-              `relative flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] font-semibold ${isActive ? 'text-foreground' : 'text-muted'}`
+              `relative flex min-w-0 flex-1 flex-col items-center gap-0.5 px-0.5 py-2 text-[10px] leading-tight font-semibold ${isActive ? 'text-foreground' : 'text-muted'}`
             }
           >
             <Icon width={22} height={22} />
-            {label}
+            <span className="w-full truncate text-center">{label}</span>
             <span className="absolute top-1 left-1/2 ml-2">
               <NewBadge to={to} />
             </span>

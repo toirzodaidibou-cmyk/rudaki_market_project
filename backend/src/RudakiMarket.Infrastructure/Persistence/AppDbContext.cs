@@ -20,6 +20,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
     public DbSet<Bundle> Bundles => Set<Bundle>();
     public DbSet<BundleItem> BundleItems => Set<BundleItem>();
+    public DbSet<Banner> Banners => Set<Banner>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -84,6 +85,23 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             e.Property(x => x.SizeLabel).HasMaxLength(20);
             e.Property(x => x.Price).HasPrecision(12, 2);
             e.Property(x => x.LineTotal).HasPrecision(12, 2);
+        });
+
+        b.Entity<Banner>(e =>
+        {
+            e.ToTable("banners");
+            e.HasKey(x => x.Id);
+            foreach (var lang in new[] { "Tg", "Ru", "En", "Uz" })
+            {
+                e.Property("Badge" + lang).HasMaxLength(40).IsRequired();
+                e.Property("Title" + lang).HasMaxLength(80).IsRequired();
+                e.Property("Text" + lang).HasMaxLength(200).IsRequired();
+                e.Property("Cta" + lang).HasMaxLength(30).IsRequired();
+            }
+            e.Property(x => x.Href).HasMaxLength(300).IsRequired();
+            e.Property(x => x.Theme).HasMaxLength(20).IsRequired();
+            e.Property(x => x.ImagePath).HasMaxLength(300);
+            e.HasIndex(x => new { x.IsActive, x.SortOrder });
         });
 
         b.Entity<Bundle>(e =>

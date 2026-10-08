@@ -8,56 +8,33 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 import { format, localizePath } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/getDictionary";
 import { useI18n } from "@/i18n/I18nProvider";
+import { heroTheme } from "./heroThemes";
+import type { HeroTone } from "./heroThemes";
 
 type SlideKey = keyof Dictionary["hero"]["slides"];
 
-type Slide = {
-  key: SlideKey;
+/** Слайди тайёр барои намоиш (аз админ ё пешфарз). */
+export type HeroSlide = {
+  id: string;
   image: string;
   href: string;
-  /** Заминаи слайд: тарафи чап торик (барои матн), тарафи рост равшан (барои мол) */
   background: string;
   /** dark — матни сафед; light — матни торик */
-  tone: "dark" | "light";
+  tone: HeroTone;
+  badge: string;
+  title: string;
+  text: string;
+  /** Холӣ — "Харидан" аз луғат */
+  cta: string;
 };
 
-// Суратҳо: public/banners/*.webp (1000×800, шаффоф). Баъдтар аз admin/backend меоянд.
-const slides: Slide[] = [
-  {
-    key: "drinks",
-    image: "/banners/drinks.webp",
-    href: "/catalog/drinks",
-    background: "linear-gradient(115deg, #6e0710 0%, #c40f1b 48%, #ff4b4b 100%)",
-    tone: "dark",
-  },
-  {
-    key: "waffles",
-    image: "/banners/waffles.webp",
-    href: "/catalog/chocolate",
-    background: "linear-gradient(115deg, #fff3cf 0%, #fdc95c 52%, #f3972a 100%)",
-    tone: "light",
-  },
-  {
-    key: "cakes",
-    image: "/banners/cakes.webp",
-    href: "/catalog/cookies", // тортҳо ва пирожниҳо дар "Печене ва вафли"
-    background: "linear-gradient(115deg, #44102f 0%, #962c5f 50%, #f18cb5 100%)",
-    tone: "dark",
-  },
-  {
-    key: "detergents",
-    image: "/banners/detergents.webp",
-    href: "/catalog/perfumery",
-    background: "linear-gradient(115deg, #142a72 0%, #2563eb 50%, #6ccbff 100%)",
-    tone: "dark",
-  },
-  {
-    key: "baby",
-    image: "/banners/baby.webp",
-    href: "/catalog/baby",
-    background: "linear-gradient(115deg, #f2f7ff 0%, #dde6ff 50%, #fbd0e5 100%)",
-    tone: "light",
-  },
+// Пешфарз (агар дар админ слайд набошад ё сервер ҷавоб надиҳад): public/banners/*.webp
+const FALLBACK: { key: SlideKey; theme: string; href: string }[] = [
+  { key: "drinks", theme: "red", href: "/catalog/drinks" },
+  { key: "waffles", theme: "yellow", href: "/catalog/cookies" },
+  { key: "cakes", theme: "pink", href: "/catalog/cookies" },
+  { key: "detergents", theme: "blue", href: "/catalog/perfumery" },
+  { key: "baby", theme: "lavender", href: "/catalog/baby" },
 ];
 
 const AUTOPLAY_MS = 3000;
@@ -83,9 +60,21 @@ const toneClasses = {
   },
 };
 
-export function HeroSlider() {
+/** slides — аз админ (саҳифаи асосӣ мегирад); холӣ — пешфарз. */
+export function HeroSlider({ slides: fromAdmin }: { slides?: HeroSlide[] }) {
   const { locale, dict } = useI18n();
   const t = dict.hero;
+  const slides: HeroSlide[] =
+    fromAdmin && fromAdmin.length > 0
+      ? fromAdmin
+      : FALLBACK.map((f) => ({
+          id: f.key,
+          image: `/banners/${f.key}.webp`,
+          href: f.href,
+          ...heroTheme(f.theme),
+          ...t.slides[f.key],
+          cta: "",
+        }));
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 30 });
 
   const [selected, setSelected] = useState(0);
@@ -131,11 +120,10 @@ export function HeroSlider() {
         <div className="flex touch-pan-y">
           {slides.map((slide, i) => {
             const active = i === selected;
-            const copy = t.slides[slide.key];
             const tone = toneClasses[slide.tone];
             return (
               <div
-                key={slide.key}
+                key={slide.id}
                 role="group"
                 aria-roledescription="slide"
                 aria-label={format(t.slideOf, { n: String(i + 1), total: String(slides.length) })}
@@ -167,7 +155,9 @@ export function HeroSlider() {
                   <div className="relative h-full w-full motion-safe:animate-hero-float">
                     <Image
                       src={slide.image}
-                      alt={copy.title}
+                      // Сурат аз API (localhost) — Next 16 суроғаи маҳаллиро оптимизатсия намекунад
+                      unoptimized={slide.image.startsWith("http")}
+                      alt={slide.title}
                       fill
                       sizes="(min-width: 1280px) 640px, (min-width: 768px) 52vw, 60vw"
                       preload={i === 0}
@@ -182,24 +172,24 @@ export function HeroSlider() {
                   <span
                     className={`w-fit rounded-full px-2.5 py-1 text-[10px] font-semibold tracking-wide uppercase backdrop-blur sm:px-3 sm:text-xs ${tone.badge} transition-all duration-500 group-data-[active=false]/slide:translate-y-3 group-data-[active=false]/slide:opacity-0`}
                   >
-                    {copy.badge}
+                    {slide.badge}
                   </span>
                   <h2
                     className={`text-[22px] leading-[1.1] font-extrabold tracking-tight text-balance sm:text-4xl md:text-5xl ${tone.text} transition-all delay-100 duration-500 group-data-[active=false]/slide:translate-y-4 group-data-[active=false]/slide:opacity-0`}
                   >
-                    {copy.title}
+                    {slide.title}
                   </h2>
                   <p
                     className={`hidden max-w-sm text-sm sm:block md:text-base ${tone.sub} transition-all delay-200 duration-500 group-data-[active=false]/slide:translate-y-4 group-data-[active=false]/slide:opacity-0`}
                   >
-                    {copy.text}
+                    {slide.text}
                   </p>
                   <Link
                     href={localizePath(locale, slide.href)}
                     tabIndex={active ? 0 : -1}
                     className={`mt-1 w-fit rounded-full px-4 py-2 text-xs font-bold shadow-lg shadow-black/10 transition-all delay-300 duration-500 hover:scale-[1.04] active:scale-95 sm:mt-2 sm:px-6 sm:py-3 sm:text-sm ${tone.cta} group-data-[active=false]/slide:translate-y-4 group-data-[active=false]/slide:opacity-0`}
                   >
-                    {t.cta} →
+                    {slide.cta || t.cta} →
                   </Link>
                 </div>
               </div>

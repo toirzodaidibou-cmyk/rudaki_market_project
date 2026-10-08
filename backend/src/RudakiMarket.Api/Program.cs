@@ -155,5 +155,6 @@ app.MapBundleEndpoints();
 app.MapAdminBundleEndpoints();
 app.MapAdminPriceEndpoints();
 app.MapAdminReportEndpoints();
+app.MapBannerEndpoints();
 
 app.Run();

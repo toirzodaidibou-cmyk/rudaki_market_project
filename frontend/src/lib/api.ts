@@ -101,3 +101,17 @@ export type BundleDetail = Omit<Bundle, "itemCount" | "images"> & { items: { pro
 export const getBundles = () => get<Bundle[]>("/api/bundles", ["bundles", "products"]);
 
 export const getBundle = (id: number) => get<BundleDetail>(`/api/bundles/${id}`, ["bundles", "products"]);
+
+export type Banner = {
+  id: number;
+  badge: Record<Locale, string>;
+  title: Record<Locale, string>;
+  text: Record<Locale, string>;
+  cta: Record<Locale, string>;
+  href: string;
+  theme: string;
+  image: string | null;
+};
+
+/** Слайдҳои саҳифаи асосӣ (аз админ). */
+export const getBanners = () => get<Banner[]>("/api/banners", ["banners"]);

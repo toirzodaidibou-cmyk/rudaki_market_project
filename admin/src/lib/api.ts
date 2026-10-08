@@ -125,6 +125,21 @@ export type SalesReport = {
   cancelledInMonth: number
 }
 
+export type Banner = {
+  id: number
+  badge: LocalizedNames
+  title: LocalizedNames
+  text: LocalizedNames
+  cta: LocalizedNames
+  href: string
+  theme: string
+  image: string | null
+  sortOrder: number
+  isActive: boolean
+}
+
+export type SaveBannerRequest = Omit<Banner, "id" | "image">
+
 export const ORDER_STATUSES = ['new', 'confirmed', 'delivering', 'delivered', 'cancelled'] as const
 export type OrderStatus = (typeof ORDER_STATUSES)[number]
 
@@ -273,6 +288,18 @@ export const api = {
       return request<PricePreview>("/api/admin/prices/preview", { method: "POST", body: form })
     },
     apply: (changes: PriceChange[]) => request<{ updated: number }>("/api/admin/prices/apply", json("POST", { changes })),
+  },
+
+  banners: {
+    list: () => request<Banner[]>("/api/admin/banners"),
+    create: (data: SaveBannerRequest) => request<Banner>("/api/admin/banners", json("POST", data)),
+    update: (id: number, data: SaveBannerRequest) => request<Banner>(`/api/admin/banners/${id}`, json("PUT", data)),
+    remove: (id: number) => request<void>(`/api/admin/banners/${id}`, { method: "DELETE" }),
+    uploadImage: (id: number, file: File) => {
+      const form = new FormData()
+      form.append("image", file)
+      return request<Banner>(`/api/admin/banners/${id}/image`, { method: "POST", body: form })
+    },
   },
 
   reports: () => request<SalesReport>("/api/admin/reports"),

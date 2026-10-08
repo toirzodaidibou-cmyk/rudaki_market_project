@@ -19,5 +19,6 @@ public interface IAppDbContext
     DbSet<OrderItem> OrderItems { get; }
     DbSet<Bundle> Bundles { get; }
     DbSet<BundleItem> BundleItems { get; }
+    DbSet<Banner> Banners { get; }
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

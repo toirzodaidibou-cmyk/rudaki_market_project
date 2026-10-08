@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import { AuthProvider } from './auth/AuthContext'
 import { ToastProvider } from './components/ui'
 import { AdminLayout } from './layout/AdminLayout'
+import { BannersPage } from './pages/banners/BannersPage'
 import { BundlesPage } from './pages/bundles/BundlesPage'
 import { CategoriesPage } from './pages/categories/CategoriesPage'
 import { LoginPage } from './pages/LoginPage'
@@ -23,6 +24,7 @@ export default function App() {
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/categories" element={<CategoriesPage />} />
               <Route path="/bundles" element={<BundlesPage />} />
+              <Route path="/banners" element={<BannersPage />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
