@@ -40,7 +40,7 @@ const slides: Slide[] = [
   {
     key: "cakes",
     image: "/banners/cakes.webp",
-    href: "/catalog/cakes",
+    href: "/catalog/cookies", // тортҳо ва пирожниҳо дар "Печене ва вафли"
     background: "linear-gradient(115deg, #44102f 0%, #962c5f 50%, #f18cb5 100%)",
     tone: "dark",
   },

@@ -14,6 +14,7 @@ public sealed record CategoryDto(
     DateTimeOffset UpdatedAt);
 
 /// <summary>Барои сайт (танҳо категорияҳои фаъол).</summary>
-public sealed record PublicCategoryDto(string Slug, LocalizedNames Name, string? Icon);
+/// <param name="ProductCount">Шумораи молҳои фаъол — каталог категорияҳои холиро пинҳон мекунад.</param>
+public sealed record PublicCategoryDto(string Slug, LocalizedNames Name, string? Icon, int ProductCount);
 
 public sealed record SaveCategoryRequest(string Slug, LocalizedNames Name, int SortOrder, bool IsActive);

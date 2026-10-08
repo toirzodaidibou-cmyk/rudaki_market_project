@@ -23,7 +23,8 @@ public sealed partial class CategoryService(IAppDbContext db, IFileStorage files
         await db.Categories.AsNoTracking()
             .Where(c => c.IsActive)
             .OrderBy(c => c.SortOrder).ThenBy(c => c.Id)
-            .Select(c => new PublicCategoryDto(c.Slug, new LocalizedNames(c.NameTg, c.NameRu, c.NameEn, c.NameUz), c.IconPath))
+            .Select(c => new PublicCategoryDto(c.Slug, new LocalizedNames(c.NameTg, c.NameRu, c.NameEn, c.NameUz), c.IconPath,
+                db.Products.Count(p => p.CategoryId == c.Id && p.IsActive)))
             .ToListAsync(ct);
 
     public async Task<Result<CategoryDto>> GetAsync(int id, CancellationToken ct)

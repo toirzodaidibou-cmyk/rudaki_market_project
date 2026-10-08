@@ -7,6 +7,8 @@ export type Category = {
   slug: string;
   name: Record<Locale, string>;
   icon: string | null;
+  /** Шумораи молҳои фаъол (0 — дар каталог пинҳон) */
+  productCount: number;
 };
 
 export type Product = {

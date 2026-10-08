@@ -30,7 +30,8 @@ export default async function CatalogPage({ params }: PageProps<"/[lang]/catalog
       ) : (
         // Телефон: рӯйхат (мисли alif shop). Компютер: 2–3 сутун.
         <ul className="grid gap-x-4 md:grid-cols-2 lg:grid-cols-3">
-          {categories.map((c) => {
+          {/* Категорияи холӣ пинҳон — вақте мол илова шавад, худкор пайдо мешавад */}
+          {categories.filter((c) => (c.productCount ?? 1) > 0).map((c) => {
             const icon = fileUrl(c.icon);
             return (
               <li key={c.slug}>
@@ -54,6 +55,7 @@ export default async function CatalogPage({ params }: PageProps<"/[lang]/catalog
                   <span className="flex-1 text-[17px] text-foreground transition-colors group-hover:text-accent">
                     {c.name[lang] || c.name.tg}
                   </span>
+                  {c.productCount > 0 && <span className="text-sm text-muted tabular-nums">{c.productCount}</span>}
                   <ChevronRightIcon
                     width={20}
                     height={20}
