@@ -95,6 +95,23 @@ export type SaveBundleRequest = {
   items: { productId: number; quantity: number }[]
 }
 
+export type PriceChange = { id: number; price: number; oldPrice: number | null; isActive: boolean }
+
+export type PricePreview = {
+  rows: number
+  changes: {
+    id: number
+    name: string
+    price: number
+    newPrice: number
+    oldPrice: number | null
+    newOldPrice: number | null
+    isActive: boolean
+    newIsActive: boolean
+  }[]
+  errors: { line: number; message: string }[]
+}
+
 export const ORDER_STATUSES = ['new', 'confirmed', 'delivering', 'delivered', 'cancelled'] as const
 export type OrderStatus = (typeof ORDER_STATUSES)[number]
 
@@ -221,6 +238,22 @@ export const api = {
     create: (data: SaveBundleRequest) => request<Bundle>("/api/admin/bundles", json("POST", data)),
     update: (id: number, data: SaveBundleRequest) => request<Bundle>(`/api/admin/bundles/${id}`, json("PUT", data)),
     remove: (id: number) => request<void>(`/api/admin/bundles/${id}`, { method: "DELETE" }),
+  },
+
+  prices: {
+    /** Файли Excel (Blob). categoryId — танҳо як категория. */
+    export: async (categoryId?: number | null) => {
+      const q = categoryId ? `?categoryId=${categoryId}` : ""
+      const res = await fetch(`${API_URL}/api/admin/prices/export${q}`, { credentials: "include" })
+      if (!res.ok) throw new ApiError(res.status, `Хато (${res.status})`)
+      return res.blob()
+    },
+    preview: (file: File) => {
+      const form = new FormData()
+      form.append("file", file)
+      return request<PricePreview>("/api/admin/prices/preview", { method: "POST", body: form })
+    },
+    apply: (changes: PriceChange[]) => request<{ updated: number }>("/api/admin/prices/apply", json("POST", { changes })),
   },
 
   orders: {

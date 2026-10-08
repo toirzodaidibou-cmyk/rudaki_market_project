@@ -3,9 +3,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RudakiMarket.Application.Abstractions;
 using RudakiMarket.Application.Orders;
+using RudakiMarket.Application.Prices;
 using RudakiMarket.Infrastructure.Images;
 using RudakiMarket.Infrastructure.Notifications;
 using RudakiMarket.Infrastructure.Persistence;
+using RudakiMarket.Infrastructure.Prices;
 using RudakiMarket.Infrastructure.Security;
 using RudakiMarket.Infrastructure.Site;
 using RudakiMarket.Infrastructure.Sms;
@@ -30,6 +32,7 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordService, PasswordService>();
         services.AddSingleton<IFileStorage>(new LocalFileStorage(webRootPath));
         services.AddSingleton<IImageProcessor, SkiaImageProcessor>();
+        services.AddSingleton<IPriceSheet, ClosedXmlPriceSheet>();
         services.AddSingleton<ITextSearch, PostgresTextSearch>();
         // SMS: Sms:Provider = "OsonSms" — SMS-и воқеӣ; вагарна DevSmsSender (танҳо log, барои development).
         if (IsOsonSms(config))

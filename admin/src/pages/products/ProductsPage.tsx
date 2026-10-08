@@ -3,6 +3,7 @@ import { ImageIcon, PencilIcon, PlusIcon, SearchIcon, TrashIcon } from '../../co
 import { Button, Modal, Spinner, Switch, useToast } from '../../components/ui'
 import { api, ApiError, fileUrl, formatPrice, toListItem } from '../../lib/api'
 import type { Category, Product, ProductListItem } from '../../lib/api'
+import { PriceExcel } from './PriceExcel'
 import { ProductForm } from './ProductForm'
 
 const PAGE_SIZE = 24
@@ -148,15 +149,19 @@ export function ProductsPage() {
           <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">Молҳо</h1>
           <p className="mt-1 text-sm text-muted">{items ? `${total.toLocaleString('ru-RU')} мол` : 'Бор шуда истодааст...'}</p>
         </div>
-        <Button
-          onClick={() => {
-            setEditing(null)
-            setFormOpen(true)
-          }}
-          className="h-11 px-5"
-        >
-          <PlusIcon /> Илова кардан
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          {/* Нархҳо бо Excel: категорияи интихобшуда ё ҳама */}
+          <PriceExcel categoryId={categoryId} onApplied={() => setRetryCount((n) => n + 1)} />
+          <Button
+            onClick={() => {
+              setEditing(null)
+              setFormOpen(true)
+            }}
+            className="h-11 px-5"
+          >
+            <PlusIcon /> Илова кардан
+          </Button>
+        </div>
       </div>
 
       <div className="mb-5 grid gap-3 sm:grid-cols-[1fr_260px]">
