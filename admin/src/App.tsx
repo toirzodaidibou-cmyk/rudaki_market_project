@@ -6,6 +6,7 @@ import { BundlesPage } from './pages/bundles/BundlesPage'
 import { CategoriesPage } from './pages/categories/CategoriesPage'
 import { LoginPage } from './pages/LoginPage'
 import { OrdersPage } from './pages/orders/OrdersPage'
+import { ReportsPage } from './pages/reports/ReportsPage'
 import { ProductsPage } from './pages/products/ProductsPage'
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
             <Route element={<AdminLayout />}>
               <Route index element={<Navigate to="/orders" replace />} />
               <Route path="/orders" element={<OrdersPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/categories" element={<CategoriesPage />} />
               <Route path="/bundles" element={<BundlesPage />} />

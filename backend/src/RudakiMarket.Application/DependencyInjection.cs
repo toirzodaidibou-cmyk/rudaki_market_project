@@ -6,6 +6,7 @@ using RudakiMarket.Application.Customers;
 using RudakiMarket.Application.Orders;
 using RudakiMarket.Application.Prices;
 using RudakiMarket.Application.Products;
+using RudakiMarket.Application.Reports;
 
 namespace RudakiMarket.Application;
 
@@ -25,6 +26,7 @@ public static class DependencyInjection
         services.AddScoped<AdminOrderService>();
         services.AddScoped<BundleService>();
         services.AddScoped<PriceSheetService>();
+        services.AddScoped<ReportService>();
         return services;
     }
 }

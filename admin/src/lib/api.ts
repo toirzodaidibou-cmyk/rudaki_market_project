@@ -112,6 +112,19 @@ export type PricePreview = {
   errors: { line: number; message: string }[]
 }
 
+export type SalesSummary = { revenue: number; orders: number; averageOrder: number }
+
+export type SalesReport = {
+  today: SalesSummary
+  week: SalesSummary
+  month: SalesSummary
+  daily: { date: string; revenue: number; orders: number }[]
+  topProducts: { productId: number | null; name: string; quantity: number; revenue: number; image: string | null }[]
+  payments: { method: string; orders: number; revenue: number }[]
+  customers: { buyers: number; newBuyers: number; repeatBuyers: number }
+  cancelledInMonth: number
+}
+
 export const ORDER_STATUSES = ['new', 'confirmed', 'delivering', 'delivered', 'cancelled'] as const
 export type OrderStatus = (typeof ORDER_STATUSES)[number]
 
@@ -261,6 +274,8 @@ export const api = {
     },
     apply: (changes: PriceChange[]) => request<{ updated: number }>("/api/admin/prices/apply", json("POST", { changes })),
   },
+
+  reports: () => request<SalesReport>("/api/admin/reports"),
 
   orders: {
     list: (params: { status?: OrderStatus | null; q?: string; page?: number }, signal?: AbortSignal) => {
