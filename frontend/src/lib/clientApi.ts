@@ -32,9 +32,13 @@ export type CustomerOrder = {
   number: number;
   /** ISO (UTC) */
   createdAt: string;
-  status: "new";
+  status: "new" | "confirmed" | "delivering" | "delivered" | "cancelled";
   address: string;
   comment: string | null;
+  /** null — "ҳарчи зудтар" */
+  deliveryFrom: string | null;
+  deliveryTo: string | null;
+  paymentMethod: string;
   subtotal: number;
   deliveryFee: number;
   total: number;
@@ -89,6 +93,13 @@ async function request<T>(path: string, method = "GET", body?: unknown): Promise
   throw new ClientApiError(res.status, typeof first === "string" ? first : "unknown");
 }
 
+export type DeliverySlot = { start: string; end: string; from: string; to: string };
+export type DeliveryOptions = {
+  asap: boolean;
+  days: { date: string; offset: number; slots: DeliverySlot[] }[];
+  paymentMethods: string[];
+};
+
 export const clientApi = {
   me: () => request<Customer>("/api/auth/me"),
   channels: () => request<{ sms: boolean; telegram: boolean }>("/api/auth/channels"),
@@ -109,7 +120,11 @@ export const clientApi = {
   setCartQuantity: (id: number, quantity: number) => request<Cart>(`/api/cart/${id}`, "PUT", { quantity }),
   clearCart: () => request<Cart>("/api/cart", "DELETE"),
   orders: (page: number) => request<{ items: CustomerOrder[]; total: number; page: number; pageSize: number }>(`/api/orders?page=${page}`),
-  placeOrder: (address: string, comment: string) => request<OrderPlaced>("/api/orders", "POST", { address, comment }),
+  /** Вақтҳои расонидан ва тарзҳои пардохт (соати Душанбе). */
+  deliveryOptions: () => request<DeliveryOptions>("/api/delivery/options"),
+  /** deliveryStart: null — "ҳарчи зудтар"; paymentMethod: cash | alif | dc | korti_milli */
+  placeOrder: (address: string, comment: string, deliveryStart: string | null, paymentMethod: string) =>
+    request<OrderPlaced>("/api/orders", "POST", { address, comment, deliveryStart, paymentMethod }),
 };
 
 /** Роҳи нисбии файл ("/uploads/...") → URL-и пурра (дар браузер). */

@@ -123,6 +123,9 @@ export type OrderListItem = {
   address: string
   total: number
   itemCount: number
+  deliveryFrom: string | null
+  deliveryTo: string | null
+  paymentMethod: string
 }
 
 export type OrderItem = {
@@ -143,6 +146,9 @@ export type Order = {
   phone: string
   address: string
   comment: string | null
+  deliveryFrom: string | null
+  deliveryTo: string | null
+  paymentMethod: string
   subtotal: number
   deliveryFee: number
   total: number

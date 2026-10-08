@@ -10,6 +10,15 @@ public enum OrderStatus
     Cancelled = 4,
 }
 
+/// <summary>Тарзи пардохт (ҳангоми гирифтани мол). Дар база — рақам.</summary>
+public enum PaymentMethod
+{
+    Cash = 0,
+    Alif = 1,
+    Dc = 2,
+    KortiMilli = 3,
+}
+
 /// <summary>Фармоиши мизоҷ. Нархҳо ва номҳо ҳангоми фармоиш "сабт" мешаванд (snapshot) — баъдтар иваз намешаванд.</summary>
 public sealed class Order
 {
@@ -28,6 +37,12 @@ public sealed class Order
 
     public OrderStatus Status { get; set; } = OrderStatus.New;
     public DateTimeOffset CreatedAt { get; set; }
+
+    /// <summary>Вақти расонидан, ки мизоҷ интихоб кард. null — "ҳарчи зудтар".</summary>
+    public DateTimeOffset? DeliveryFrom { get; set; }
+    public DateTimeOffset? DeliveryTo { get; set; }
+
+    public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.Cash;
 
     /// <summary>Вақти охирин иваз шудани ҳолат (null — ҳанӯз "Нав").</summary>
     public DateTimeOffset? StatusUpdatedAt { get; set; }

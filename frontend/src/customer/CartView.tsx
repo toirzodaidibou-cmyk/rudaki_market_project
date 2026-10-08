@@ -7,6 +7,8 @@ import Link from "next/link";
 import { CartButton } from "@/components/product/ProductCard";
 import { CartSolidIcon, XIcon } from "@/components/ui/icons";
 import { useCustomer } from "@/customer/CustomerProvider";
+import { CheckoutOptions } from "@/customer/CheckoutOptions";
+import type { DeliveryChoice } from "@/customer/CheckoutOptions";
 import { LoginForm } from "@/customer/LoginForm";
 import { format, localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -31,6 +33,9 @@ export function CartView() {
   // Агар дар харитаи саҳифаи асосӣ «Ба ин суроға фармоиш» пахш шуда бошад — суроға аллакай пур аст
   const [address, setAddress] = useState(loadDeliveryAddress);
   const [comment, setComment] = useState("");
+  const [delivery, setDelivery] = useState<DeliveryChoice>(undefined);
+  const [payment, setPayment] = useState("cash");
+  const [optionsKey, setOptionsKey] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
   const [placed, setPlaced] = useState<OrderPlaced | null>(null);
@@ -120,16 +125,22 @@ export function CartView() {
       setOrderError(tc.errors.address_required);
       return;
     }
+    if (delivery === undefined) {
+      setOrderError(tc.errors.slot_unavailable);
+      return;
+    }
     setOrderError(null);
     setSubmitting(true);
     try {
       // Фармоиш ба мағоза аз сервер худкор меравад (WhatsApp-и фурӯшанда); WhatsApp-и мизоҷ — ихтиёрӣ
-      const order = await clientApi.placeOrder(address, comment);
+      const order = await clientApi.placeOrder(address, comment, delivery ?? null, payment);
       setPlaced(order);
       void refreshCart();
     } catch (err) {
       const code = err instanceof ClientApiError ? err.code : "unknown";
       setOrderError(tc.errors[code as keyof typeof tc.errors] ?? tc.errors.unknown);
+      // Вақт гузашт ё мағоза пӯшид — вақтҳоро аз нав мегирем
+      if (code === "slot_unavailable" || code === "asap_unavailable") setOptionsKey((k) => k + 1);
     } finally {
       setSubmitting(false);
     }
@@ -262,6 +273,7 @@ export function CartView() {
               className="w-full resize-none rounded-xl border-2 border-border bg-background px-3 py-2.5 text-[15px] text-foreground outline-none placeholder:text-muted focus:border-accent"
             />
           </label>
+          <CheckoutOptions delivery={delivery} onDelivery={setDelivery} payment={payment} onPayment={setPayment} reloadKey={optionsKey} />
           <label className="block">
             <span className="mb-1.5 block text-sm font-medium text-foreground">{tc.comment}</span>
             <input

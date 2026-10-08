@@ -429,6 +429,18 @@ namespace RudakiMarket.Infrastructure.Persistence.Migrations
                         .HasColumnType("numeric(12,2)")
                         .HasColumnName("delivery_fee");
 
+                    b.Property<DateTimeOffset?>("DeliveryFrom")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("delivery_from");
+
+                    b.Property<DateTimeOffset?>("DeliveryTo")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("delivery_to");
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("integer")
+                        .HasColumnName("payment_method");
+
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasMaxLength(20)

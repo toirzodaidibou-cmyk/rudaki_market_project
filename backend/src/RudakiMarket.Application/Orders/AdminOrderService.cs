@@ -7,7 +7,8 @@ namespace RudakiMarket.Application.Orders;
 
 /// <summary>Сатри рӯйхати фармоишҳо дар админ.</summary>
 public sealed record AdminOrderListItem(
-    int Number, DateTimeOffset CreatedAt, string Status, string Phone, string Address, decimal Total, int ItemCount);
+    int Number, DateTimeOffset CreatedAt, string Status, string Phone, string Address, decimal Total, int ItemCount,
+    DateTimeOffset? DeliveryFrom, DateTimeOffset? DeliveryTo, string PaymentMethod);
 
 public sealed record AdminOrderItemDto(int? ProductId, string Name, string? SizeLabel, decimal Price, int Quantity, decimal LineTotal, string? Image);
 
@@ -15,6 +16,7 @@ public sealed record AdminOrderItemDto(int? ProductId, string Name, string? Size
 public sealed record AdminOrderDto(
     int Number, DateTimeOffset CreatedAt, string Status, DateTimeOffset? StatusUpdatedAt,
     string Phone, string Address, string? Comment,
+    DateTimeOffset? DeliveryFrom, DateTimeOffset? DeliveryTo, string PaymentMethod,
     decimal Subtotal, decimal DeliveryFee, decimal Total,
     IReadOnlyList<AdminOrderItemDto> Items,
     IReadOnlyList<string> NextStatuses);
@@ -66,9 +68,10 @@ public sealed class AdminOrderService(IAppDbContext db, TimeProvider clock)
         var rows = await query
             .OrderByDescending(o => o.Id)
             .Skip((page - 1) * PageSize).Take(PageSize)
-            .Select(o => new { o.Id, o.CreatedAt, o.Status, o.Phone, o.Address, o.Total, Count = o.Items.Sum(i => i.Quantity) })
+            .Select(o => new { o.Id, o.CreatedAt, o.Status, o.Phone, o.Address, o.Total, Count = o.Items.Sum(i => i.Quantity), o.DeliveryFrom, o.DeliveryTo, o.PaymentMethod })
             .ToListAsync(ct);
-        var items = rows.Select(o => new AdminOrderListItem(o.Id, o.CreatedAt, Name(o.Status), o.Phone, o.Address, o.Total, o.Count)).ToList();
+        var items = rows.Select(o => new AdminOrderListItem(o.Id, o.CreatedAt, Name(o.Status), o.Phone, o.Address, o.Total, o.Count,
+            o.DeliveryFrom, o.DeliveryTo, DeliverySchedule.Name(o.PaymentMethod))).ToList();
         return new PagedResult<AdminOrderListItem>(items, total, page, PageSize);
     }
 
@@ -85,6 +88,7 @@ public sealed class AdminOrderService(IAppDbContext db, TimeProvider clock)
             .Select(x => new
             {
                 x.Id, x.CreatedAt, x.Status, x.StatusUpdatedAt, x.Phone, x.Address, x.Comment, x.Subtotal, x.DeliveryFee, x.Total,
+                x.DeliveryFrom, x.DeliveryTo, x.PaymentMethod,
                 Items = x.Items.OrderBy(i => i.Id).Select(i => new AdminOrderItemDto(
                     i.ProductId, i.Name, i.SizeLabel, i.Price, i.Quantity, i.LineTotal,
                     db.ProductImages.Where(img => img.ProductId == i.ProductId).OrderBy(img => img.SortOrder)
@@ -94,6 +98,7 @@ public sealed class AdminOrderService(IAppDbContext db, TimeProvider clock)
         if (o is null) return Result<AdminOrderDto>.NotFound();
         return Result<AdminOrderDto>.Ok(new AdminOrderDto(
             o.Id, o.CreatedAt, Name(o.Status), o.StatusUpdatedAt, o.Phone, o.Address, o.Comment,
+            o.DeliveryFrom, o.DeliveryTo, DeliverySchedule.Name(o.PaymentMethod),
             o.Subtotal, o.DeliveryFee, o.Total, o.Items, Transitions[o.Status].Select(Name).ToList()));
     }
 

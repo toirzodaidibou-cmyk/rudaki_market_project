@@ -165,10 +165,25 @@
       "address_required": "Toʻliq manzilni kiriting.",
       "too_long": "Matn juda uzun.",
       "cart_empty": "Savat boʻsh.",
-      "unknown": "Xatolik yuz berdi. Qayta urinib koʻring."
+      "unknown": "Xatolik yuz berdi. Qayta urinib koʻring.",
+      "slot_unavailable": "Bu vaqt endi mavjud emas — boshqasini tanlang.",
+      "asap_unavailable": "«Iloji boricha tez» hozir mavjud emas — vaqtni tanlang.",
+      "invalid_payment": "To‘lov usulini tanlang."
     },
     "successTextCall": "Buyurtma doʻkonga yuborildi. Tez orada {phone} raqamiga qoʻngʻiroq qilamiz.",
-    "writeWhatsAppOptional": "WhatsAppga yozish (ixtiyoriy)"
+    "writeWhatsAppOptional": "WhatsAppga yozish (ixtiyoriy)",
+    "deliveryTime": "Yetkazish vaqti",
+    "asap": "Iloji boricha tez",
+    "asapHint": "taxminan 1 soat",
+    "today": "Bugun",
+    "tomorrow": "Ertaga",
+    "payment": "To‘lov usuli",
+    "payCash": "Naqd",
+    "payAlif": "Alif",
+    "payDc": "Dushanbe City",
+    "payKortiMilli": "Korti Milli",
+    "payHint": "Qabul qilganda to‘lov",
+    "closedNow": "Do‘kon hozir yopiq — yetkazish vaqtini tanlang."
   },
   "profile": {
     "title": "Profil",

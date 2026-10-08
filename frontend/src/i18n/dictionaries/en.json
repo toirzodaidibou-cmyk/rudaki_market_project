@@ -165,10 +165,25 @@
       "address_required": "Please enter your full address.",
       "too_long": "The text is too long.",
       "cart_empty": "Your cart is empty.",
-      "unknown": "Something went wrong. Please try again."
+      "unknown": "Something went wrong. Please try again.",
+      "slot_unavailable": "This time is no longer available — choose another.",
+      "asap_unavailable": "“As soon as possible” isn't available now — choose a time.",
+      "invalid_payment": "Choose a payment method."
     },
     "successTextCall": "Your order has been sent to the store. We will call you at {phone} soon.",
-    "writeWhatsAppOptional": "Message us on WhatsApp (optional)"
+    "writeWhatsAppOptional": "Message us on WhatsApp (optional)",
+    "deliveryTime": "Delivery time",
+    "asap": "As soon as possible",
+    "asapHint": "about 1 hour",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "payment": "Payment method",
+    "payCash": "Cash",
+    "payAlif": "Alif",
+    "payDc": "Dushanbe City",
+    "payKortiMilli": "Korti Milli",
+    "payHint": "Pay on delivery",
+    "closedNow": "The store is closed now — choose a delivery time."
   },
   "profile": {
     "title": "Profile",

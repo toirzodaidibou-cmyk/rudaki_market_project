@@ -69,6 +69,13 @@ builder.Services.AddSingleton(new DeliveryOptions(
     builder.Configuration.GetValue("Orders:DeliveryFee", 10m),
     ownerWhatsApp));
 
+// Вақти расонидан (соатҳои кор, вақтҳо) ва тарзҳои пардохт — appsettings "Delivery"
+var schedule = builder.Configuration.GetSection("Delivery").Get<DeliveryScheduleOptions>() ?? new DeliveryScheduleOptions();
+if (schedule.OpenHour is < 0 or > 23 || schedule.CloseHour <= schedule.OpenHour || schedule.CloseHour > 24 || schedule.SlotHours < 1)
+    throw new InvalidOperationException("Delivery: соатҳои кор нодурустанд.");
+builder.Services.AddSingleton(schedule);
+builder.Services.AddSingleton<DeliverySchedule>();
+
 var adminOrigins = builder.Configuration.GetSection("Cors:AdminOrigins").Get<string[]>() ?? [];
 var siteOrigins = builder.Configuration.GetSection("Cors:SiteOrigins").Get<string[]>() ?? [];
 builder.Services.AddCors(o =>

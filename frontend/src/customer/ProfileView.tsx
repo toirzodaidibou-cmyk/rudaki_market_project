@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronDownIcon, ProfileSolidIcon } from "@/components/ui/icons";
 import { useCustomer } from "@/customer/CustomerProvider";
+import { PAYMENT_ICONS } from "@/customer/CheckoutOptions";
 import { LoginForm } from "@/customer/LoginForm";
 import { format, localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -273,6 +274,20 @@ export function ProfileView() {
     
                       <p className="mt-3 rounded-xl bg-background px-3 py-2 text-xs text-muted">
                         📍 {t.address}: <span className="text-foreground">{o.address}</span>
+                        <span className="block pt-0.5">
+                          🕐 {dict.checkout.deliveryTime}:{" "}
+                          <span className="text-foreground">
+                            {o.deliveryFrom && o.deliveryTo
+                              ? `${dateFormat.format(new Date(o.deliveryFrom))} ${timeFormat.format(new Date(o.deliveryFrom))}–${timeFormat.format(new Date(o.deliveryTo))}`
+                              : `⚡ ${dict.checkout.asap}`}
+                          </span>
+                        </span>
+                        <span className="block pt-0.5">
+                          {PAYMENT_ICONS[o.paymentMethod] ?? "💳"} {dict.checkout.payment}:{" "}
+                          <span className="text-foreground">
+                            {{ cash: dict.checkout.payCash, alif: dict.checkout.payAlif, dc: dict.checkout.payDc, korti_milli: dict.checkout.payKortiMilli }[o.paymentMethod] ?? o.paymentMethod}
+                          </span>
+                        </span>
                         {o.comment && <span className="block pt-0.5">💬 {o.comment}</span>}
                       </p>
 

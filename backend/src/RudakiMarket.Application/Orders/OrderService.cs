@@ -37,9 +37,10 @@ public sealed record OrderItemDto(string Name, string? SizeLabel, decimal Price,
 /// <summary>Фармоиш барои профили мизоҷ (таърихи харид).</summary>
 public sealed record CustomerOrderDto(
     int Number, DateTimeOffset CreatedAt, string Status, string Address, string? Comment,
+    DateTimeOffset? DeliveryFrom, DateTimeOffset? DeliveryTo, string PaymentMethod,
     decimal Subtotal, decimal DeliveryFee, decimal Total, IReadOnlyList<OrderItemDto> Items);
 
-public sealed class OrderService(IAppDbContext db, DeliveryOptions delivery, IOrderNotifier notifier, TimeProvider clock)
+public sealed class OrderService(IAppDbContext db, DeliveryOptions delivery, DeliverySchedule schedule, IOrderNotifier notifier, TimeProvider clock)
 {
     public const int OrdersPageSize = 20;
 
@@ -54,6 +55,7 @@ public sealed class OrderService(IAppDbContext db, DeliveryOptions delivery, IOr
             .Skip((page - 1) * OrdersPageSize).Take(OrdersPageSize)
             .Select(o => new CustomerOrderDto(
                 o.Id, o.CreatedAt, o.Status.ToString().ToLower(), o.Address, o.Comment,
+                o.DeliveryFrom, o.DeliveryTo, o.PaymentMethod == PaymentMethod.Alif ? "alif" : o.PaymentMethod == PaymentMethod.Dc ? "dc" : o.PaymentMethod == PaymentMethod.KortiMilli ? "korti_milli" : "cash",
                 o.Subtotal, o.DeliveryFee, o.Total,
                 o.Items.OrderBy(i => i.Id).Select(i => new OrderItemDto(
                     i.Name, i.SizeLabel, i.Price, i.Quantity, i.LineTotal,
@@ -69,8 +71,17 @@ public sealed class OrderService(IAppDbContext db, DeliveryOptions delivery, IOr
     private static readonly CultureInfo Money = CultureInfo.GetCultureInfo("ru-RU");
 
     /// <summary>Фармоиш аз сабад: нархҳо аз база, расонидан аз рӯи қоида, сабад тоза мешавад.</summary>
-    public async Task<Result<OrderPlaced>> PlaceAsync(int customerId, string? addressInput, string? commentInput, CancellationToken ct)
+    /// <param name="deliveryStart">оғози вақти интихобшуда; null — "ҳарчи зудтар"</param>
+    /// <param name="paymentInput">cash | alif | dc | korti_milli (холӣ — нақд)</param>
+    public async Task<Result<OrderPlaced>> PlaceAsync(int customerId, string? addressInput, string? commentInput,
+        DateTimeOffset? deliveryStart, string? paymentInput, CancellationToken ct)
     {
+        // Вақт: бояд ҳоло дастрас бошад (масалан, вақти гузашта ё "ҳарчи зудтар" дар шаб — не)
+        if (!schedule.TryValidate(deliveryStart, out var deliveryFrom, out var deliveryTo))
+            return Result<OrderPlaced>.Invalid("delivery", deliveryStart is null ? "asap_unavailable" : "slot_unavailable");
+        var payment = string.IsNullOrWhiteSpace(paymentInput) ? PaymentMethod.Cash : schedule.ParsePayment(paymentInput);
+        if (payment is null) return Result<OrderPlaced>.Invalid("payment", "invalid_payment");
+
         var address = (addressInput ?? "").Trim();
         var comment = string.IsNullOrWhiteSpace(commentInput) ? null : commentInput.Trim();
         if (address.Length < 5) return Result<OrderPlaced>.Invalid("address", "address_required");
@@ -94,6 +105,9 @@ public sealed class OrderService(IAppDbContext db, DeliveryOptions delivery, IOr
             Phone = customer.Phone,
             Address = address,
             Comment = comment,
+            DeliveryFrom = deliveryFrom,
+            DeliveryTo = deliveryTo,
+            PaymentMethod = payment.Value,
             CreatedAt = clock.GetUtcNow(),
         };
         foreach (var l in lines)
@@ -127,12 +141,14 @@ public sealed class OrderService(IAppDbContext db, DeliveryOptions delivery, IOr
     private static string M(decimal v) => v.ToString("N2", Money) + " с.";
 
     /// <summary>Паём барои WhatsApp-и фурӯшанда.</summary>
-    public static string FormatMessage(Order order)
+    public string FormatMessage(Order order)
     {
         var sb = new StringBuilder();
         sb.AppendLine($"🛒 Фармоиши нав №{order.Id}");
         sb.AppendLine($"📞 Мизоҷ: {order.Phone}");
         sb.AppendLine($"📍 Суроға: {order.Address}");
+        sb.AppendLine($"🕐 Вақт: {schedule.Describe(order.DeliveryFrom, order.DeliveryTo)}");
+        sb.AppendLine($"💳 Пардохт: {DeliverySchedule.PaymentLabel(order.PaymentMethod)}");
         if (order.Comment is not null) sb.AppendLine($"💬 Эзоҳ: {order.Comment}");
         sb.AppendLine();
         var n = 1;

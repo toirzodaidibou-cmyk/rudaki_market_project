@@ -4,7 +4,7 @@ import { Button, Modal, Spinner, useToast } from '../../components/ui'
 import { ApiError, ORDER_STATUSES, api, fileUrl, formatPrice } from '../../lib/api'
 import type { Order, OrderListItem, OrderStatus, Paged } from '../../lib/api'
 import { useOrderWatch } from './OrderWatch'
-import { STATUS, formatPhone, formatTime, mapLink } from './status'
+import { PAYMENT, STATUS, deliveryText, formatPhone, formatTime, mapLink } from './status'
 
 /** Фармоишҳо: ҷадвалҳо аз рӯи ҳолат, ҷустуҷӯ (рақам/телефон/суроға), тафсилот ва иваз кардани ҳолат. */
 export function OrdersPage() {
@@ -121,6 +121,9 @@ export function OrdersPage() {
                 </span>
                 <span className="text-sm text-muted">{formatTime(o.createdAt)}</span>
                 <span className="ml-auto text-lg font-bold tabular-nums">{formatPrice(o.total)}</span>
+                <span className="w-full text-sm font-semibold">
+                  {deliveryText(o.deliveryFrom, o.deliveryTo)} · {PAYMENT[o.paymentMethod] ?? o.paymentMethod}
+                </span>
                 <span className="w-full truncate text-sm">
                   <span className="font-semibold tabular-nums">{formatPhone(o.phone)}</span>
                   <span className="text-muted"> · {o.itemCount} адад · {o.address}</span>
@@ -265,6 +268,8 @@ function OrderModal({ number, onClose, onChanged }: { number: number | null; onC
                 </a>
               )}
               {order.comment && <p className="mt-2 text-sm text-muted">💬 {order.comment}</p>}
+              <p className="mt-2 text-sm font-semibold">{deliveryText(order.deliveryFrom, order.deliveryTo)}</p>
+              <p className="text-sm font-semibold">{PAYMENT[order.paymentMethod] ?? order.paymentMethod}</p>
             </div>
           </div>
 
