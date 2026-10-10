@@ -16,6 +16,14 @@ using RudakiMarket.Infrastructure.Persistence;
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions { Args = args, WebRootPath = "wwwroot" });
 Directory.CreateDirectory(builder.Environment.WebRootPath);
 
+// Қиматҳои танзимот бе фосила ва сатри нав дар аввал/охир: майдонҳои Render ҳангоми гузоштан
+// (paste) сатри навро илова мекунанд — суроға ё калид бо "\n" сарлавҳаи HTTP-ро вайрон мекард (500).
+var untrimmed = builder.Configuration.AsEnumerable()
+    .Where(kv => kv.Value is { } v && v.Length != v.Trim().Length)
+    .Select(kv => new KeyValuePair<string, string?>(kv.Key, kv.Value!.Trim()))
+    .ToList();
+if (untrimmed.Count > 0) builder.Configuration.AddInMemoryCollection(untrimmed);
+
 builder.Services
     .AddApplication()
     .AddInfrastructure(builder.Configuration, builder.Environment.WebRootPath);
