@@ -47,6 +47,12 @@ public sealed class Order
     /// <summary>Вақти охирин иваз шудани ҳолат (null — ҳанӯз "Нав").</summary>
     public DateTimeOffset? StatusUpdatedAt { get; set; }
 
+    /// <summary>
+    /// Калиди дархост аз браузер (як бор барои ҳар кӯшиши фармоиш). Агар ҳамон дархост такрор фиристода шавад
+    /// (интернети суст, клики дукарата) — фармоиши нав сохта намешавад, ҳамин фармоиш бармегардад.
+    /// </summary>
+    public Guid? RequestId { get; set; }
+
     public List<OrderItem> Items { get; } = [];
 }
 

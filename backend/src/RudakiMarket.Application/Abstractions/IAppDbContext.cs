@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using RudakiMarket.Domain.Entities;
 
 namespace RudakiMarket.Application.Abstractions;
@@ -21,4 +22,12 @@ public interface IAppDbContext
     DbSet<BundleItem> BundleItems { get; }
     DbSet<Banner> Banners { get; }
     Task<int> SaveChangesAsync(CancellationToken ct = default);
+
+    Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct);
+
+    /// <summary>
+    /// Сатри мизоҷро то охири транзаксия қулф мекунад (SELECT ... FOR UPDATE): амалҳои ҳамзамони
+    /// ҳамон мизоҷ (масалан, ду фармоиш аз як сабад) бо навбат иҷро мешаванд.
+    /// </summary>
+    Task LockCustomerAsync(int customerId, CancellationToken ct);
 }

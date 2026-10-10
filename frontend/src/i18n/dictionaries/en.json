@@ -161,6 +161,7 @@
     "successText": "To confirm, send the message to the store’s WhatsApp. We will contact you soon.",
     "sendWhatsApp": "Send to WhatsApp",
     "continueShopping": "Continue shopping",
+    "cartMerged": "Items you added earlier were also added to your cart. Please check your cart and confirm the order.",
     "errors": {
       "address_required": "Please enter your full address.",
       "too_long": "The text is too long.",

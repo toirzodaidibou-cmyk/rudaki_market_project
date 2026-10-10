@@ -161,6 +161,7 @@
     "successText": "Tasdiqlash uchun xabarni doʻkonning WhatsAppiga yuboring. Tez orada siz bilan bogʻlanamiz.",
     "sendWhatsApp": "WhatsAppga yuborish",
     "continueShopping": "Xaridni davom ettirish",
+    "cartMerged": "Avval qoʻshgan mahsulotlaringiz ham savatchaga qoʻshildi. Savatchani tekshiring va buyurtmani tasdiqlang.",
     "errors": {
       "address_required": "Toʻliq manzilni kiriting.",
       "too_long": "Matn juda uzun.",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,11 +9,10 @@ import { CartSolidIcon, XIcon } from "@/components/ui/icons";
 import { useCustomer } from "@/customer/CustomerProvider";
 import { CheckoutOptions } from "@/customer/CheckoutOptions";
 import type { DeliveryChoice } from "@/customer/CheckoutOptions";
-import { LoginForm } from "@/customer/LoginForm";
 import { format, localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/I18nProvider";
-import { ClientApiError, clientApi, clientFileUrl, formatPhone } from "@/lib/clientApi";
-import type { OrderPlaced } from "@/lib/clientApi";
+import { ClientApiError, clientApi, clientFileUrl, formatPhone, newRequestId } from "@/lib/clientApi";
+import type { CartItem, OrderPlaced } from "@/lib/clientApi";
 import { loadDeliveryAddress } from "@/lib/geo";
 
 function WhatsAppLogo({ className = "" }: { className?: string }) {
@@ -24,12 +23,24 @@ function WhatsAppLogo({ className = "" }: { className?: string }) {
   );
 }
 
-/** Саҳифаи "Сабад": ворид нашуда — формаи даромад; ворид шуда — молҳо ва маблағи умумӣ. */
+/** Молҳои дастрас ва миқдорашон — барои муқоисаи сабад пеш ва пас аз даромад. */
+const cartSignature = (items: Pick<CartItem, "productId" | "quantity" | "available">[]) =>
+  items
+    .filter((i) => i.available && i.quantity > 0)
+    .map((i) => `${i.productId}:${i.quantity}`)
+    .sort()
+    .join(",");
+
+/**
+ * Саҳифаи "Сабад" — барои ҳама (меҳмон ҳам). Даромад танҳо ҳангоми «Тасдиқи фармоиш»:
+ * баъд аз даромад фармоиш худкор фиристода мешавад, агар сабад иваз нашуда бошад
+ * (агар дар аккаунт аз пеш молҳо буданд — мизоҷ аввал сабади нав-ро мебинад).
+ */
 export function CartView() {
   const { locale, dict } = useI18n();
   const t = dict.cart;
   const tc = dict.checkout;
-  const { user, cart, cartQuantity, cartCount, setCartQuantity, clearCart, refreshCart } = useCustomer();
+  const { user, cart, cartQuantity, cartCount, setCartQuantity, clearCart, refreshCart, requireLogin } = useCustomer();
   // Агар дар харитаи саҳифаи асосӣ «Ба ин суроға фармоиш» пахш шуда бошад — суроға аллакай пур аст
   const [address, setAddress] = useState(loadDeliveryAddress);
   const [comment, setComment] = useState("");
@@ -39,9 +50,47 @@ export function CartView() {
   const [submitting, setSubmitting] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
   const [placed, setPlaced] = useState<OrderPlaced | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  // Сабади меҳмон ҳангоми пахши «Тасдиқ» — баъд аз даромад бо сабади аккаунт муқоиса мешавад
+  const [resumeAfterLogin, setResumeAfterLogin] = useState<string | null>(null);
+  // Як калид барои ҳамин фармоиш: такрори дархост (интернети суст) фармоиши дуюм намесозад
+  const requestId = useRef<string | null>(null);
 
   const nf = new Intl.NumberFormat(locale === "en" ? "en-US" : "ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const money = (v: number) => `${nf.format(v)} ${dict.product.currency}`;
+
+  async function submitOrder() {
+    setOrderError(null);
+    setNotice(null);
+    setSubmitting(true);
+    requestId.current ??= newRequestId();
+    try {
+      // Фармоиш ба мағоза аз сервер худкор меравад (WhatsApp-и фурӯшанда); WhatsApp-и мизоҷ — ихтиёрӣ
+      const order = await clientApi.placeOrder(address, comment, delivery ?? null, payment, requestId.current);
+      setPlaced(order);
+      void refreshCart();
+    } catch (err) {
+      const code = err instanceof ClientApiError ? err.code : "unknown";
+      setOrderError(tc.errors[code as keyof typeof tc.errors] ?? tc.errors.unknown);
+      // Вақт гузашт ё мағоза пӯшид — вақтҳоро аз нав мегирем
+      if (code === "slot_unavailable" || code === "asap_unavailable") setOptionsKey((k) => k + 1);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  // Баъд аз даромад (аз тугмаи «Тасдиқ»): агар сабад ҳамон бошад — фармоиш фавран; вагарна мизоҷ аввал месанҷад
+  useEffect(() => {
+    if (resumeAfterLogin === null || !user || !cart) return;
+    const same = cartSignature(cart.items) === resumeAfterLogin;
+    queueMicrotask(() => {
+      setResumeAfterLogin(null);
+      if (same) void submitOrder();
+      else setNotice(tc.cartMerged);
+    });
+    // submitOrder ҳар рендер нав аст; танҳо пас аз даромад ва омадани сабад иҷро мешавад
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resumeAfterLogin, user, cart]);
 
   // Фармоиш қабул шуд — экрани муваффақият (сабад аллакай холӣ аст)
   if (placed) {
@@ -88,23 +137,10 @@ export function CartView() {
     );
   }
 
-  if (user === undefined || (user && cart === null)) {
+  if (user === undefined || cart === null) {
     return (
       <div className="flex justify-center py-20">
         <span className="h-7 w-7 animate-spin rounded-full border-2 border-muted border-r-transparent" />
-      </div>
-    );
-  }
-
-  if (user === null) {
-    return (
-      <div className="mx-auto max-w-md rounded-[28px] bg-surface p-6 sm:mt-6 sm:p-8">
-        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/20 text-[#b07800] dark:text-accent">
-          <CartSolidIcon width={28} height={28} />
-        </div>
-        <h2 className="text-2xl font-extrabold tracking-tight text-foreground">{dict.auth.title}</h2>
-        <p className="mt-1 mb-5 text-sm text-muted">{dict.auth.subtitle}</p>
-        <LoginForm />
       </div>
     );
   }
@@ -129,21 +165,14 @@ export function CartView() {
       setOrderError(tc.errors.slot_unavailable);
       return;
     }
-    setOrderError(null);
-    setSubmitting(true);
-    try {
-      // Фармоиш ба мағоза аз сервер худкор меравад (WhatsApp-и фурӯшанда); WhatsApp-и мизоҷ — ихтиёрӣ
-      const order = await clientApi.placeOrder(address, comment, delivery ?? null, payment);
-      setPlaced(order);
-      void refreshCart();
-    } catch (err) {
-      const code = err instanceof ClientApiError ? err.code : "unknown";
-      setOrderError(tc.errors[code as keyof typeof tc.errors] ?? tc.errors.unknown);
-      // Вақт гузашт ё мағоза пӯшид — вақтҳоро аз нав мегирем
-      if (code === "slot_unavailable" || code === "asap_unavailable") setOptionsKey((k) => k + 1);
-    } finally {
-      setSubmitting(false);
+    if (!user) {
+      // Меҳмон: аввал даромад (рақам), баъд фармоиш — формаи пуркардашуда мемонад
+      const signature = cartSignature(items);
+      setOrderError(null);
+      requireLogin(() => setResumeAfterLogin(signature));
+      return;
     }
+    await submitOrder();
   }
 
   if (items.length === 0) {
@@ -287,6 +316,11 @@ export function CartView() {
           {orderError && (
             <p role="alert" className="text-sm font-medium text-[#e5484d]">
               {orderError}
+            </p>
+          )}
+          {notice && (
+            <p role="status" className="rounded-xl bg-accent/15 px-3 py-2.5 text-sm font-medium text-foreground">
+              {notice}
             </p>
           )}
           <button

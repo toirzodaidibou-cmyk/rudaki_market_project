@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using RudakiMarket.Application.Abstractions;
 using RudakiMarket.Domain.Entities;
 
@@ -26,6 +27,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Bundle> Bundles => Set<Bundle>();
     public DbSet<BundleItem> BundleItems => Set<BundleItem>();
     public DbSet<Banner> Banners => Set<Banner>();
+
+    public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct) => Database.BeginTransactionAsync(ct);
+
+    public Task LockCustomerAsync(int customerId, CancellationToken ct) =>
+        Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM customers WHERE id = {customerId} FOR UPDATE", ct);
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -78,6 +84,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             e.Property(x => x.Total).HasPrecision(12, 2);
             e.HasIndex(x => new { x.CustomerId, x.CreatedAt });
             e.HasIndex(x => new { x.Status, x.CreatedAt });
+            // Ҳимоя аз фармоиши дукарата: ҳамон калиди дархост барои ҳамон мизоҷ — танҳо як фармоиш
+            e.HasIndex(x => new { x.CustomerId, x.RequestId }).IsUnique().HasFilter("request_id IS NOT NULL");
             e.HasMany(x => x.Items).WithOne().HasForeignKey(x => x.OrderId).OnDelete(DeleteBehavior.Cascade);
         });
 

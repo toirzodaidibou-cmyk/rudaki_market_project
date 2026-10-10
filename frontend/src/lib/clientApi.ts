@@ -120,13 +120,32 @@ export const clientApi = {
     request<{ cart: Cart; unavailable: string[] }>(`/api/cart/reorder/${orderNumber}`, "POST"),
   setCartQuantity: (id: number, quantity: number) => request<Cart>(`/api/cart/${id}`, "PUT", { quantity }),
   clearCart: () => request<Cart>("/api/cart", "DELETE"),
+  /** Сабади меҳмон (бе логин): нарх ва дастрасӣ аз сервер. Молҳои нестшуда дар ҷавоб намеоянд. */
+  previewCart: (items: CartLine[]) => request<Cart>("/api/cart/preview", "POST", { items }),
+  /** Баъд аз даромад: сабади меҳмон ба сабади аккаунт (миқдори калонтар мемонад). */
+  mergeCart: (items: CartLine[]) => request<Cart>("/api/cart/merge", "POST", { items }),
   orders: (page: number) => request<{ items: CustomerOrder[]; total: number; page: number; pageSize: number }>(`/api/orders?page=${page}`),
   /** Вақтҳои расонидан ва тарзҳои пардохт (соати Душанбе). */
   deliveryOptions: () => request<DeliveryOptions>("/api/delivery/options"),
-  /** deliveryStart: null — "ҳарчи зудтар"; paymentMethod: cash | alif | dc | korti_milli */
-  placeOrder: (address: string, comment: string, deliveryStart: string | null, paymentMethod: string) =>
-    request<OrderPlaced>("/api/orders", "POST", { address, comment, deliveryStart, paymentMethod }),
+  /**
+   * deliveryStart: null — "ҳарчи зудтар"; paymentMethod: cash | alif | dc | korti_milli.
+   * requestId — ҳамон калид дар такрор (интернети суст): сервер фармоиши дуюм намесозад.
+   */
+  placeOrder: (address: string, comment: string, deliveryStart: string | null, paymentMethod: string, requestId: string) =>
+    request<OrderPlaced>("/api/orders", "POST", { address, comment, deliveryStart, paymentMethod, requestId }),
 };
+
+export type CartLine = { productId: number; quantity: number };
+
+/** UUID v4. crypto.randomUUID танҳо дар HTTPS/localhost аст — дар http-и шабакаи дохилӣ getRandomValues. */
+export function newRequestId(): string {
+  if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
+  const b = crypto.getRandomValues(new Uint8Array(16));
+  b[6] = (b[6] & 0x0f) | 0x40;
+  b[8] = (b[8] & 0x3f) | 0x80;
+  const h = Array.from(b, (x) => x.toString(16).padStart(2, "0")).join("");
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+}
 
 /** Роҳи нисбии файл ("/uploads/...") → URL-и пурра (дар браузер). */
 export const clientFileUrl = (path: string) => toFileUrl(API_URL, path);

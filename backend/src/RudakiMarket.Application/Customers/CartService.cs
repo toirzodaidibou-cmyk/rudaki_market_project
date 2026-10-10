@@ -16,6 +16,9 @@ public sealed record CartItemDto(
 /// <param name="DeliveryPrice">Нархи расонидан, вақте ки ройгон нест (барои ҳисоби фаврӣ дар сайт)</param>
 public sealed record CartDto(IReadOnlyList<CartItemDto> Items, int TotalQuantity, decimal TotalPrice, decimal DeliveryFee, decimal FreeDeliveryFrom, decimal DeliveryPrice);
 
+/// <summary>Сатри сабади меҳмон (аз браузер).</summary>
+public sealed record CartLineInput(int ProductId, int Quantity);
+
 /// <summary>Натиҷаи "Боз харидан": сабади нав + номи молҳое, ки дигар дар фурӯш нестанд.</summary>
 public sealed record ReorderResult(CartDto Cart, IReadOnlyList<string> Unavailable);
 
@@ -38,10 +41,92 @@ public sealed class CartService(IAppDbContext db, DeliveryOptions delivery, Time
                 c.Quantity,
                 c.Product.IsActive && c.Product.Category!.IsActive))
             .ToListAsync(ct);
+        return Summarize(items);
+    }
 
+    private CartDto Summarize(IReadOnlyList<CartItemDto> items)
+    {
         var available = items.Where(i => i.Available).ToList();
         var subtotal = available.Sum(i => i.Price * i.Quantity);
         return new CartDto(items, available.Sum(i => i.Quantity), subtotal, delivery.FeeFor(subtotal), delivery.FreeDeliveryFrom, delivery.DeliveryFee);
+    }
+
+    /// <summary>Сатрҳои браузер → то 200 моли гуногун, миқдор 1–99 (сатрҳои нодуруст партофта мешаванд).</summary>
+    private static List<CartLineInput> Clean(IReadOnlyList<CartLineInput> lines) =>
+        lines.Where(l => l is { ProductId: > 0, Quantity: > 0 })
+            .DistinctBy(l => l.ProductId)
+            .Take(MaxItems)
+            .Select(l => l with { Quantity = Math.Min(MaxQuantity, l.Quantity) })
+            .ToList();
+
+    /// <summary>
+    /// Сабади меҳмон: молҳо дар браузер нигоҳ дошта мешаванд, нарх, ном, сурат ва дастрасӣ — аз база.
+    /// Молҳои нестшуда дар ҷавоб намеоянд (сайт онҳоро аз сабад мебарорад). Тартиб — мисли браузер.
+    /// </summary>
+    public async Task<CartDto> PreviewAsync(IReadOnlyList<CartLineInput> input, CancellationToken ct)
+    {
+        var lines = Clean(input);
+        var ids = lines.Select(l => l.ProductId).ToList();
+        var products = await db.Products.AsNoTracking()
+            .Where(p => ids.Contains(p.Id))
+            .Select(p => new
+            {
+                p.Id,
+                Name = new LocalizedNames(p.NameTg, p.NameRu, p.NameEn, p.NameUz),
+                p.Price, p.OldPrice, p.SizeLabel,
+                Image = p.Images.OrderBy(i => i.SortOrder).Select(i => i.ThumbPath).FirstOrDefault(),
+                Available = p.IsActive && p.Category!.IsActive,
+            })
+            .ToDictionaryAsync(p => p.Id, ct);
+
+        var items = new List<CartItemDto>();
+        foreach (var l in lines)
+            if (products.TryGetValue(l.ProductId, out var p))
+                items.Add(new CartItemDto(p.Id, p.Name, p.Price, p.OldPrice, p.SizeLabel, p.Image, l.Quantity, p.Available));
+        return Summarize(items);
+    }
+
+    /// <summary>
+    /// Баъд аз даромад сабади меҳмон ба сабади аккаунт ҳамроҳ мешавад. Агар мол дар ҳарду бошад —
+    /// миқдори калонтар (на ҷамъ: як мол ду бор гузошта нашавад). Танҳо молҳои дар фурӯш буда.
+    /// </summary>
+    public async Task<CartDto> MergeAsync(int customerId, IReadOnlyList<CartLineInput> input, CancellationToken ct)
+    {
+        var lines = Clean(input);
+        if (lines.Count > 0)
+        {
+            var ids = lines.Select(l => l.ProductId).ToList();
+            var activeIds = (await db.Products.AsNoTracking()
+                .Where(p => ids.Contains(p.Id) && p.IsActive && p.Category!.IsActive)
+                .Select(p => p.Id).ToListAsync(ct)).ToHashSet();
+            var cart = await db.CartItems.Where(c => c.CustomerId == customerId).ToListAsync(ct);
+            var now = clock.GetUtcNow();
+
+            // Аз охир: дар браузер навтарин аввал аст — пас аз ҳамроҳшавӣ ҳам навтарин дар боло мемонад
+            foreach (var line in Enumerable.Reverse(lines).Where(l => activeIds.Contains(l.ProductId)))
+            {
+                var item = cart.FirstOrDefault(c => c.ProductId == line.ProductId);
+                if (item is null)
+                {
+                    if (cart.Count >= MaxItems) continue;
+                    item = new CartItem { CustomerId = customerId, ProductId = line.ProductId, AddedAt = now };
+                    now = now.AddTicks(1);
+                    db.CartItems.Add(item);
+                    cart.Add(item);
+                }
+                item.Quantity = Math.Max(item.Quantity, line.Quantity);
+                item.UpdatedAt = now;
+            }
+            try
+            {
+                await db.SaveChangesAsync(ct);
+            }
+            catch (DbUpdateException)
+            {
+                // Дархости ҳамзамон ҳамон молро илова кард — ҳолати ҷориро бармегардонем
+            }
+        }
+        return await GetAsync(customerId, ct);
     }
 
     /// <summary>Миқдори молро муқаррар мекунад (0 — нест мекунад). Агар мол дар сабад набошад — илова мешавад.</summary>

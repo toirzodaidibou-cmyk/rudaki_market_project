@@ -617,6 +617,10 @@ namespace RudakiMarket.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(20)")
                         .HasColumnName("phone");
 
+                    b.Property<Guid?>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer")
                         .HasColumnName("status");
@@ -640,6 +644,11 @@ namespace RudakiMarket.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CustomerId", "CreatedAt")
                         .HasDatabaseName("ix_orders_customer_id_created_at");
+
+                    b.HasIndex("CustomerId", "RequestId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_orders_customer_id_request_id")
+                        .HasFilter("request_id IS NOT NULL");
 
                     b.HasIndex("Status", "CreatedAt")
                         .HasDatabaseName("ix_orders_status_created_at");

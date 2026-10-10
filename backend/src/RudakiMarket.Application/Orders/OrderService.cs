@@ -70,12 +70,21 @@ public sealed class OrderService(IAppDbContext db, DeliveryOptions delivery, Del
     private const int MaxCommentLength = 500;
     private static readonly CultureInfo Money = CultureInfo.GetCultureInfo("ru-RU");
 
-    /// <summary>Фармоиш аз сабад: нархҳо аз база, расонидан аз рӯи қоида, сабад тоза мешавад.</summary>
+    /// <summary>
+    /// Фармоиш аз сабад: нархҳо аз база, расонидан аз рӯи қоида, сабад тоза мешавад.
+    /// Ҳамааш дар як транзаксия ва бо қулфи мизоҷ — ду дархости ҳамзамон аз як сабад ду фармоиш намесозанд.
+    /// </summary>
     /// <param name="deliveryStart">оғози вақти интихобшуда; null — "ҳарчи зудтар"</param>
     /// <param name="paymentInput">cash | alif | dc | korti_milli (холӣ — нақд)</param>
+    /// <param name="requestId">калиди дархост аз браузер: такрори ҳамон дархост ҳамон фармоишро бармегардонад</param>
     public async Task<Result<OrderPlaced>> PlaceAsync(int customerId, string? addressInput, string? commentInput,
-        DateTimeOffset? deliveryStart, string? paymentInput, CancellationToken ct)
+        DateTimeOffset? deliveryStart, string? paymentInput, CancellationToken ct, Guid? requestId = null)
     {
+        // Ҳамон дархост дубора омад (ҷавоби аввал ба браузер нарасид) — фармоиши аллакай сохташуда.
+        // Пеш аз санҷиши вақт: дар такрор вақти интихобшуда шояд аллакай гузашта бошад.
+        if (await FindByRequestAsync(customerId, requestId, ct) is { } done)
+            return Result<OrderPlaced>.Ok(Placed(done, notifier.IsEnabled));
+
         // Вақт: бояд ҳоло дастрас бошад (масалан, вақти гузашта ё "ҳарчи зудтар" дар шаб — не)
         if (!schedule.TryValidate(deliveryStart, out var deliveryFrom, out var deliveryTo))
             return Result<OrderPlaced>.Invalid("delivery", deliveryStart is null ? "asap_unavailable" : "slot_unavailable");
@@ -88,8 +97,15 @@ public sealed class OrderService(IAppDbContext db, DeliveryOptions delivery, Del
         if (address.Length > MaxAddressLength) return Result<OrderPlaced>.Invalid("address", "too_long");
         if (comment?.Length > MaxCommentLength) return Result<OrderPlaced>.Invalid("comment", "too_long");
 
+        await using var tx = await db.BeginTransactionAsync(ct);
+        await db.LockCustomerAsync(customerId, ct);
+
         var customer = await db.Customers.FirstOrDefaultAsync(c => c.Id == customerId, ct);
         if (customer is null) return Result<OrderPlaced>.NotFound();
+
+        // Дархости ҳамзамон бо ҳамон калид қулфро интизор буд — фармоиш аллакай сохта шудааст
+        if (await FindByRequestAsync(customerId, requestId, ct) is { } existing)
+            return Result<OrderPlaced>.Ok(Placed(existing, notifier.IsEnabled));
 
         // Танҳо молҳои дастрас; нарх — нархи ҷорӣ аз база
         var lines = await db.CartItems
@@ -109,6 +125,7 @@ public sealed class OrderService(IAppDbContext db, DeliveryOptions delivery, Del
             DeliveryTo = deliveryTo,
             PaymentMethod = payment.Value,
             CreatedAt = clock.GetUtcNow(),
+            RequestId = requestId,
         };
         foreach (var l in lines)
         {
@@ -129,13 +146,24 @@ public sealed class OrderService(IAppDbContext db, DeliveryOptions delivery, Del
         db.Orders.Add(order);
         await db.SaveChangesAsync(ct);
         await db.CartItems.Where(c => c.CustomerId == customerId).ExecuteDeleteAsync(ct);
+        await tx.CommitAsync(ct);
 
-        var text = FormatMessage(order);
-        var notified = notifier.Enqueue(text); // дар замина; фармоиш аз ин вобаста нест
+        // Танҳо баъд аз сабти ниҳоӣ; дар замина — фармоиш аз ин вобаста нест
+        var notified = notifier.Enqueue(FormatMessage(order));
+        return Result<OrderPlaced>.Ok(Placed(order, notified));
+    }
+
+    private async Task<Order?> FindByRequestAsync(int customerId, Guid? requestId, CancellationToken ct) =>
+        requestId is null
+            ? null
+            : await db.Orders.AsNoTracking().Include(o => o.Items)
+                .FirstOrDefaultAsync(o => o.CustomerId == customerId && o.RequestId == requestId, ct);
+
+    private OrderPlaced Placed(Order order, bool ownerNotified)
+    {
         var owner = new string(delivery.OwnerWhatsApp.Where(char.IsAsciiDigit).ToArray());
-        var waUrl = $"https://wa.me/{owner}?text={Uri.EscapeDataString(text)}";
-
-        return Result<OrderPlaced>.Ok(new OrderPlaced(order.Id, order.Subtotal, order.DeliveryFee, order.Total, waUrl, notified));
+        var waUrl = $"https://wa.me/{owner}?text={Uri.EscapeDataString(FormatMessage(order))}";
+        return new OrderPlaced(order.Id, order.Subtotal, order.DeliveryFee, order.Total, waUrl, ownerNotified);
     }
 
     private static string M(decimal v) => v.ToString("N2", Money) + " с.";
