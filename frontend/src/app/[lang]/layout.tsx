@@ -6,6 +6,7 @@ import { BottomNav } from "@/components/layout/BottomNav";
 import { CartBar } from "@/components/layout/CartBar";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
+import { PwaRegister } from "@/components/layout/Pwa";
 import { CustomerProvider } from "@/customer/CustomerProvider";
 import { hasLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
@@ -32,8 +33,13 @@ export async function generateMetadata({
 }
 
 // viewportFit: "cover" — то менюи поён дар iPhone safe-area-ро ба ҳисоб гирад.
+// themeColor — ранги сатри болои браузер/барнома (PWA) дар мавзӯи равшан ва торик.
 export const viewport: Viewport = {
   viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f5f8f6" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b120e" },
+  ],
 };
 
 // Пеш аз расми саҳифа мавзӯъ (light/dark) ва дизайнро (1/2/3) муқаррар мекунад, то "дурахш" набошад.
@@ -67,6 +73,7 @@ export default async function RootLayout({
             {children}
             <Footer lang={lang} dict={dict} />
             <CartBar />
+            <PwaRegister />
             <BottomNav />
           </CustomerProvider>
         </I18nProvider>

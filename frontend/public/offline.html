@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="tg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#11a24f">
+<title>RUDAKI MARKET — интернет нест</title>
+<style>
+  :root { --bg:#f5f8f6; --card:#fff; --ink:#122019; --muted:#6b7a72; --accent:#11a24f; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0b120e; --card:#141d18; --ink:#e8f2ec; --muted:#8fa197; } }
+  * { box-sizing: border-box; }
+  body { margin:0; min-height:100vh; display:grid; place-items:center; padding:24px 16px; background:var(--bg); color:var(--ink);
+         font:16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .card { width:100%; max-width:380px; background:var(--card); border-radius:28px; padding:32px 24px; text-align:center;
+          box-shadow:0 10px 30px -18px rgba(9,60,30,.35); }
+  svg { width:64px; height:64px; }
+  h1 { font-size:22px; margin:18px 0 6px; letter-spacing:-.02em; }
+  p { margin:0; color:var(--muted); font-size:15px; }
+  p + p { margin-top:4px; }
+  button { margin-top:22px; width:100%; height:50px; border:0; border-radius:14px; background:var(--accent); color:#fff;
+           font:700 16px system-ui, sans-serif; cursor:pointer; }
+</style>
+</head>
+<body>
+  <main class="card">
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <rect width="32" height="32" rx="10" fill="#11a24f"/>
+      <path d="M11 23V9h6.2a4.6 4.6 0 0 1 1 9.1L22 23" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M21.5 6.5c3 .2 4.3 2 4.2 4.6-2.8-.1-4.3-1.8-4.2-4.6z" fill="#d9f99d"/>
+    </svg>
+    <h1>Интернет нест</h1>
+    <p>Пайвастро санҷед ва боз кӯшиш кунед.</p>
+    <p>Нет интернета — проверьте подключение.</p>
+    <button type="button" onclick="location.reload()">Аз нав кӯшиш · Повторить</button>
+  </main>
+</body>
+</html>

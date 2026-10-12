@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/layout/Logo";
+import { InstallAppButton } from "@/components/layout/Pwa";
 import { ClockIcon } from "@/components/ui/icons";
 import { STORE_CONTACT } from "@/config/store";
 import { format, localizePath } from "@/i18n/config";
@@ -26,6 +27,7 @@ export function Footer({ lang, dict }: { lang: Locale; dict: Dictionary }) {
             <ClockIcon width={16} height={16} className="text-accent" />
             {format(t.everyday, { hours })}
           </p>
+          <InstallAppButton />
         </div>
 
         <nav aria-label={t.shop}>
