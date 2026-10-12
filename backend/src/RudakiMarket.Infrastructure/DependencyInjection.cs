@@ -79,10 +79,15 @@ public static class DependencyInjection
             services.AddHttpClient<TelegramBotClient>(c => c.Timeout = TimeSpan.FromSeconds(40));
             services.AddTransient<ITelegramBot>(sp => sp.GetRequiredService<TelegramBotClient>());
             services.AddHostedService<TelegramPollingService>();
+            // Огоҳии мизоҷон дар бораи фармоиш (қабул шуд, тасдиқ, дар роҳ ...) — ба чати пайвасти Telegram
+            services.AddSingleton<QueuedCustomerNotifier>();
+            services.AddSingleton<ICustomerNotifier>(sp => sp.GetRequiredService<QueuedCustomerNotifier>());
+            services.AddHostedService<CustomerNotificationWorker>();
         }
         else
         {
             services.AddSingleton<ITelegramBot, DisabledTelegramBot>();
+            services.AddSingleton<ICustomerNotifier, NoCustomerNotifier>();
         }
 
         // Огоҳии фурӯшанда дар бораи фармоиши нав — ба ҳамаи роҳҳои танзимшуда:

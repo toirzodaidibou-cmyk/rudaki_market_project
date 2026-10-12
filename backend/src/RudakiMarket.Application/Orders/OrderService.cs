@@ -40,7 +40,8 @@ public sealed record CustomerOrderDto(
     DateTimeOffset? DeliveryFrom, DateTimeOffset? DeliveryTo, string PaymentMethod,
     decimal Subtotal, decimal DeliveryFee, decimal Total, IReadOnlyList<OrderItemDto> Items);
 
-public sealed class OrderService(IAppDbContext db, DeliveryOptions delivery, DeliverySchedule schedule, IOrderNotifier notifier, TimeProvider clock)
+public sealed class OrderService(
+    IAppDbContext db, DeliveryOptions delivery, DeliverySchedule schedule, IOrderNotifier notifier, ICustomerNotifier customers, TimeProvider clock)
 {
     public const int OrdersPageSize = 20;
 
@@ -150,6 +151,7 @@ public sealed class OrderService(IAppDbContext db, DeliveryOptions delivery, Del
 
         // Танҳо баъд аз сабти ниҳоӣ; дар замина — фармоиш аз ин вобаста нест
         var notified = notifier.Enqueue(FormatMessage(order));
+        customers.Enqueue(order.Phone, CustomerMessages.Placed(order, schedule.Describe(order.DeliveryFrom, order.DeliveryTo)));
         return Result<OrderPlaced>.Ok(Placed(order, notified));
     }
 

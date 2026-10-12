@@ -24,7 +24,7 @@ public sealed record AdminOrderDto(
 public sealed record SetOrderStatusRequest(string Status);
 
 /// <summary>Идоракунии фармоишҳо дар панели админ: рӯйхат, тафсилот, иваз кардани ҳолат.</summary>
-public sealed class AdminOrderService(IAppDbContext db, TimeProvider clock)
+public sealed class AdminOrderService(IAppDbContext db, ICustomerNotifier customers, DeliveryOptions delivery, TimeProvider clock)
 {
     public const int PageSize = 30;
 
@@ -115,6 +115,9 @@ public sealed class AdminOrderService(IAppDbContext db, TimeProvider clock)
             order.Status = next;
             order.StatusUpdatedAt = clock.GetUtcNow();
             await db.SaveChangesAsync(ct);
+            // Мизоҷ дар Telegram хабар мегирад (дар замина; агар рақамаш ба бот пайваст бошад)
+            if (CustomerMessages.StatusChanged(order.Id, next, delivery.OwnerWhatsApp) is { } text)
+                customers.Enqueue(order.Phone, text);
         }
         return await GetAsync(id, ct);
     }
