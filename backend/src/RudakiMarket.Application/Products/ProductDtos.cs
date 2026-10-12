@@ -46,6 +46,9 @@ public sealed record PublicProductDto(
 
 public sealed record PublicCategoryRef(string Slug, LocalizedNames Name);
 
+/// <summary>Сатри sitemap.xml: мол ва санаи охирини тағйир.</summary>
+public sealed record SitemapProductDto(int Id, DateTimeOffset UpdatedAt);
+
 /// <summary>Саҳифаи мол дар сайт: ҳамаи суратҳо (калон + хурд), тавсиф, категория ва молҳои монанд.</summary>
 public sealed record PublicProductDetailDto(
     int Id,

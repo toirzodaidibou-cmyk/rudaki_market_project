@@ -34,6 +34,13 @@ internal static class ProductEndpoints
             http.Response.Headers.CacheControl = "public, max-age=30";
             return Results.Ok(await s.ListHomeAsync(ct));
         });
+
+        // sitemap.xml-и сайт: id ва санаи охирини тағйири молҳои фаъол (сабук, бе ном ва сурат)
+        app.MapGet("/api/products/sitemap", async (ProductService s, HttpContext http, CancellationToken ct) =>
+        {
+            http.Response.Headers.CacheControl = "public, max-age=3600";
+            return Results.Ok(await s.ListForSitemapAsync(ct));
+        });
         return app;
     }
 

@@ -11,6 +11,7 @@ import { CustomerProvider } from "@/customer/CustomerProvider";
 import { hasLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
 import { I18nProvider } from "@/i18n/I18nProvider";
+import { SITE_URL } from "@/lib/seo";
 import "../globals.css";
 
 const inter = Inter({
@@ -28,8 +29,15 @@ export async function generateMetadata({
 }: LayoutProps<"/[lang]">): Promise<Metadata> {
   const { lang } = await params;
   if (!hasLocale(lang)) return {};
-  const { meta } = await getDictionary(lang);
-  return { title: meta.title, description: meta.description };
+  const { meta, info } = await getDictionary(lang);
+  return {
+    // Пайвандҳои пурра барои og:image, canonical ва hreflang
+    metadataBase: new URL(SITE_URL),
+    title: meta.title,
+    description: info.tagline,
+    applicationName: "RUDAKI MARKET",
+    openGraph: { siteName: "RUDAKI MARKET", type: "website", locale: lang },
+  };
 }
 
 // viewportFit: "cover" — то менюи поён дар iPhone safe-area-ро ба ҳисоб гирад.

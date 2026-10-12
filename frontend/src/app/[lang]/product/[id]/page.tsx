@@ -8,8 +8,11 @@ import { ProductGallery } from "@/components/product/ProductGallery";
 import { ChevronLeftIcon, MapPinIcon } from "@/components/ui/icons";
 import { DELIVERY_FEE, FREE_DELIVERY_FROM } from "@/config/store";
 import { format, hasLocale, localizePath } from "@/i18n/config";
+import type { Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
 import { fileUrl, getProduct } from "@/lib/api";
+import type { ProductDetail } from "@/lib/api";
+import { alternates, jsonLd, localeUrl, SITE_URL } from "@/lib/seo";
 
 type Props = PageProps<"/[lang]/product/[id]">;
 
@@ -23,10 +26,38 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!p) return {};
   const name = p.name[lang] || p.name.ru;
   const image = p.images[0] ? fileUrl(p.images[0].thumb) : null;
+  const dict = await getDictionary(lang);
+  const description = `${name} — ${p.price.toFixed(2)} TJS. ${dict.info.tagline}`;
   return {
     title: `${name} — RUDAKI MARKET`,
-    description: `${name} · ${p.price} TJS`,
-    openGraph: { title: name, images: image ? [image] : [] },
+    description,
+    alternates: alternates(lang, `/product/${p.id}`),
+    openGraph: { title: name, description, images: image ? [image] : [] },
+  };
+}
+
+/** JSON-LD Product: Google нарх ва «дар фурӯш»-ро мустақиман дар натиҷаҳо нишон медиҳад. */
+function productJsonLd(p: ProductDetail, lang: Locale, name: string, description: string) {
+  const url = `${SITE_URL}${localeUrl(lang, `/product/${p.id}`)}`;
+  const images = p.images.map((i) => fileUrl(i.url)!).map((src) => (src.startsWith("http") ? src : `${SITE_URL}${src}`));
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name,
+    ...(description && { description: description.slice(0, 500) }),
+    ...(images.length > 0 && { image: images }),
+    sku: String(p.id),
+    category: p.category.name[lang] || p.category.name.tg,
+    url,
+    offers: {
+      "@type": "Offer",
+      url,
+      price: p.price.toFixed(2),
+      priceCurrency: "TJS",
+      availability: "https://schema.org/InStock",
+      itemCondition: "https://schema.org/NewCondition",
+      seller: { "@type": "Organization", name: "RUDAKI MARKET" },
+    },
   };
 }
 
@@ -46,6 +77,7 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <main className="mx-auto w-full max-w-7xl flex-1 px-4 pt-4 pb-8 sm:px-6 sm:pt-6">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(productJsonLd(p, lang, name, description)) }} />
       <Link
         href={localizePath(lang, `/catalog/${p.category.slug}`)}
         className="mb-3 inline-flex items-center gap-1 text-sm text-muted transition-colors hover:text-foreground"

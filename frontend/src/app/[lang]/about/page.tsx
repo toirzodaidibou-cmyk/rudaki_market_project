@@ -4,12 +4,13 @@ import { notFound } from "next/navigation";
 import { InfoShell } from "@/components/info/InfoShell";
 import { hasLocale, localizePath } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
+import { alternates } from "@/lib/seo";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/about">): Promise<Metadata> {
   const { lang } = await params;
   if (!hasLocale(lang)) return {};
   const t = (await getDictionary(lang)).info;
-  return { title: `${t.about.title} — RUDAKI MARKET`, description: t.tagline };
+  return { title: `${t.about.title} — RUDAKI MARKET`, description: t.tagline, alternates: alternates(lang, "/about") };
 }
 
 /** «Дар бораи мо» */

@@ -5,12 +5,17 @@ import { InfoCard, InfoShell } from "@/components/info/InfoShell";
 import { STORE_CONTACT } from "@/config/store";
 import { format, hasLocale, localizePath } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
+import { alternates } from "@/lib/seo";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/contacts">): Promise<Metadata> {
   const { lang } = await params;
   if (!hasLocale(lang)) return {};
   const t = (await getDictionary(lang)).info;
-  return { title: `${t.contacts.title} — RUDAKI MARKET`, description: `${t.contacts.phone}: ${STORE_CONTACT.phone}` };
+  return {
+    title: `${t.contacts.title} — RUDAKI MARKET`,
+    description: `${t.contacts.phone}: ${STORE_CONTACT.phone}`,
+    alternates: alternates(lang, "/contacts"),
+  };
 }
 
 /** «Тамос»: телефон, WhatsApp, Telegram, соатҳои кор, минтақаи расонидан. */

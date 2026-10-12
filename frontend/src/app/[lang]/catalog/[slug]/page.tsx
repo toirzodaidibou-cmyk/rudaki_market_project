@@ -8,6 +8,7 @@ import { format, hasLocale, localizePath } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
 import { getCategories, getProducts } from "@/lib/api";
 import { listHref, parseListParams } from "@/lib/listParams";
+import { alternates } from "@/lib/seo";
 
 type Props = PageProps<"/[lang]/catalog/[slug]">;
 
@@ -15,7 +16,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, slug } = await params;
   if (!hasLocale(lang)) return {};
   const category = (await getCategories())?.find((c) => c.slug === slug);
-  return category ? { title: `${category.name[lang] || category.name.tg} — RUDAKI MARKET` } : {};
+  if (!category) return {};
+  const name = category.name[lang] || category.name.tg;
+  return {
+    title: `${name} — RUDAKI MARKET`,
+    description: `${name} — ${(await getDictionary(lang)).info.tagline}`,
+    alternates: alternates(lang, `/catalog/${slug}`),
+  };
 }
 
 export default async function CategoryPage({ params, searchParams }: Props) {

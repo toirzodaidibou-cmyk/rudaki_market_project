@@ -5,12 +5,13 @@ import { InfoCard, InfoShell } from "@/components/info/InfoShell";
 import { DELIVERY_FEE, FREE_DELIVERY_FROM, STORE_CONTACT } from "@/config/store";
 import { format, hasLocale, localizePath } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
+import { alternates } from "@/lib/seo";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/delivery">): Promise<Metadata> {
   const { lang } = await params;
   if (!hasLocale(lang)) return {};
   const t = (await getDictionary(lang)).info;
-  return { title: `${t.delivery.title} — RUDAKI MARKET`, description: t.delivery.zone };
+  return { title: `${t.delivery.title} — RUDAKI MARKET`, description: t.delivery.zone, alternates: alternates(lang, "/delivery") };
 }
 
 /** «Расонидан ва пардохт» — қоидаҳо аз танзимоти мағоза (config/store, ҳамон қоидаҳои backend). */

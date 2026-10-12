@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { HeroSlider } from "@/components/home/HeroSlider";
@@ -7,8 +8,56 @@ import { DeliveryMapSection } from "@/components/map/DeliveryMapSection";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ChevronRightIcon } from "@/components/ui/icons";
 import { hasLocale, localizePath } from "@/i18n/config";
+import type { Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
 import { fileUrl, getBanners, getCategories, getHomeProducts } from "@/lib/api";
+import { STORE_CONTACT } from "@/config/store";
+import { alternates, jsonLd, localeUrl, SITE_URL } from "@/lib/seo";
+
+export async function generateMetadata({ params }: PageProps<"/[lang]">): Promise<Metadata> {
+  const { lang } = await params;
+  if (!hasLocale(lang)) return {};
+  return { alternates: alternates(lang, "/") };
+}
+
+/**
+ * JSON-LD: мағоза (OnlineStore — телефон, соатҳо, ноҳия) ва WebSite бо ҷустуҷӯ
+ * (Google метавонад сатри ҷустуҷӯи сайтро дар натиҷаҳо нишон диҳад).
+ */
+function homeJsonLd(lang: Locale, description: string) {
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "OnlineStore",
+      name: "RUDAKI MARKET",
+      url: `${SITE_URL}${localeUrl(lang, "/")}`,
+      logo: `${SITE_URL}/icons/icon-512.png`,
+      description,
+      telephone: STORE_CONTACT.phone.replace(/\s/g, ""),
+      areaServed: "Rudaki District, Tajikistan",
+      currenciesAccepted: "TJS",
+      paymentAccepted: "Cash, Alif, Dushanbe City, Korti Milli",
+      openingHoursSpecification: {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        opens: STORE_CONTACT.open,
+        closes: STORE_CONTACT.close,
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "RUDAKI MARKET",
+      url: `${SITE_URL}${localeUrl(lang, "/")}`,
+      inLanguage: lang,
+      potentialAction: {
+        "@type": "SearchAction",
+        target: `${SITE_URL}${localeUrl(lang, "/search")}?q={search_term_string}`,
+        "query-input": "required name=search_term_string",
+      },
+    },
+  ];
+}
 
 export default async function Home({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
@@ -35,6 +84,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 pt-4 sm:gap-8 sm:px-6 sm:pt-6">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(homeJsonLd(lang, dict.info.tagline)) }} />
       <div className="-mb-2 sm:-mb-4">
         <DeliveryEta lang={lang} dict={dict} />
       </div>

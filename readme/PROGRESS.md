@@ -1275,6 +1275,16 @@ RYDAKIMARKET/
   - Коркарди сервер (замина сафед, мол дар марказ, WebP) — мисли пештар (№32).
 - **Санҷиш** (Edge 390px, админ ва базаи маҳаллӣ): филтр «1 259», 24 нишона дар саҳифа, моли пурфурӯш (Dirol) аввал; акси «камера»-и **27,9 MB** → бор шуд (200; сервер > 5 MB-ро рад мекунад — пас дар браузер хурд шуд) → `temporaryPhoto=false`, суратҳо 2 → 3; баъд барқарор (2 сурат, `true`); хатоҳо 0. `dotnet build` 0/0, админ `tsc -b` тоза.
 
+**№62. Қадами 7 — SEO (Google)**
+- `lib/seo.ts`: `SITE_URL` (`NEXT_PUBLIC_SITE_URL`, пешфарз `https://rudaki-market.vercel.app`), `alternates()` — canonical + hreflang (tg/ru/en/uz + x-default), `jsonLd()`.
+- **layout:** `metadataBase` (пайвандҳои пурра барои og:image), `applicationName`, `openGraph.siteName`; тавсиф — `info.tagline`.
+- **canonical + hreflang:** асосӣ, каталог, категория, мол, «Дар бораи мо», «Расонидан», «Тамос». Сабад, профил, писандидаҳо, ҷустуҷӯ — `noindex` (мисли пештар).
+- **JSON-LD:** асосӣ — `OnlineStore` (телефон, соатҳо 08:00–22:00, ноҳия, пардохт) ва `WebSite` бо `SearchAction`; мол — `Product` (ном, тавсиф, суратҳо, категория, `Offer`: нарх TJS, `InStock`).
+- **`robots.txt`** (`app/robots.ts`): ҳама, ба ғайр аз `/api/`, `/backend/`, `/*/cart`, `/*/profile`, `/*/favorites`, `/*/search`; пайванди sitemap.
+- **`sitemap.xml`** (`app/sitemap.ts`, ҳар соат): асосӣ, каталог, категорияҳои дорои мол, молҳо, саҳифаҳои маълумотӣ — ҳар сатр бо hreflang-и 4 забон. Backend: `GET /api/products/sitemap` (id + санаи тағйир, то 12 000 — ҳадди як sitemap; барои зиёдтар — sitemap index дар оянда).
+- **Санҷиш** (production `next start`): robots.txt дуруст; sitemap — 1 291 саҳифа, 1 265 мол, hreflang дар ҳама; canonical + 5 hreflang дар `/ru/product/1255`, `/tg`, `/en/catalog/drinks`, `/uz/delivery`; JSON-LD Product (3.30 TJS, InStock), OnlineStore, WebSite + SearchAction; `/tg/cart` — noindex. `tsc`, ESLint, `next build`, `dotnet build` — тоза.
+- ⏳ Баъд аз гузоштан: сайтро ба **Google Search Console** илова кардан ва sitemap-ро фиристодан (ҳисоби Google-и соҳиби лоиҳа).
+
 ## Қадами оянда (интизори иҷозат)
 - Нақшаи №49, қадами 2: footer ва саҳифаҳои ҳуқуқӣ; баъд — огоҳии ҳолати фармоиш ба мизоҷ (Telegram), SEO-и асосӣ, тозаи маълумот, нусхаи эҳтиётӣ.
 - Хостинги ройгон (№48): интизори маълумоти Supabase ва ҳисоби Render аз соҳиби лоиҳа. Инчунин: маҷмӯаҳо (нест ё нигоҳ), пайванди Google Maps, нархҳои RC Cola.

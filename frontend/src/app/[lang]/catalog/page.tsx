@@ -6,12 +6,13 @@ import { ChevronRightIcon } from "@/components/ui/icons";
 import { hasLocale, localizePath } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
 import { fileUrl, getCategories } from "@/lib/api";
+import { alternates } from "@/lib/seo";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/catalog">): Promise<Metadata> {
   const { lang } = await params;
   if (!hasLocale(lang)) return {};
   const dict = await getDictionary(lang);
-  return { title: `${dict.nav.catalog} — RUDAKI MARKET` };
+  return { title: `${dict.nav.catalog} — RUDAKI MARKET`, description: dict.info.tagline, alternates: alternates(lang, "/catalog") };
 }
 
 export default async function CatalogPage({ params }: PageProps<"/[lang]/catalog">) {

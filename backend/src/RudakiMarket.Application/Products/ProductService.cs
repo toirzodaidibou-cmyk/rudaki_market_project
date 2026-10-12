@@ -141,6 +141,18 @@ public sealed class ProductService(IAppDbContext db, IFileStorage files, IImageP
             x.Images.OrderBy(i => i.SortOrder).Select(i => i.ThumbPath).Take(3).ToList()));
     }
 
+    /// <summary>Як sitemap ≤ 50 000 URL: 4 забон × 12 000 мол. Барои зиёдтар — sitemap index (дар оянда).</summary>
+    public const int SitemapLimit = 12_000;
+
+    /// <summary>Молҳои фаъол (дар категорияи фаъол) барои sitemap.xml — танҳо id ва санаи тағйир, навтаринҳо аввал.</summary>
+    public async Task<IReadOnlyList<SitemapProductDto>> ListForSitemapAsync(CancellationToken ct) =>
+        await db.Products.AsNoTracking()
+            .Where(p => p.IsActive && p.Category!.IsActive)
+            .OrderByDescending(p => p.Id)
+            .Take(SitemapLimit)
+            .Select(p => new SitemapProductDto(p.Id, p.UpdatedAt))
+            .ToListAsync(ct);
+
     public const int HomeLimit = 20;
 
     /// <summary>
