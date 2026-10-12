@@ -5,8 +5,11 @@ import { localeUrl, SITE_URL } from "@/lib/seo";
 
 const API_URL = process.env.API_URL ?? "http://localhost:5080";
 
-/** Ҳар соат нав мешавад (моли нав дар Google дертар аз 1 соат пайдо мешавад). */
-export const revalidate = 3600;
+/**
+ * Ҳар дархост сохта мешавад (на файли статикии вақти build — он ҳангоми deploy-и пеш аз API холӣ монда буд);
+ * маълумоти молҳо 1 соат кэш мешавад ва ҳангоми тағйир дар админ (тег "products") нав мешавад.
+ */
+export const dynamic = "force-dynamic";
 
 type SitemapProduct = { id: number; updatedAt: string };
 
