@@ -29,3 +29,15 @@ export type DeliveryZone = (typeof DELIVERY_ZONES)[number];
 
 /** Вақти тайёр кардани фармоиш то баромадани курйер (дақиқа). */
 export const PREPARATION_MIN = 20;
+
+/** Барномасози сайт (дар поёни footer). */
+export const DEVELOPER = {
+  name: "Идибой Тоирзода",
+  photo: "/developer.webp",
+  phone: "+992 00 268 15 15",
+  phoneHref: "tel:+992002681515",
+  telegram: "https://t.me/idiboytoirzoda",
+  telegramName: "@idiboytoirzoda",
+  instagram: "https://instagram.com/toirzodaho__developer",
+  instagramName: "@toirzodaho__developer",
+} as const;

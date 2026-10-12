@@ -1,8 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Logo } from "@/components/layout/Logo";
 import { InstallAppButton } from "@/components/layout/Pwa";
 import { ClockIcon } from "@/components/ui/icons";
-import { STORE_CONTACT } from "@/config/store";
+import { DEVELOPER, STORE_CONTACT } from "@/config/store";
 import { format, localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/getDictionary";
@@ -73,9 +74,49 @@ export function Footer({ lang, dict }: { lang: Locale; dict: Dictionary }) {
         </div>
       </div>
       <div className="border-t border-border">
-        <p className="mx-auto max-w-7xl px-4 py-4 text-xs text-muted sm:px-6">
-          © {new Date().getFullYear()} RUDAKI MARKET · {t.rights}
-        </p>
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-5 sm:px-6 md:flex-row md:items-center md:justify-between">
+          <p className="text-xs text-muted">
+            © {new Date().getFullYear()} RUDAKI MARKET · {t.rights}
+          </p>
+
+          {/* Барномасоз: сурат дар ҳалқаи рангаи Instagram, ном ва тамос */}
+          <div className="flex items-center gap-3">
+            <span className="shrink-0 rounded-full bg-[conic-gradient(from_200deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5,#feda75)] p-[2.5px]">
+              <Image
+                src={DEVELOPER.photo}
+                alt={DEVELOPER.name}
+                width={52}
+                height={52}
+                className="size-[52px] rounded-full border-2 border-card object-cover"
+              />
+            </span>
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium text-muted">{t.developedBy}</p>
+              <p className="text-sm font-bold text-foreground">{DEVELOPER.name}</p>
+              <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs font-semibold">
+                <a href={DEVELOPER.phoneHref} className="text-muted tabular-nums hover:text-foreground">
+                  {DEVELOPER.phone}
+                </a>
+                <a
+                  href={DEVELOPER.telegram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#1a7fb0] hover:underline dark:text-[#6cc6f0]"
+                >
+                  {DEVELOPER.telegramName}
+                </a>
+                <a
+                  href={DEVELOPER.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gradient-to-r from-[#fa7e1e] via-[#d62976] to-[#962fbf] bg-clip-text text-transparent hover:underline"
+                >
+                  {DEVELOPER.instagramName}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </footer>
   );
