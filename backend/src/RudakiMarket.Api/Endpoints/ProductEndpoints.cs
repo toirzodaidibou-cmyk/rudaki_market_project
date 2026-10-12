@@ -42,8 +42,9 @@ internal static class ProductEndpoints
     {
         var group = app.MapGroup("/api/admin/products").RequireAuthorization().RequireCors(Cors.Admin);
 
-        group.MapGet("/", async (string? search, int? categoryId, int? page, int? pageSize, ProductService s, CancellationToken ct) =>
-            Results.Ok(await s.ListAsync(search, categoryId, page ?? 1, pageSize ?? 24, ct)));
+        // ?photo=temporary (сурати муваққатӣ, пурфурӯшҳо аввал) | none (бе сурат)
+        group.MapGet("/", async (string? search, int? categoryId, string? photo, int? page, int? pageSize, ProductService s, CancellationToken ct) =>
+            Results.Ok(await s.ListAsync(search, categoryId, page ?? 1, pageSize ?? 24, ct, photo)));
 
         group.MapGet("/{id:int}", async (int id, ProductService s, CancellationToken ct) =>
             (await s.GetAsync(id, ct)).ToHttp(Results.Ok));

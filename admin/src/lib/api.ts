@@ -37,6 +37,8 @@ export type Product = {
   images: ProductImage[]
   createdAt: string
   updatedAt: string
+  /** Сурати муваққатӣ (аз манбаи бегона) — бояд бо акси худӣ иваз шавад */
+  temporaryPhoto: boolean
 }
 
 export type ProductListItem = {
@@ -50,6 +52,7 @@ export type ProductListItem = {
   isActive: boolean
   thumb: string | null
   imageCount: number
+  temporaryPhoto: boolean
 }
 
 export type SaveProductRequest = {
@@ -61,7 +64,12 @@ export type SaveProductRequest = {
   sizeLabel: string | null
   isNew: boolean
   isActive: boolean
+  /** Набошад — дар сервер бетағйир мемонад */
+  temporaryPhoto?: boolean
 }
+
+/** Филтри суратҳо дар рӯйхати молҳо */
+export type PhotoFilter = 'temporary' | 'none'
 
 export type Paged<T> = { items: T[]; total: number; page: number; pageSize: number }
 
@@ -195,6 +203,7 @@ export const toListItem = (p: Product): ProductListItem => ({
   isActive: p.isActive,
   thumb: p.images[0]?.thumb ?? null,
   imageCount: p.images.length,
+  temporaryPhoto: p.temporaryPhoto,
 })
 
 /** 11.05 → "11,05 с." */
@@ -316,10 +325,14 @@ export const api = {
   },
 
   products: {
-    list: (params: { search?: string; categoryId?: number | null; page?: number; pageSize?: number }, signal?: AbortSignal) => {
+    list: (
+      params: { search?: string; categoryId?: number | null; photo?: PhotoFilter | null; page?: number; pageSize?: number },
+      signal?: AbortSignal,
+    ) => {
       const q = new URLSearchParams()
       if (params.search) q.set('search', params.search)
       if (params.categoryId) q.set('categoryId', String(params.categoryId))
+      if (params.photo) q.set('photo', params.photo)
       q.set('page', String(params.page ?? 1))
       q.set('pageSize', String(params.pageSize ?? 24))
       return request<Paged<ProductListItem>>(`/api/admin/products?${q}`, { signal })

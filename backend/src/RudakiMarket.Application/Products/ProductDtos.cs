@@ -17,7 +17,8 @@ public sealed record ProductDto(
     bool IsActive,
     IReadOnlyList<ProductImageDto> Images,
     DateTimeOffset CreatedAt,
-    DateTimeOffset UpdatedAt);
+    DateTimeOffset UpdatedAt,
+    bool TemporaryPhoto);
 
 /// <summary>Сатри рӯйхати админ (сабук).</summary>
 public sealed record ProductListItemDto(
@@ -30,7 +31,8 @@ public sealed record ProductListItemDto(
     bool IsNew,
     bool IsActive,
     string? Thumb,
-    int ImageCount);
+    int ImageCount,
+    bool TemporaryPhoto);
 
 /// <summary>Барои корти мол дар сайт (то 3 сурати хурд барои слайдер).</summary>
 public sealed record PublicProductDto(
@@ -74,6 +76,7 @@ public sealed record SaveProductRequest(
     decimal? OldPrice,
     string? SizeLabel,
     bool IsNew,
-    bool IsActive);
+    bool IsActive,
+    bool? TemporaryPhoto = null);
 
 public sealed record UploadFile(byte[] Content, string FileName);

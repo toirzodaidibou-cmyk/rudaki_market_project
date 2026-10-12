@@ -800,6 +800,10 @@ namespace RudakiMarket.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(20)")
                         .HasColumnName("size_label");
 
+                    b.Property<bool>("TemporaryPhoto")
+                        .HasColumnType("boolean")
+                        .HasColumnName("temporary_photo");
+
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");

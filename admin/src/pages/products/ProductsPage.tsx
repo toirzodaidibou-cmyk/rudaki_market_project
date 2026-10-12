@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ImageIcon, PencilIcon, PlusIcon, SearchIcon } from '../../components/icons'
 import { Button, Spinner, Switch, useToast } from '../../components/ui'
 import { api, ApiError, fileUrl, formatPrice, toListItem } from '../../lib/api'
-import type { Category, Product, ProductListItem } from '../../lib/api'
+import type { Category, PhotoFilter, Product, ProductListItem } from '../../lib/api'
 import { PriceExcel } from './PriceExcel'
 import { ProductForm } from './ProductForm'
 
@@ -14,6 +14,8 @@ export function ProductsPage() {
   const [search, setSearch] = useState('')
   const [debounced, setDebounced] = useState('')
   const [categoryId, setCategoryId] = useState<number | null>(null)
+  // 📷 Сурати муваққатӣ — пурфурӯшҳо аввал (аввал онҳоро аксбардорӣ кунед)
+  const [photo, setPhoto] = useState<PhotoFilter | null>(null)
 
   const [items, setItems] = useState<ProductListItem[] | null>(null)
   const [total, setTotal] = useState(0)
@@ -37,11 +39,11 @@ export function ProductsPage() {
   }, [search])
 
   // Саҳифаи аввал ҳангоми ивази филтр. Дархости кӯҳна бекор мешавад (AbortController).
-  const reloadKey = `${debounced}|${categoryId}`
+  const reloadKey = `${debounced}|${categoryId}|${photo}`
   const [retryCount, setRetryCount] = useState(0)
   useEffect(() => {
     const ctrl = new AbortController()
-    api.products.list({ search: debounced, categoryId, page: 1, pageSize: PAGE_SIZE }, ctrl.signal).then(
+    api.products.list({ search: debounced, categoryId, photo, page: 1, pageSize: PAGE_SIZE }, ctrl.signal).then(
       (r) => {
         setItems(r.items)
         setTotal(r.total)
@@ -53,7 +55,7 @@ export function ProductsPage() {
       },
     )
     return () => ctrl.abort()
-  }, [debounced, categoryId, retryCount])
+  }, [debounced, categoryId, photo, retryCount])
 
   // Агар филтр ҳангоми "боз нишон додан" иваз шавад — натиҷаи кӯҳна илова намешавад
   const reloadKeyRef = useRef(reloadKey)
@@ -65,7 +67,7 @@ export function ProductsPage() {
     const key = reloadKey
     setLoadingMore(true)
     try {
-      const r = await api.products.list({ search: debounced, categoryId, page: page + 1, pageSize: PAGE_SIZE })
+      const r = await api.products.list({ search: debounced, categoryId, photo, page: page + 1, pageSize: PAGE_SIZE })
       if (reloadKeyRef.current !== key) return
       setItems((list) => [...(list ?? []), ...r.items.filter((x) => !(list ?? []).some((y) => y.id === x.id))])
       setTotal(r.total)
@@ -170,6 +172,31 @@ export function ProductsPage() {
         </select>
       </div>
 
+      {/* Филтри суратҳо: «📷 Сурати муваққатӣ» — пурфурӯшҳо аввал */}
+      <div className="-mt-2 mb-5 flex flex-wrap items-center gap-2">
+        {([
+          [null, 'Ҳама'],
+          ['temporary', '📷 Сурати муваққатӣ'],
+          ['none', 'Бе сурат'],
+        ] as const).map(([value, label]) => (
+          <button
+            key={label}
+            type="button"
+            onClick={() => setPhoto(value)}
+            aria-pressed={photo === value}
+            className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors ${
+              photo === value ? 'bg-foreground text-background' : 'bg-surface-2 text-muted hover:text-foreground'
+            }`}
+          >
+            {label}
+            {photo === value && items ? ` · ${total.toLocaleString('ru-RU')}` : ''}
+          </button>
+        ))}
+        {photo === 'temporary' && (
+          <span className="text-xs text-muted">Пурфурӯшҳо аввал — аввал онҳоро аксбардорӣ кунед (📷 дар формаи мол).</span>
+        )}
+      </div>
+
       {loadError ? (
         <div className="flex flex-col items-center gap-3 rounded-3xl border border-border bg-surface px-6 py-16 text-center">
           <p className="font-medium text-danger">{loadError}</p>
@@ -217,6 +244,14 @@ export function ProductsPage() {
                   {!p.isActive && (
                     <span className="absolute top-2 right-2 rounded-lg bg-surface px-2 py-0.5 text-xs font-semibold text-muted shadow">
                       Пинҳон
+                    </span>
+                  )}
+                  {p.temporaryPhoto && (
+                    <span
+                      title="Сурати муваққатӣ — бо акси худӣ иваз кунед"
+                      className="absolute right-2 bottom-2 rounded-lg bg-[#f59e0b] px-1.5 py-0.5 text-[11px] font-bold text-white shadow"
+                    >
+                      📷 муваққатӣ
                     </span>
                   )}
                   {openingId === p.id && (

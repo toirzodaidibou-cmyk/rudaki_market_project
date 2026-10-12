@@ -34,6 +34,35 @@ type Props = {
 /** "12,50" / "12.5" → 12.5; холӣ ё нодуруст → NaN */
 const parsePrice = (s: string) => (s.trim() === '' ? NaN : Number(s.replace(',', '.').replace(/\s/g, '')))
 
+const MAX_SIDE = 2000
+const KEEP_AS_IS_BYTES = 2.5 * 1024 * 1024
+
+/**
+ * Акси камераи телефон (3–8 MB, баъзан HEIC) дар худи браузер то 2000px ва JPEG хурд карда мешавад —
+ * бор кардан тез ва аз ҳадди 5 MB-и сервер намегузарад. Файлҳои хурди PNG/JPEG/WebP — бетағйир.
+ */
+async function prepareImage(file: File): Promise<File | null> {
+  if (IMAGE_TYPES.includes(file.type) && file.size <= KEEP_AS_IS_BYTES) return file
+  try {
+    const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' })
+    const scale = Math.min(1, MAX_SIDE / Math.max(bitmap.width, bitmap.height))
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.round(bitmap.width * scale)
+    canvas.height = Math.round(bitmap.height * scale)
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return null
+    ctx.fillStyle = '#fff' // PNG-и шаффоф → заминаи сафед
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+    bitmap.close()
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.9))
+    if (!blob) return null
+    return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' })
+  } catch {
+    return null // браузер ин форматро намехонад
+  }
+}
+
 export function ProductForm({ open, product, categories, defaultCategoryId, onClose, onSaved }: Props) {
   const formId = useId()
   // Форма ҳар бор аз нав сохта мешавад (key дар ProductsPage) — қиматҳои аввала аз product.
@@ -51,6 +80,8 @@ export function ProductForm({ open, product, categories, defaultCategoryId, onCl
   const [sizeLabel, setSizeLabel] = useState(product?.sizeLabel ?? '')
   const [isNew, setIsNew] = useState(product?.isNew ?? false)
   const [isActive, setIsActive] = useState(product?.isActive ?? true)
+  const [temporaryPhoto, setTemporaryPhoto] = useState(product?.temporaryPhoto ?? false)
+  const [preparing, setPreparing] = useState(false)
   const [images, setImages] = useState<ImageItem[]>(
     product?.images.map((i) => ({ kind: 'existing', key: `e${i.id}`, id: i.id, src: fileUrl(i.thumb)! })) ?? [],
   )
@@ -67,20 +98,28 @@ export function ProductForm({ open, product, categories, defaultCategoryId, onCl
     [],
   )
 
-  function addFiles(files: FileList | File[]) {
+  /** fromCamera — акси худӣ: нишонаи «сурати муваққатӣ» худкор хориҷ мешавад. */
+  async function addFiles(files: FileList | File[], fromCamera = false) {
     const list = Array.from(files)
     const problems: string[] = []
     const accepted: ImageItem[] = []
-    for (const file of list) {
-      if (images.length + accepted.length >= MAX_IMAGES) {
-        problems.push(`Ҳадди аксар ${MAX_IMAGES} сурат.`)
-        break
+    setPreparing(true)
+    try {
+      for (const original of list) {
+        if (images.length + accepted.length >= MAX_IMAGES) {
+          problems.push(`Ҳадди аксар ${MAX_IMAGES} сурат.`)
+          break
+        }
+        const file = await prepareImage(original)
+        if (!file) problems.push(`«${original.name}»: ин сурат хонда нашуд (PNG, JPEG ё WebP фиристед).`)
+        else if (file.size > MAX_IMAGE_BYTES) problems.push(`«${original.name}»: андоза бояд то 5 MB бошад.`)
+        else accepted.push({ kind: 'new', key: `n${crypto.randomUUID()}`, file, src: URL.createObjectURL(file) })
       }
-      if (!IMAGE_TYPES.includes(file.type)) problems.push(`«${file.name}»: танҳо PNG, JPEG ё WebP.`)
-      else if (file.size > MAX_IMAGE_BYTES) problems.push(`«${file.name}»: андоза бояд то 5 MB бошад.`)
-      else accepted.push({ kind: 'new', key: `n${crypto.randomUUID()}`, file, src: URL.createObjectURL(file) })
+    } finally {
+      setPreparing(false)
     }
     setImages((imgs) => [...imgs, ...accepted])
+    if (fromCamera && accepted.length > 0) setTemporaryPhoto(false)
     setErrors(({ images: _old, ...rest }) => (problems.length ? { ...rest, images: problems } : rest))
   }
 
@@ -129,6 +168,7 @@ export function ProductForm({ open, product, categories, defaultCategoryId, onCl
         sizeLabel: sizeLabel.trim() || null,
         isNew,
         isActive,
+        temporaryPhoto,
       }
       // 1. Маълумоти мол
       let saved = savedId === null ? await api.products.create(data) : await api.products.update(savedId, data)
@@ -195,11 +235,27 @@ export function ProductForm({ open, product, categories, defaultCategoryId, onCl
 
         <ImageManager
           images={images}
-          onAdd={addFiles}
+          onAdd={(files) => void addFiles(files)}
+          onCamera={(files) => void addFiles(files, true)}
           onRemove={removeImage}
           onMove={moveImage}
+          preparing={preparing}
           errors={errors.images}
         />
+        {temporaryPhoto && (
+          <div className="-mt-3 flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-[#f59e0b]/12 px-4 py-3 text-sm">
+            <span>
+              <b>📷 Сурати муваққатӣ</b> — аз манбаи бегона. Бо акси худӣ иваз кунед (тугмаи «Акс гирифтан»).
+            </span>
+            <button
+              type="button"
+              onClick={() => setTemporaryPhoto(false)}
+              className="rounded-lg bg-surface px-3 py-1.5 text-xs font-semibold hover:bg-surface-2"
+            >
+              Сурат худӣ аст
+            </button>
+          </div>
+        )}
 
         <label className="block">
           <span className="mb-1.5 block text-sm font-semibold">Категория</span>
@@ -363,17 +419,22 @@ function ToggleRow({
 function ImageManager({
   images,
   onAdd,
+  onCamera,
   onRemove,
   onMove,
+  preparing,
   errors,
 }: {
   images: ImageItem[]
   onAdd: (files: FileList) => void
+  onCamera: (files: FileList) => void
   onRemove: (key: string) => void
   onMove: (index: number, delta: -1 | 1) => void
+  preparing: boolean
   errors?: string[]
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const cameraRef = useRef<HTMLInputElement>(null)
   const [dragging, setDragging] = useState(false)
 
   function onDrop(e: DragEvent) {
@@ -384,12 +445,23 @@ function ImageManager({
 
   return (
     <div>
-      <div className="mb-2 flex items-baseline justify-between">
-        <span className="text-sm font-semibold">Суратҳо</span>
-        <span className="text-xs text-muted">
-          {images.length}/{MAX_IMAGES} · аввалин — асосӣ
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <span className="text-sm font-semibold">
+          Суратҳо <span className="font-normal text-muted">· {images.length}/{MAX_IMAGES} · аввалин — асосӣ</span>
         </span>
+        {/* Дар телефон камераро мустақим мекушояд (дар компютер — интихоби файл) */}
+        {images.length < MAX_IMAGES && (
+          <button
+            type="button"
+            onClick={() => cameraRef.current?.click()}
+            disabled={preparing}
+            className="flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-sm font-bold text-on-accent transition-transform active:scale-95 disabled:opacity-60"
+          >
+            📷 Акс гирифтан
+          </button>
+        )}
       </div>
+      {preparing && <p className="mb-2 text-xs font-medium text-muted">Сурат омода мешавад…</p>}
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
         {images.map((img, i) => (
           <div key={img.key} className="group relative aspect-square overflow-hidden rounded-2xl bg-white ring-1 ring-black/[0.06] ring-inset dark:ring-white/10">
@@ -454,15 +526,28 @@ function ImageManager({
         ref={inputRef}
         type="file"
         multiple
-        accept={IMAGE_TYPES.join(',')}
+        accept={`${IMAGE_TYPES.join(',')},image/heic,image/heif`}
         className="hidden"
         onChange={(e) => {
           if (e.target.files) onAdd(e.target.files)
           e.target.value = ''
         }}
       />
+      <input
+        ref={cameraRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={(e) => {
+          if (e.target.files) onCamera(e.target.files)
+          e.target.value = ''
+        }}
+      />
       {errors?.map((m) => <FieldError key={m} text={m} />)}
-      <p className="mt-1.5 text-xs text-muted">PNG, JPEG, WebP · то 5 MB · худкор ба WebP табдил ва хурд карда мешавад</p>
+      <p className="mt-1.5 text-xs text-muted">
+        Молро ба варақи сафед гузоред, дар рӯшноии рӯз — замина худкор тоза мешавад, мол дар марказ. PNG, JPEG, WebP; акси калон худкор хурд мешавад.
+      </p>
     </div>
   )
 }

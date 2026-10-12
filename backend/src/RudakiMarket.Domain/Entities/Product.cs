@@ -33,6 +33,12 @@ public sealed class Product
     /// <summary>Агар false бошад, дар сайт нишон дода намешавад.</summary>
     public bool IsActive { get; set; } = true;
 
+    /// <summary>
+    /// Сурати муваққатӣ (аз манбаи бегона) — бояд бо акси худии мағоза иваз шавад.
+    /// Дар админ филтр ва нишона; бо акс аз камера худкор false мешавад.
+    /// </summary>
+    public bool TemporaryPhoto { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 

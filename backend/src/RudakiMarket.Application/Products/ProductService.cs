@@ -18,23 +18,33 @@ public sealed class ProductService(IAppDbContext db, IFileStorage files, IImageP
 
     // --- Рӯйхатҳо (ҳамеша саҳифа ба саҳифа — барои миллионҳо мол) ---
 
-    public async Task<PagedResult<ProductListItemDto>> ListAsync(string? term, int? categoryId, int page, int pageSize, CancellationToken ct)
+    /// <param name="photo">
+    /// null — ҳама; "temporary" — сурати муваққатӣ (пурфурӯшҳо аввал — аввал онҳоро аксбардорӣ кунед);
+    /// "none" — бе сурат.
+    /// </param>
+    public async Task<PagedResult<ProductListItemDto>> ListAsync(
+        string? term, int? categoryId, int page, int pageSize, CancellationToken ct, string? photo = null)
     {
         (page, pageSize) = NormalizePaging(page, pageSize);
         var query = db.Products.AsNoTracking();
         if (categoryId is not null) query = query.Where(p => p.CategoryId == categoryId);
         var q = term?.Trim();
         if (!string.IsNullOrEmpty(q)) query = search.ProductsByName(query, q);
+        if (photo == "temporary") query = query.Where(p => p.TemporaryPhoto);
+        else if (photo == "none") query = query.Where(p => !p.Images.Any());
 
         var total = await query.CountAsync(ct);
-        var items = await query
-            .OrderByDescending(p => p.Id)
+        var ordered = photo == "temporary"
+            ? query.OrderByDescending(p => db.OrderItems.Where(i => i.ProductId == p.Id).Sum(i => (int?)i.Quantity) ?? 0)
+                .ThenByDescending(p => p.Id)
+            : query.OrderByDescending(p => p.Id);
+        var items = await ordered
             .Skip((page - 1) * pageSize).Take(pageSize)
             .Select(p => new ProductListItemDto(
                 p.Id, p.CategoryId, new LocalizedNames(p.NameTg, p.NameRu, p.NameEn, p.NameUz),
                 p.Price, p.OldPrice, p.SizeLabel, p.IsNew, p.IsActive,
                 p.Images.OrderBy(i => i.SortOrder).Select(i => i.ThumbPath).FirstOrDefault(),
-                p.Images.Count))
+                p.Images.Count, p.TemporaryPhoto))
             .ToListAsync(ct);
         return new PagedResult<ProductListItemDto>(items, total, page, pageSize);
     }
@@ -365,6 +375,8 @@ public sealed class ProductService(IAppDbContext db, IFileStorage files, IImageP
         p.SizeLabel = r.SizeLabel;
         p.IsNew = r.IsNew;
         p.IsActive = r.IsActive;
+        // null — бетағйир (масалан, тугмаи «Дар сайт» дар рӯйхат ё муштариёни кӯҳна)
+        if (r.TemporaryPhoto is { } temporary) p.TemporaryPhoto = temporary;
         p.UpdatedAt = now;
     }
 
@@ -374,5 +386,5 @@ public sealed class ProductService(IAppDbContext db, IFileStorage files, IImageP
         new LocalizedNames(p.DescriptionTg ?? "", p.DescriptionRu ?? "", p.DescriptionEn ?? "", p.DescriptionUz ?? ""),
         p.Price, p.OldPrice, p.SizeLabel, p.IsNew, p.IsActive,
         p.Images.OrderBy(i => i.SortOrder).Select(i => new ProductImageDto(i.Id, i.Path, i.ThumbPath)).ToList(),
-        p.CreatedAt, p.UpdatedAt);
+        p.CreatedAt, p.UpdatedAt, p.TemporaryPhoto);
 }
