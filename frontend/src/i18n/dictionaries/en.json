@@ -289,5 +289,49 @@
     "inside": "In this bundle",
     "total": "Total",
     "error": "Something went wrong. Try again."
+  },
+  "info": {
+    "tagline": "Online grocery store in Rudaki district. Delivery to your door.",
+    "shop": "Store",
+    "help": "For customers",
+    "contact": "Contacts",
+    "rights": "All rights reserved.",
+    "everyday": "Daily {hours}",
+    "about": {
+      "title": "About us",
+      "p1": "RUDAKI MARKET is an online store for groceries and everyday goods for residents of Rudaki district.",
+      "p2": "You choose products on the website and a convenient time — we pack the order and bring it to your door. Pay on delivery: cash or via Alif, Dushanbe City and Korti Milli.",
+      "p3": "Can't find a product or have a question? Call or message us."
+    },
+    "delivery": {
+      "title": "Delivery & payment",
+      "zoneT": "Delivery area",
+      "zone": "We deliver within Rudaki district. Check your address on the map on the home page — it shows the zone and estimated time.",
+      "timeT": "Delivery hours",
+      "time": "Daily from {open} to {close}. When ordering, choose “as soon as possible” or a convenient time (2-hour slots, today or tomorrow).",
+      "costT": "Delivery cost",
+      "cost": "{fee} for orders under {free}. Free from {free}.",
+      "payT": "Payment",
+      "pay": "On delivery: cash or via Alif, Dushanbe City (DC) and Korti Milli.",
+      "howT": "How to order",
+      "how": [
+        "Add products to the cart.",
+        "In the cart, enter the address, time and payment method.",
+        "Sign in with your phone number and confirm the order.",
+        "Track the order status in your profile or in the Telegram bot."
+      ],
+      "questionsT": "Questions?",
+      "questions": "Call us or message us on WhatsApp and Telegram."
+    },
+    "contacts": {
+      "title": "Contacts",
+      "phone": "Phone",
+      "call": "Call",
+      "write": "Message",
+      "hours": "Opening hours",
+      "area": "Delivery area",
+      "areaValue": "Rudaki district",
+      "map": "Show on map"
+    }
   }
 }

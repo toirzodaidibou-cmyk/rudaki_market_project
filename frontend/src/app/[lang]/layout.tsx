@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { InlineScript } from "@/components/InlineScript";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { CartBar } from "@/components/layout/CartBar";
+import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { CustomerProvider } from "@/customer/CustomerProvider";
 import { hasLocale, locales } from "@/i18n/config";
@@ -64,6 +65,7 @@ export default async function RootLayout({
           <CustomerProvider>
             <Navbar locale={lang} dict={dict} />
             {children}
+            <Footer lang={lang} dict={dict} />
             <CartBar />
             <BottomNav />
           </CustomerProvider>

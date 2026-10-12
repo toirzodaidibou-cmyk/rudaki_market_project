@@ -2,7 +2,7 @@
  * Логотип: ҳарфи R бо нишонаи ҳар дизайн — 1: квадрати сабз бо барг, 2: доираи норинҷӣ,
  * 3: доираи минтагӣ. Ҳар се рендер мешаванд ва CSS (d1/d2/d3) якеро нишон медиҳад.
  */
-export function Logo() {
+export function Logo({ ink = "text-header-ink" }: { ink?: string }) {
   const mark = "h-8 w-8 shrink-0 sm:h-9 sm:w-9";
   return (
     <span className="flex items-center gap-2 select-none">
@@ -46,7 +46,7 @@ export function Logo() {
           strokeLinejoin="round"
         />
       </svg>
-      <span className="text-[17px] leading-none tracking-tight text-header-ink sm:text-[21px]">
+      <span className={`text-[17px] leading-none tracking-tight sm:text-[21px] ${ink}`}>
         <span className="font-black">RUDAKI</span>
         <span className="font-medium opacity-75">MARKET</span>
       </span>

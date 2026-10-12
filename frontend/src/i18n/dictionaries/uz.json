@@ -289,5 +289,49 @@
     "inside": "To‘plamda",
     "total": "Jami",
     "error": "Xatolik. Qayta urinib ko‘ring."
+  },
+  "info": {
+    "tagline": "Rudakiy tumanidagi onlayn oziq-ovqat doʻkoni. Eshikkacha yetkazib berish.",
+    "shop": "Doʻkon",
+    "help": "Xaridorlarga",
+    "contact": "Aloqa",
+    "rights": "Barcha huquqlar himoyalangan.",
+    "everyday": "Har kuni {hours}",
+    "about": {
+      "title": "Biz haqimizda",
+      "p1": "RUDAKI MARKET — Rudakiy tumani aholisi uchun oziq-ovqat va kundalik mahsulotlar onlayn doʻkoni.",
+      "p2": "Siz saytda mahsulot va qulay vaqtni tanlaysiz — biz buyurtmani yigʻib, eshigingizgacha yetkazamiz. Toʻlov qabul qilishda: naqd yoki Alif, Dushanbe City va Korti Milli orqali.",
+      "p3": "Kerakli mahsulotni topmadingizmi yoki savolingiz bormi — bizga qoʻngʻiroq qiling yoki yozing."
+    },
+    "delivery": {
+      "title": "Yetkazish va toʻlov",
+      "zoneT": "Yetkazish hududi",
+      "zone": "Biz Rudakiy tumani boʻylab yetkazamiz. Manzilingizni bosh sahifadagi xaritada tekshiring — hudud va taxminiy vaqt koʻrsatiladi.",
+      "timeT": "Yetkazish vaqti",
+      "time": "Har kuni {open} dan {close} gacha. Buyurtmada «imkon qadar tez» yoki qulay vaqtni (2 soatlik oraliqlar, bugun yoki ertaga) tanlang.",
+      "costT": "Yetkazish narxi",
+      "cost": "{free} gacha buyurtmalar uchun {fee}. {free} dan — bepul.",
+      "payT": "Toʻlov",
+      "pay": "Qabul qilishda: naqd yoki Alif, Dushanbe City (DC) va Korti Milli orqali.",
+      "howT": "Qanday buyurtma berish",
+      "how": [
+        "Mahsulotlarni savatchaga qoʻshing.",
+        "Savatchada manzil, vaqt va toʻlov usulini kiriting.",
+        "Telefon raqamingiz bilan kiring va buyurtmani tasdiqlang.",
+        "Buyurtma holatini profilda yoki Telegram-botda kuzating."
+      ],
+      "questionsT": "Savollar bormi?",
+      "questions": "Bizga qoʻngʻiroq qiling yoki WhatsApp va Telegramda yozing."
+    },
+    "contacts": {
+      "title": "Aloqa",
+      "phone": "Telefon",
+      "call": "Qoʻngʻiroq qilish",
+      "write": "Yozish",
+      "hours": "Ish vaqti",
+      "area": "Yetkazish hududi",
+      "areaValue": "Rudakiy tumani",
+      "map": "Xaritada koʻrish"
+    }
   }
 }
