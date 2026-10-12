@@ -7,7 +7,9 @@
     "homeAria": "RUDAKI MARKET — саҳифаи асосӣ",
     "chooseCity": "Интихоби шаҳр",
     "toggleTheme": "Иваз кардани мавзӯъ (рӯшан/торик)",
-    "language": "Забон"
+    "language": "Забон",
+    "changeDesign": "Иваз кардани дизайн",
+    "district": "Рӯдакӣ"
   },
   "search": {
     "placeholder": "Ҷустуҷӯи молҳо",
@@ -88,7 +90,12 @@
   "home": {
     "newArrivals": "Молҳои нав",
     "title": "Аксияҳо ва молҳои нав",
-    "allProducts": "Ҳамаи молҳо"
+    "allProducts": "Ҳамаи молҳо",
+    "eta": "Расонидан аз 30 дақиқа",
+    "etaFree": "аз {amount} — ройгон",
+    "etaMap": "Харита",
+    "categories": "Категорияҳо",
+    "all": "Ҳама"
   },
   "auth": {
     "title": "Ворид шудан",

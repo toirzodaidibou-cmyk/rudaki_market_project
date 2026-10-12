@@ -1,36 +1,54 @@
+/**
+ * Логотип: ҳарфи R бо нишонаи ҳар дизайн — 1: квадрати сабз бо барг, 2: доираи норинҷӣ,
+ * 3: доираи минтагӣ. Ҳар се рендер мешаванд ва CSS (d1/d2/d3) якеро нишон медиҳад.
+ */
 export function Logo() {
+  const mark = "h-8 w-8 shrink-0 sm:h-9 sm:w-9";
   return (
     <span className="flex items-center gap-2 select-none">
-      <svg
-        viewBox="0 0 32 32"
-        fill="none"
-        aria-hidden="true"
-        className="h-7 w-7 shrink-0 sm:h-8 sm:w-8"
-      >
-        <defs>
-          <linearGradient id="rm-logo-gradient" x1="0" y1="0" x2="32" y2="32">
-            <stop offset="0" stopColor="var(--brand-from)" />
-            <stop offset="1" stopColor="var(--brand-to)" />
-          </linearGradient>
-        </defs>
-        {/* Ҳалқаи кушода (мисли алиф), дар дохилаш ҳарфи R */}
+      <svg viewBox="0 0 32 32" aria-hidden="true" className={`${mark} d2:hidden d3:hidden`}>
+        <rect width="32" height="32" rx="10" fill="#11a24f" />
         <path
-          d="M27.5 21.5A13 13 0 1 1 26.4 8.2"
-          stroke="url(#rm-logo-gradient)"
-          strokeWidth="4"
+          d="M11 23V9h6.2a4.6 4.6 0 0 1 1 9.1L22 23"
+          fill="none"
+          stroke="#fff"
+          strokeWidth="2.8"
           strokeLinecap="round"
+          strokeLinejoin="round"
         />
+        <path d="M21.5 6.5c3 .2 4.3 2 4.2 4.6-2.8-.1-4.3-1.8-4.2-4.6z" fill="#d9f99d" />
+      </svg>
+      <svg viewBox="0 0 32 32" aria-hidden="true" className={`${mark} hidden d2:block`}>
+        <circle cx="16" cy="16" r="13.5" fill="#ff7a1a" />
         <path
-          d="M12.5 22V10.5h4.6a3.6 3.6 0 0 1 0 7.2h-4.6M16.6 17.7 20 22"
-          stroke="url(#rm-logo-gradient)"
+          d="M11.5 22.5v-13h5.6a4.2 4.2 0 0 1 .9 8.3l3.5 4.7"
+          fill="none"
+          stroke="#0f3d2e"
           strokeWidth="2.8"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
       </svg>
-      <span className="text-[18px] leading-none tracking-tight text-foreground sm:text-[21px]">
-        <span className="font-extrabold">RUDAKI</span>
-        <span className="font-normal">MARKET</span>
+      <svg viewBox="0 0 32 32" aria-hidden="true" className={`${mark} hidden d3:block`}>
+        <defs>
+          <linearGradient id="rm-logo-mint" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#5be39b" />
+            <stop offset="1" stopColor="#159a57" />
+          </linearGradient>
+        </defs>
+        <path d="M16 3C24 3 29 8 29 16c0 8-5 13-13 13S3 24 3 16 8 3 16 3z" fill="url(#rm-logo-mint)" />
+        <path
+          d="M11.5 22.5v-13h5.6a4.2 4.2 0 0 1 .9 8.3l3.5 4.7"
+          fill="none"
+          stroke="#fff"
+          strokeWidth="2.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+      <span className="text-[17px] leading-none tracking-tight text-header-ink sm:text-[21px]">
+        <span className="font-black">RUDAKI</span>
+        <span className="font-medium opacity-75">MARKET</span>
       </span>
     </span>
   );

@@ -66,7 +66,7 @@ export default async function ProductPage({ params }: Props) {
           <div>
             <h1 className="text-2xl leading-tight font-extrabold tracking-tight text-foreground sm:text-3xl">{name}</h1>
             {p.sizeLabel && (
-              <span className="mt-2 inline-block rounded-lg bg-surface px-2.5 py-1 text-sm font-bold text-[#c2185b] dark:text-white">
+              <span className="mt-2 inline-block rounded-lg bg-size-bg px-2.5 py-1 text-sm font-bold text-size-ink d3:rounded-full d3:ring-1 d3:ring-card-ring">
                 {p.sizeLabel}
               </span>
             )}

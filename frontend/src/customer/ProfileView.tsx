@@ -116,7 +116,7 @@ export function ProfileView() {
   if (user === null) {
     return (
       <div className="mx-auto max-w-md rounded-[28px] bg-surface p-6 sm:mt-6 sm:p-8">
-        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/20 text-[#b07800] dark:text-accent">
+        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-soft text-brand-soft-ink">
           <ProfileSolidIcon width={30} height={30} />
         </div>
         <h2 className="text-2xl font-extrabold tracking-tight text-foreground">{dict.auth.title}</h2>

@@ -192,7 +192,9 @@ export default function RudakiMap() {
           interactive: false,
         }).addTo(map);
         L.polygon(district, { pane: "outline", color: "#111", weight: 6, opacity: 0.35, fill: false, interactive: false }).addTo(map);
-        L.polygon(district, { pane: "outline", color: "#ffc940", weight: 3, fill: false, interactive: false }).addTo(map);
+        // Ҳудуди ноҳия — бо ранги дизайни ҷорӣ (--accent)
+        const accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#11a24f";
+        L.polygon(district, { pane: "outline", color: accent, weight: 3, fill: false, interactive: false }).addTo(map);
 
         // Минтақаҳо: дур (то 15 км) ва наздик (то 5 км); берун аз 15 км — "дур" (тамоми ноҳия)
         for (const z of [...DELIVERY_ZONES].reverse()) {

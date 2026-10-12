@@ -178,6 +178,111 @@ export function ProfileSolidIcon(props: IconProps) {
   );
 }
 
+// --- Иконаҳои хатии нав (дизайни сабз): 24px, хати 1.8, кунҷҳои мудаввар.
+// active — дохили икона бо ранги нимшаффоф пур мешавад (менюи поён). ---
+
+type LineIconProps = IconProps & { active?: boolean };
+
+const line = (active?: boolean): IconProps => ({
+  ...base,
+  width: 24,
+  height: 24,
+  strokeWidth: 1.8,
+  fill: active ? "currentColor" : "none",
+  fillOpacity: active ? 0.16 : undefined,
+});
+
+export function HomeIcon({ active, ...props }: LineIconProps) {
+  return (
+    <svg {...line(active)} {...props}>
+      <path d="M3.5 10.6 12 3.8l8.5 6.8V19a2 2 0 0 1-2 2h-3.3v-5.6a1 1 0 0 0-1-1h-4.4a1 1 0 0 0-1 1V21H5.5a2 2 0 0 1-2-2z" />
+    </svg>
+  );
+}
+
+export function GridIcon({ active, ...props }: LineIconProps) {
+  return (
+    <svg {...line(active)} {...props}>
+      <rect x="3.5" y="3.5" width="7" height="7" rx="2.2" />
+      <rect x="13.5" y="3.5" width="7" height="7" rx="3.5" />
+      <rect x="3.5" y="13.5" width="7" height="7" rx="2.2" />
+      <rect x="13.5" y="13.5" width="7" height="7" rx="2.2" />
+    </svg>
+  );
+}
+
+export function BagIcon({ active, ...props }: LineIconProps) {
+  return (
+    <svg {...line(active)} {...props}>
+      <path d="M4.8 8.2h14.4l-1.1 10.9a2.2 2.2 0 0 1-2.2 1.9H8.1a2.2 2.2 0 0 1-2.2-1.9z" />
+      <path d="M8.8 10.5V7.2a3.2 3.2 0 0 1 6.4 0v3.3" fill="none" />
+    </svg>
+  );
+}
+
+export function HeartLineIcon({ active, ...props }: LineIconProps) {
+  return (
+    <svg {...line(active)} {...props}>
+      <path d="M12 20.2s-7.6-4.5-7.6-10.3A4.2 4.2 0 0 1 12 7.4a4.2 4.2 0 0 1 7.6 2.5c0 5.8-7.6 10.3-7.6 10.3z" />
+    </svg>
+  );
+}
+
+export function UserIcon({ active, ...props }: LineIconProps) {
+  return (
+    <svg {...line(active)} {...props}>
+      <circle cx="12" cy="8.2" r="4" />
+      <path d="M4.5 20.5a7.5 7.5 0 0 1 15 0" />
+    </svg>
+  );
+}
+
+/** Ивази дизайн (1 → 2 → 3) */
+export function PaletteIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 3.5a8.5 8.5 0 0 0 0 17c1.2 0 1.8-.7 1.8-1.6 0-.5-.2-.9-.5-1.2-.3-.4-.5-.7-.5-1.2 0-.9.7-1.6 1.6-1.6h1.9a4.2 4.2 0 0 0 4.2-4.2c0-4-3.8-7.2-8.5-7.2Z" />
+      <circle cx="7.6" cy="11.2" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="10.2" cy="7.6" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="14.6" cy="7.8" r="1.1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function BoltIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M13.2 3 5.5 13.4h5.6L10.4 21l7.9-10.5h-5.7z" />
+    </svg>
+  );
+}
+
+export function ScooterIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="6.5" cy="17" r="2.6" />
+      <circle cx="17.5" cy="17" r="2.6" />
+      <path d="M9.1 17h5.8l1.6-7H19M14 6h2.6l1.4 4M3.5 12.5h6l1.5 4.5" />
+    </svg>
+  );
+}
+
+export function PlusIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 5.5v13M5.5 12h13" />
+    </svg>
+  );
+}
+
+export function MinusIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M5.5 12h13" />
+    </svg>
+  );
+}
+
 export function MoonIcon(props: IconProps) {
   return (
     <svg {...base} {...props}>

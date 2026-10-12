@@ -7,7 +7,9 @@
     "homeAria": "RUDAKI MARKET — home page",
     "chooseCity": "Choose city",
     "toggleTheme": "Toggle theme (light/dark)",
-    "language": "Language"
+    "language": "Language",
+    "changeDesign": "Change design",
+    "district": "Rudaki"
   },
   "search": {
     "placeholder": "Search products",
@@ -88,7 +90,12 @@
   "home": {
     "newArrivals": "New arrivals",
     "title": "Deals & new arrivals",
-    "allProducts": "All products"
+    "allProducts": "All products",
+    "eta": "Delivery from 30 min",
+    "etaFree": "free from {amount}",
+    "etaMap": "Map",
+    "categories": "Categories",
+    "all": "All"
   },
   "auth": {
     "title": "Sign in",

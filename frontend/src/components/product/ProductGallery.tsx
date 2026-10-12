@@ -51,10 +51,10 @@ export function ProductGallery({
 
         <div className="pointer-events-none absolute top-4 left-4 flex flex-col items-start gap-2">
           {discount > 0 && (
-            <span className="rounded-xl bg-[#ff3b5c] px-2.5 py-1 text-base font-extrabold text-white shadow-sm">−{discount}%</span>
+            <span className="rounded-xl bg-sale px-2.5 py-1 text-base font-extrabold text-white shadow-sm d3:rounded-full">−{discount}%</span>
           )}
           {isNew && (
-            <span className="flex items-center gap-1.5 rounded-full bg-[#9b3dff] py-1 pr-3 pl-2 text-sm font-medium text-white">
+            <span className="flex items-center gap-1.5 rounded-full bg-new-bg py-1 pr-3 pl-2 text-sm font-bold text-new-ink">
               <BadgeIcon width={16} height={16} />
               {dict.product.isNew}
             </span>

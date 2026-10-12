@@ -42,8 +42,8 @@ export function FavoritesView() {
   if (user === null) {
     return (
       <div className="mx-auto max-w-md rounded-[28px] bg-surface p-6 sm:mt-6 sm:p-8">
-        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#ff3b5c]/10">
-          <HeartIcon width={28} height={28} className="fill-[#ff3b5c] text-[#ff3b5c]" />
+        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-sale/10">
+          <HeartIcon width={28} height={28} className="fill-sale text-sale" />
         </div>
         <h2 className="text-2xl font-extrabold tracking-tight text-foreground">{dict.auth.title}</h2>
         <p className="mt-1 mb-5 text-sm text-muted">{dict.auth.subtitle}</p>

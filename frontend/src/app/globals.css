@@ -3,36 +3,249 @@
 /* Dark mode тавассути атрибути data-theme дар <html> */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
+/* 3 дизайн (data-design дар <html>, тугмаи 🎨 дар сарлавҳа): 1 — «Сабзи тару тоза» (пешфарз),
+   2 — «Ҷангалӣ + норинҷӣ», 3 — «Сабзи нармранг». Фарқҳои шакл — бо вариантҳои d1/d2/d3. */
+@custom-variant d1 (&:where(html:not([data-design="2"]):not([data-design="3"]) *));
+@custom-variant d2 (&:where([data-design="2"], [data-design="2"] *));
+@custom-variant d3 (&:where([data-design="3"], [data-design="3"] *));
+
+/* --- 1. Сабзи тару тоза (равшан) — пешфарз --- */
 :root,
 [data-theme="light"] {
-  --background: #ffffff;
-  --foreground: #111111;
-  --muted: #8a8f98;
-  --surface: #f2f3f5;
-  --surface-hover: #e6e8eb;
-  --border: #eeeff1;
-  --brand-from: #ffc400;
-  --brand-to: #ff8a00;
-  --accent: #ffc940;
-  --accent-glow: rgba(255, 201, 64, 0.28);
-  --on-accent: #111111;
-  --nav-icon: #6f7177;
+  --background: #f5f8f6;
+  --page-bg: #f5f8f6;
+  --foreground: #122019;
+  --muted: #6b7a72;
+  --surface: #ffffff;
+  --surface-hover: #eaf2ed;
+  --border: #e2eae5;
+  --brand-from: #19b25c;
+  --brand-to: #0b7f3d;
+  --accent: #11a24f;
+  --accent-glow: rgba(17, 162, 79, 0.22);
+  --on-accent: #ffffff;
+  --nav-icon: #8a978f;
+  --card: #ffffff;
+  --card-ring: rgba(18, 32, 25, 0.05);
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 10px 24px -16px rgba(9, 60, 30, 0.28);
+  --sale: #ff4d4f;
+  --new-bg: #d9f99d;
+  --new-ink: #2e4a05;
+  --size-bg: #122019;
+  --size-ink: #ffffff;
+  --brand-soft: #e3f6ea;
+  --brand-soft-ink: #0b5f30;
+  --brand-text: #0d8a42;
+  --price: #122019;
+  --header-bg: rgba(245, 248, 246, 0.88);
+  --header-ink: #122019;
+  --header-chip: #ffffff;
+  --header-chip-ink: #3c4a43;
+  --search-bg: #ffffff;
+  --search-ring: rgba(17, 162, 79, 0.12);
+  --nav-bg: rgba(255, 255, 255, 0.94);
+  --nav-ink: #8a978f;
+  --nav-active: #11a24f;
+  --nav-active-bg: #e3f6ea;
+  --step-bg: #e3f6ea;
+  --step-ink: #0b5f30;
+  --step-btn: #ffffff;
+  --r-card: 22px;
+  --r-btn: 14px;
   color-scheme: light;
 }
 
+/* --- 1. Сабзи тару тоза (торик) --- */
 [data-theme="dark"] {
-  --background: #0e0f11;
-  --foreground: #f2f3f5;
-  --muted: #9aa0a8;
-  --surface: #1c1e22;
-  --surface-hover: #272a2f;
-  --border: #1f2125;
-  --brand-from: #ffc400;
-  --brand-to: #ff8a00;
-  --accent: #ffc940;
-  --accent-glow: rgba(255, 201, 64, 0.18);
-  --on-accent: #111111;
-  --nav-icon: #8b9097;
+  --background: #0b120e;
+  --page-bg: #0b120e;
+  --foreground: #e8f2ec;
+  --muted: #8fa197;
+  --surface: #16201b;
+  --surface-hover: #1e2b24;
+  --border: #1d2822;
+  --brand-from: #3fd27f;
+  --brand-to: #11a24f;
+  --accent: #16ad57;
+  --accent-glow: rgba(63, 210, 127, 0.18);
+  --on-accent: #ffffff;
+  --nav-icon: #7e8f86;
+  --card: #141d18;
+  --card-ring: rgba(255, 255, 255, 0.05);
+  --card-shadow: none;
+  --sale: #ff5a5c;
+  --new-bg: #d9f99d;
+  --new-ink: #2e4a05;
+  --size-bg: #e8f2ec;
+  --size-ink: #0b120e;
+  --brand-soft: #11301f;
+  --brand-soft-ink: #9ff0c0;
+  --brand-text: #3fd27f;
+  --price: #e8f2ec;
+  --header-bg: rgba(11, 18, 14, 0.88);
+  --header-ink: #e8f2ec;
+  --header-chip: #16201b;
+  --header-chip-ink: #b9c8c0;
+  --search-bg: #16201b;
+  --search-ring: rgba(63, 210, 127, 0.14);
+  --nav-bg: rgba(20, 29, 24, 0.94);
+  --nav-ink: #7e8f86;
+  --nav-active: #3fd27f;
+  --nav-active-bg: #11301f;
+  --step-bg: #11301f;
+  --step-ink: #9ff0c0;
+  --step-btn: #1b3a28;
+  --r-card: 22px;
+  --r-btn: 14px;
+  color-scheme: dark;
+}
+
+/* --- 2. Ҷангалӣ + норинҷӣ (равшан) --- */
+[data-design="2"] {
+  --background: #f6f1e7;
+  --page-bg: #f6f1e7;
+  --foreground: #1a231d;
+  --muted: #7a7566;
+  --surface: #ffffff;
+  --surface-hover: #efe8da;
+  --border: #e8e0cf;
+  --brand-from: #ff8a2a;
+  --brand-to: #f2580c;
+  --accent: #ff7a1a;
+  --accent-glow: rgba(255, 122, 26, 0.24);
+  --on-accent: #ffffff;
+  --nav-icon: rgba(255, 255, 255, 0.55);
+  --card: #ffffff;
+  --card-ring: rgba(15, 61, 46, 0.06);
+  --card-shadow: 0 8px 22px -16px rgba(15, 61, 46, 0.35);
+  --sale: #ff5a1f;
+  --new-bg: #0f3d2e;
+  --new-ink: #ffd9b8;
+  --size-bg: #f6f1e7;
+  --size-ink: #0f3d2e;
+  --brand-soft: #ffe9d6;
+  --brand-soft-ink: #b34d06;
+  --brand-text: #c4570a;
+  --price: #0f3d2e;
+  --header-bg: #0f3d2e;
+  --header-ink: #ffffff;
+  --header-chip: rgba(255, 255, 255, 0.1);
+  --header-chip-ink: #ffffff;
+  --search-bg: #ffffff;
+  --search-ring: rgba(255, 255, 255, 0);
+  --nav-bg: #0f3d2e;
+  --nav-ink: rgba(255, 255, 255, 0.6);
+  --nav-active: #ffb27a;
+  --nav-active-bg: rgba(255, 255, 255, 0.08);
+  --step-bg: #0f3d2e;
+  --step-ink: #ffffff;
+  --step-btn: rgba(255, 255, 255, 0.12);
+  --r-card: 18px;
+  --r-btn: 14px;
+  color-scheme: light;
+}
+
+/* --- 2. Ҷангалӣ + норинҷӣ (торик) --- */
+[data-design="2"][data-theme="dark"] {
+  --background: #0e1512;
+  --page-bg: #0e1512;
+  --foreground: #efe9dc;
+  --muted: #a39d8e;
+  --surface: #16201b;
+  --surface-hover: #1f2a24;
+  --border: #22302a;
+  --card: #16201b;
+  --card-ring: rgba(255, 255, 255, 0.05);
+  --card-shadow: none;
+  --size-bg: #0f3d2e;
+  --size-ink: #ffd9b8;
+  --brand-soft: #3a2412;
+  --brand-soft-ink: #ffb27a;
+  --brand-text: #ffa060;
+  --price: #ffb27a;
+  --header-bg: #0a2a20;
+  --nav-bg: #0a2a20;
+  --step-bg: #123f2f;
+  color-scheme: dark;
+}
+
+/* --- 3. Сабзи нармранг (равшан) --- */
+[data-design="3"] {
+  --background: #f4fbf7;
+  --page-bg: linear-gradient(180deg, #e2f5ea 0, #f4fbf7 420px, #fbfdfc 100%) fixed;
+  --foreground: #1e2d26;
+  --muted: #71837a;
+  --surface: #ffffff;
+  --surface-hover: #e6f5ec;
+  --border: #d9efe2;
+  --brand-from: #5be39b;
+  --brand-to: #159a57;
+  --accent: #22b46b;
+  --accent-glow: rgba(34, 180, 107, 0.22);
+  --on-accent: #ffffff;
+  --nav-icon: #7d8f86;
+  --card: rgba(255, 255, 255, 0.86);
+  --card-ring: rgba(34, 180, 107, 0.12);
+  --card-shadow: 0 10px 26px -18px rgba(21, 154, 87, 0.45);
+  --sale: #f0597a;
+  --new-bg: #ffffff;
+  --new-ink: #169357;
+  --size-bg: rgba(255, 255, 255, 0.92);
+  --size-ink: #1e2d26;
+  --brand-soft: #d7f3e3;
+  --brand-soft-ink: #137a48;
+  --brand-text: #169357;
+  --price: #1e2d26;
+  --header-bg: rgba(232, 248, 239, 0.62);
+  --header-ink: #1e2d26;
+  --header-chip: rgba(255, 255, 255, 0.72);
+  --header-chip-ink: #3a4c43;
+  --search-bg: rgba(255, 255, 255, 0.8);
+  --search-ring: rgba(34, 180, 107, 0.2);
+  --nav-bg: rgba(255, 255, 255, 0.72);
+  --nav-ink: #7d8f86;
+  --nav-active: #169357;
+  --nav-active-bg: #d7f3e3;
+  --step-bg: #22b46b;
+  --step-ink: #ffffff;
+  --step-btn: rgba(255, 255, 255, 0.22);
+  --r-card: 26px;
+  --r-btn: 9999px;
+  color-scheme: light;
+}
+
+/* --- 3. Сабзи нармранг (торик) --- */
+[data-design="3"][data-theme="dark"] {
+  --background: #0b110e;
+  --page-bg: linear-gradient(180deg, #0f2a1d 0, #0c1712 420px, #0b110e 100%) fixed;
+  --foreground: #e3f1e9;
+  --muted: #8fa69a;
+  --surface: #15211b;
+  --surface-hover: #1c2b23;
+  --border: #1f3329;
+  --accent-glow: rgba(91, 227, 155, 0.16);
+  --nav-icon: #7d9488;
+  --card: rgba(255, 255, 255, 0.05);
+  --card-ring: rgba(91, 227, 155, 0.1);
+  --card-shadow: none;
+  --new-bg: #173a28;
+  --new-ink: #7ff0b4;
+  --size-bg: rgba(255, 255, 255, 0.92);
+  --size-ink: #1e2d26;
+  --brand-soft: #173a28;
+  --brand-soft-ink: #7ff0b4;
+  --brand-text: #5be39b;
+  --price: #e3f1e9;
+  --header-bg: rgba(15, 42, 29, 0.6);
+  --header-ink: #e3f1e9;
+  --header-chip: rgba(255, 255, 255, 0.07);
+  --header-chip-ink: #c5d8ce;
+  --search-bg: rgba(255, 255, 255, 0.06);
+  --search-ring: rgba(91, 227, 155, 0.18);
+  --nav-bg: rgba(20, 32, 26, 0.75);
+  --nav-ink: #7d9488;
+  --nav-active: #5be39b;
+  --nav-active-bg: #173a28;
   color-scheme: dark;
 }
 
@@ -48,6 +261,31 @@
   --color-accent: var(--accent);
   --color-on-accent: var(--on-accent);
   --color-nav-icon: var(--nav-icon);
+  --color-card: var(--card);
+  --color-card-ring: var(--card-ring);
+  --color-sale: var(--sale);
+  --color-new-bg: var(--new-bg);
+  --color-new-ink: var(--new-ink);
+  --color-size-bg: var(--size-bg);
+  --color-size-ink: var(--size-ink);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-soft-ink: var(--brand-soft-ink);
+  --color-brand-text: var(--brand-text);
+  --color-price: var(--price);
+  --color-header-bg: var(--header-bg);
+  --color-header-ink: var(--header-ink);
+  --color-header-chip: var(--header-chip);
+  --color-header-chip-ink: var(--header-chip-ink);
+  --color-search-bg: var(--search-bg);
+  --color-nav-bg: var(--nav-bg);
+  --color-nav-ink: var(--nav-ink);
+  --color-nav-active: var(--nav-active);
+  --color-nav-active-bg: var(--nav-active-bg);
+  --color-step-bg: var(--step-bg);
+  --color-step-ink: var(--step-ink);
+  --color-step-btn: var(--step-btn);
+  --radius-card: var(--r-card);
+  --radius-btn: var(--r-btn);
   --font-sans: var(--font-inter);
 
   /* Иконаи фаъоли менюи поён ҳангоми интихоб каме "меҷаҳад" */
@@ -91,7 +329,8 @@
 }
 
 body {
-  background: var(--background);
+  /* Дизайни 3 — градиенти нарм; дигарон — ранги яклухт */
+  background: var(--page-bg);
   color: var(--foreground);
   font-family: var(--font-inter), system-ui, sans-serif;
   transition:
@@ -143,7 +382,7 @@ body {
   height: 44px;
   border-radius: 9999px 9999px 9999px 4px;
   transform: rotate(-45deg);
-  background: linear-gradient(135deg, #ffc940, #ff8a00);
+  background: linear-gradient(135deg, var(--brand-from), var(--brand-to));
   border: 3px solid #fff;
   box-shadow: 0 6px 16px rgb(0 0 0 / 0.35);
 }

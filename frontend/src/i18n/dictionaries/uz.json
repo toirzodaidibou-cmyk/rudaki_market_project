@@ -7,7 +7,9 @@
     "homeAria": "RUDAKI MARKET — bosh sahifa",
     "chooseCity": "Shaharni tanlash",
     "toggleTheme": "Mavzuni almashtirish (yorugʻ/qorongʻi)",
-    "language": "Til"
+    "language": "Til",
+    "changeDesign": "Dizaynni almashtirish",
+    "district": "Rudakiy"
   },
   "search": {
     "placeholder": "Mahsulotlarni qidirish",
@@ -88,7 +90,12 @@
   "home": {
     "newArrivals": "Yangi mahsulotlar",
     "title": "Aksiyalar va yangi mahsulotlar",
-    "allProducts": "Barcha mahsulotlar"
+    "allProducts": "Barcha mahsulotlar",
+    "eta": "Yetkazish 30 daqiqadan",
+    "etaFree": "{amount} dan — bepul",
+    "etaMap": "Xarita",
+    "categories": "Kategoriyalar",
+    "all": "Barchasi"
   },
   "auth": {
     "title": "Kirish",

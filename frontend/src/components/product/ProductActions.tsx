@@ -32,13 +32,13 @@ export function ProductActions({ id, name, price, oldPrice }: { id: number; name
   return (
     <div>
       <div className="flex flex-wrap items-baseline gap-x-3">
-        <span className="text-3xl font-extrabold tracking-tight text-foreground tabular-nums">{formatPrice(price)}</span>
+        <span className="text-3xl font-extrabold tracking-tight text-price tabular-nums">{formatPrice(price)}</span>
         {oldPrice && oldPrice > price && <span className="text-lg text-muted line-through tabular-nums">{formatPrice(oldPrice)}</span>}
       </div>
 
       <div className="mt-4 flex gap-2">
-        <div className="flex-1 [&_button]:h-13 [&_button]:text-base [&>div]:h-13">
-          <CartButton productId={id} label={t.addToCart} />
+        <div className="flex-1">
+          <CartButton productId={id} label={t.addToCart} size="lg" />
         </div>
         <button
           type="button"
@@ -46,13 +46,13 @@ export function ProductActions({ id, name, price, oldPrice }: { id: number; name
           aria-pressed={favorite}
           aria-label={favorite ? t.favoriteRemove : t.favoriteAdd}
           title={favorite ? t.favoriteRemove : t.favoriteAdd}
-          className="flex h-13 w-13 shrink-0 items-center justify-center rounded-xl bg-surface transition-transform hover:bg-surface-hover active:scale-90"
+          className="flex h-13 w-13 shrink-0 items-center justify-center rounded-btn bg-card ring-1 ring-border transition-transform hover:bg-surface-hover active:scale-90"
         >
           <HeartIcon
             width={26}
             height={26}
             strokeWidth={1.8}
-            className={favorite ? "fill-[#ff3b5c] text-[#ff3b5c]" : "text-foreground"}
+            className={favorite ? "fill-sale text-sale" : "text-foreground"}
           />
         </button>
         <button
@@ -60,7 +60,7 @@ export function ProductActions({ id, name, price, oldPrice }: { id: number; name
           onClick={share}
           aria-label={dict.productPage.share}
           title={copied ? dict.productPage.copied : dict.productPage.share}
-          className="flex h-13 w-13 shrink-0 items-center justify-center rounded-xl bg-surface text-foreground transition-transform hover:bg-surface-hover active:scale-90"
+          className="flex h-13 w-13 shrink-0 items-center justify-center rounded-btn bg-card text-foreground ring-1 ring-border transition-transform hover:bg-surface-hover active:scale-90"
         >
           {copied ? (
             <span className="text-lg">✓</span>

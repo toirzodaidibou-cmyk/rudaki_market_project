@@ -96,8 +96,10 @@ export function SearchBar() {
         search(query);
       }}
     >
-      <div className="flex rounded-2xl bg-accent p-[3px] transition-shadow duration-200 focus-within:shadow-[0_0_0_5px_var(--accent-glow)]">
-        <div className="flex min-w-0 flex-1 items-center rounded-[13px] bg-background pr-2 pl-4">
+      {/* Майдони тоза бо тугмаи ҷустуҷӯ дар дохил (шакл ва ранг аз дизайн) */}
+      <div className="flex h-12 items-center gap-2 rounded-2xl bg-search-bg pr-1.5 pl-3.5 shadow-[0_6px_18px_-12px_var(--accent-glow)] ring-1 ring-[var(--search-ring)] transition-shadow duration-200 focus-within:shadow-[0_0_0_4px_var(--accent-glow)] focus-within:ring-accent sm:h-[52px] d2:ring-0 d3:rounded-full">
+        <SearchIcon width={20} height={20} className="shrink-0 text-muted" />
+        <div className="flex min-w-0 flex-1 items-center">
           <input
             ref={inputRef}
             name="q"
@@ -130,7 +132,7 @@ export function SearchBar() {
               setActive(-1);
             }}
             onKeyDown={onKeyDown}
-            className="h-11 w-full min-w-0 bg-transparent text-[15px] text-foreground outline-none placeholder:text-muted sm:h-12 sm:text-base"
+            className="h-11 w-full min-w-0 bg-transparent text-[15px] text-foreground outline-none placeholder:text-muted sm:text-base"
           />
 
           {query ? (
@@ -160,13 +162,13 @@ export function SearchBar() {
         <button
           type="submit"
           aria-label={t.submit}
-          className="group flex w-12 shrink-0 items-center justify-center rounded-r-[13px] text-on-accent sm:w-14"
+          className="group flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] bg-accent text-on-accent shadow-[0_6px_14px_-6px_var(--accent-glow)] transition-transform active:scale-90 sm:h-10 sm:w-10 d3:rounded-full"
         >
           <SearchIcon
-            width={24}
-            height={24}
+            width={19}
+            height={19}
             strokeWidth={2.2}
-            className="transition-transform duration-200 group-hover:scale-110 group-active:scale-90"
+            className="transition-transform duration-200 group-hover:scale-110"
           />
         </button>
       </div>

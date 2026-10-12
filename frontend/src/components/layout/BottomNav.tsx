@@ -3,13 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ComponentType, SVGProps } from "react";
-import {
-  CartSolidIcon,
-  CatalogSolidIcon,
-  HeartSolidIcon,
-  HomeSolidIcon,
-  ProfileSolidIcon,
-} from "@/components/ui/icons";
+import { BagIcon, GridIcon, HeartLineIcon, HomeIcon, UserIcon } from "@/components/ui/icons";
 import { localizePath, stripLocale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/getDictionary";
 import { useCustomer } from "@/customer/CustomerProvider";
@@ -18,70 +12,79 @@ import { useI18n } from "@/i18n/I18nProvider";
 type NavItem = {
   href: string;
   labelKey: keyof Omit<Dictionary["nav"], "menu">;
-  Icon: ComponentType<SVGProps<SVGSVGElement>>;
+  Icon: ComponentType<SVGProps<SVGSVGElement> & { active?: boolean }>;
 };
 
 const items: NavItem[] = [
-  { href: "/", labelKey: "home", Icon: HomeSolidIcon },
-  { href: "/catalog", labelKey: "catalog", Icon: CatalogSolidIcon },
-  { href: "/cart", labelKey: "cart", Icon: CartSolidIcon },
-  { href: "/favorites", labelKey: "favorites", Icon: HeartSolidIcon },
-  { href: "/profile", labelKey: "profile", Icon: ProfileSolidIcon },
+  { href: "/", labelKey: "home", Icon: HomeIcon },
+  { href: "/catalog", labelKey: "catalog", Icon: GridIcon },
+  { href: "/cart", labelKey: "cart", Icon: BagIcon },
+  { href: "/favorites", labelKey: "favorites", Icon: HeartLineIcon },
+  { href: "/profile", labelKey: "profile", Icon: UserIcon },
 ];
 
 function isActive(path: string, href: string) {
-  return href === "/"
-    ? path === "/"
-    : path === href || path.startsWith(`${href}/`);
+  return href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`);
 }
 
+/**
+ * Менюи поён — панели шинокунанда (телефон) ё «dock» дар мобайн (компютер).
+ * Дизайн 1: иконаи фаъол дар капсулаи сабз; 2: панели сабзи торик бо нуқтаи норинҷӣ;
+ * 3: «шишагин» бо тугмаи калони сабад дар марказ.
+ */
 export function BottomNav() {
   const { locale, dict } = useI18n();
   const { cartCount } = useCustomer();
   const path = stripLocale(usePathname());
 
   return (
-    // Телефон: панели пурра дар поён. Компютер: "dock"-и шинокунанда дар мобайн.
     <nav
       aria-label={dict.nav.menu}
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg md:inset-x-auto md:bottom-5 md:left-1/2 md:w-[540px] md:-translate-x-1/2 md:rounded-full md:border md:px-3 md:pb-0 md:shadow-[0_16px_48px_-16px_rgba(0,0,0,0.3)]"
+      className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 rounded-[26px] bg-nav-bg shadow-[0_14px_40px_-14px_rgba(0,0,0,0.35)] ring-1 ring-black/[0.04] backdrop-blur-xl backdrop-saturate-150 md:inset-x-auto md:bottom-5 md:left-1/2 md:w-[540px] md:-translate-x-1/2 md:px-2 dark:ring-white/[0.06] d2:rounded-[22px] d2:ring-0 d3:rounded-full d3:ring-white/70"
     >
-      <ul className="grid grid-cols-5">
+      <ul className="grid h-16 grid-cols-5 items-center px-1">
         {items.map(({ href, labelKey, Icon }) => {
           const active = isActive(path, href);
+          const isCart = labelKey === "cart";
+          const badge = isCart && cartCount > 0 && (
+            <span className="absolute -top-1.5 -right-2.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-sale px-1 text-[10px] font-bold text-white tabular-nums ring-2 ring-[var(--card)] motion-safe:animate-nav-pop d2:ring-[#0f3d2e]">
+              {cartCount > 99 ? "99+" : cartCount}
+            </span>
+          );
           return (
-            <li key={href}>
+            <li key={href} className="flex justify-center">
               <Link
                 href={localizePath(locale, href)}
                 aria-current={active ? "page" : undefined}
-                className="group flex flex-col items-center gap-1 pt-2.5 pb-2 outline-none md:py-2.5"
+                aria-label={dict.nav[labelKey]}
+                className={`group relative flex min-w-14 flex-col items-center gap-1 outline-none ${
+                  active ? "text-nav-active" : "text-nav-ink hover:text-foreground d2:hover:text-white"
+                }`}
               >
+                {/* Икона: дар дизайни 1 ва 3 — капсулаи фаъол; дар 3 сабад — доираи калон */}
                 <span
-                  className={`flex h-7 items-center justify-center rounded-full transition-colors duration-200 group-focus-visible:ring-2 group-focus-visible:ring-accent group-active:scale-90 ${
-                    active
-                      ? "text-accent motion-safe:animate-nav-pop"
-                      : "text-nav-icon group-hover:text-foreground"
+                  className={`relative flex h-8 w-12 items-center justify-center rounded-xl transition-colors duration-200 group-focus-visible:ring-2 group-focus-visible:ring-accent group-active:scale-90 ${
+                    active ? "bg-nav-active-bg motion-safe:animate-nav-pop d2:bg-transparent" : ""
+                  } ${
+                    isCart
+                      ? "d3:-mt-8 d3:h-14 d3:w-14 d3:rounded-full d3:bg-gradient-to-br d3:from-[#2ccf7d] d3:to-[#159a57] d3:text-white d3:shadow-[0_12px_24px_-8px_rgba(21,154,87,0.7),0_0_0_5px_rgba(255,255,255,0.85)] dark:d3:shadow-[0_12px_24px_-8px_rgba(21,154,87,0.7),0_0_0_5px_#0f1a14]"
+                      : ""
                   }`}
                 >
                   <span className="relative">
-                    <Icon />
-                    {/* Шумораи молҳо дар сабад */}
-                    {labelKey === "cart" && cartCount > 0 && (
-                      <span className="absolute -top-1.5 -right-2.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#ff3b5c] px-1 text-[10px] font-bold text-white ring-2 ring-background tabular-nums motion-safe:animate-nav-pop">
-                        {cartCount > 99 ? "99+" : cartCount}
-                      </span>
-                    )}
+                    <Icon active={active} width={23} height={23} />
+                    {badge}
                   </span>
                 </span>
                 <span
-                  className={`max-w-full truncate px-0.5 text-[11px] leading-none sm:text-xs ${
-                    active
-                      ? "font-semibold text-foreground"
-                      : "text-foreground/80 group-hover:text-foreground"
+                  className={`max-w-full truncate px-0.5 text-[10.5px] leading-none sm:text-[11px] ${active ? "font-bold" : "font-medium"} ${
+                    isCart ? "d3:sr-only" : ""
                   }`}
                 >
                   {dict.nav[labelKey]}
                 </span>
+                {/* Дизайни 2: нуқтаи норинҷӣ зери банди фаъол */}
+                {active && <span className="absolute -bottom-2 hidden h-1 w-1 rounded-full bg-accent d2:block" />}
               </Link>
             </li>
           );

@@ -7,7 +7,9 @@
     "homeAria": "RUDAKI MARKET — главная страница",
     "chooseCity": "Выбрать город",
     "toggleTheme": "Сменить тему (светлая/тёмная)",
-    "language": "Язык"
+    "language": "Язык",
+    "changeDesign": "Сменить дизайн",
+    "district": "Рудаки"
   },
   "search": {
     "placeholder": "Искать товары",
@@ -88,7 +90,12 @@
   "home": {
     "newArrivals": "Новые поступления",
     "title": "Акции и новинки",
-    "allProducts": "Все товары"
+    "allProducts": "Все товары",
+    "eta": "Доставка от 30 минут",
+    "etaFree": "от {amount} — бесплатно",
+    "etaMap": "Карта",
+    "categories": "Категории",
+    "all": "Все"
   },
   "auth": {
     "title": "Вход",
