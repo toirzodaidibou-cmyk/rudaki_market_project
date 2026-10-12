@@ -1,12 +1,12 @@
 /**
- * Логотип: ҳарфи R бо нишонаи ҳар дизайн — 1: квадрати сабз бо барг, 2: доираи норинҷӣ,
- * 3: доираи минтагӣ. Ҳар се рендер мешаванд ва CSS (d1/d2/d3) якеро нишон медиҳад.
+ * Логотип: ҳарфи R бо нишонаи ҳар дизайн — 1: квадрати сабз бо барг, 3: доираи минтагӣ.
+ * Ҳарду рендер мешаванд ва CSS (d3) якеро нишон медиҳад.
  */
 export function Logo({ ink = "text-header-ink" }: { ink?: string }) {
   const mark = "h-8 w-8 shrink-0 sm:h-9 sm:w-9";
   return (
     <span className="flex items-center gap-2 select-none">
-      <svg viewBox="0 0 32 32" aria-hidden="true" className={`${mark} d2:hidden d3:hidden`}>
+      <svg viewBox="0 0 32 32" aria-hidden="true" className={`${mark} d3:hidden`}>
         <rect width="32" height="32" rx="10" fill="#11a24f" />
         <path
           d="M11 23V9h6.2a4.6 4.6 0 0 1 1 9.1L22 23"
@@ -17,17 +17,6 @@ export function Logo({ ink = "text-header-ink" }: { ink?: string }) {
           strokeLinejoin="round"
         />
         <path d="M21.5 6.5c3 .2 4.3 2 4.2 4.6-2.8-.1-4.3-1.8-4.2-4.6z" fill="#d9f99d" />
-      </svg>
-      <svg viewBox="0 0 32 32" aria-hidden="true" className={`${mark} hidden d2:block`}>
-        <circle cx="16" cy="16" r="13.5" fill="#ff7a1a" />
-        <path
-          d="M11.5 22.5v-13h5.6a4.2 4.2 0 0 1 .9 8.3l3.5 4.7"
-          fill="none"
-          stroke="#0f3d2e"
-          strokeWidth="2.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
       </svg>
       <svg viewBox="0 0 32 32" aria-hidden="true" className={`${mark} hidden d3:block`}>
         <defs>

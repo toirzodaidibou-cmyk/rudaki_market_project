@@ -1284,6 +1284,14 @@ RYDAKIMARKET/
 - **`sitemap.xml`** (`app/sitemap.ts`, ҳар соат): асосӣ, каталог, категорияҳои дорои мол, молҳо, саҳифаҳои маълумотӣ — ҳар сатр бо hreflang-и 4 забон. Backend: `GET /api/products/sitemap` (id + санаи тағйир, то 12 000 — ҳадди як sitemap; барои зиёдтар — sitemap index дар оянда).
 - **Санҷиш** (production `next start`): robots.txt дуруст; sitemap — 1 291 саҳифа, 1 265 мол, hreflang дар ҳама; canonical + 5 hreflang дар `/ru/product/1255`, `/tg`, `/en/catalog/drinks`, `/uz/delivery`; JSON-LD Product (3.30 TJS, InStock), OnlineStore, WebSite + SearchAction; `/tg/cart` — noindex. `tsc`, ESLint, `next build`, `dotnet build` — тоза.
 - ⏳ Баъд аз гузоштан: сайтро ба **Google Search Console** илова кардан ва sitemap-ро фиристодан (ҳисоби Google-и соҳиби лоиҳа).
+- **Дар сервер санҷида шуд (2026-10-12):** Render — `/api/products/sitemap` 1 265, `/health/db` ok, миграцияи «сурати муваққатӣ» дар Supabase — 1 259 мол; Vercel — robots.txt, manifest, `/tg/about|delivery|contacts`, `offline.html`, `sw.js` — 200; og:image — суроғаи пурраи Supabase; JSON-LD Product + canonical; админ — «📷 Акс гирифтан».
+  - ⚠️ **Хато ёфт ва ислоҳ шуд** (commit `729a956`): Vercel `sitemap.xml`-ро ҳангоми build ҳамчун файли статикӣ сохт — он вақт Render ҳанӯз endpoint-и нав надошт → танҳо 26 саҳифа, ва `revalidateTag` онро нав накард (CDN HIT). Акнун `dynamic = "force-dynamic"` (маълумот 1 соат кэш, тег `products`) → дар сервер **1 291 саҳифа**.
+
+**№63. Дизайни 2 хориҷ шуд — танҳо дизайнҳои 1 ва 3 (2026-10-12)**
+- Хоҳиши соҳиби лоиҳа: «хами 2 уд ку 1 3 беста». Тугмаи 🎨 акнун **1 ⇄ 3** иваз мекунад; рақамҳо (1 ва 3) ҳамон монданд.
+- Хориҷ шуд: синфҳои `d2:` дар ҳамаи ҷузъҳо, custom-variant `d2` ва ду блоки рангҳои дизайни 2 (равшан + торик) дар `globals.css`, логотипи d2, нуқтаи норинҷии менюи поён, `ScooterIcon`, prop-и `inCard` ва `CartBar.tsx` (панели сабад, ки танҳо дар дизайни 2 буд); паддинги поёни body содда шуд.
+- Скрипти мавзӯъ дар `layout.tsx` танҳо `"3"`-ро қабул мекунад — мизоҷе, ки дар `localStorage` «2» дошт, худкор дизайни 1-ро мебинад.
+- **Санҷиш** (Edge 390px): 🎨 1 → 3 → 1 → 3; пас аз reload — 3; `localStorage="2"` → дизайни 1, рақами тугма «1»; хатоҳо 0. `tsc`, ESLint, `next build` — тоза.
 
 ## Қадами оянда (интизори иҷозат)
 - Нақшаи №49, қадами 2: footer ва саҳифаҳои ҳуқуқӣ; баъд — огоҳии ҳолати фармоиш ба мизоҷ (Telegram), SEO-и асосӣ, тозаи маълумот, нусхаи эҳтиётӣ.

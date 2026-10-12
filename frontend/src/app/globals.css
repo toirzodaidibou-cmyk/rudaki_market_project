@@ -3,10 +3,10 @@
 /* Dark mode тавассути атрибути data-theme дар <html> */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
-/* 3 дизайн (data-design дар <html>, тугмаи 🎨 дар сарлавҳа): 1 — «Сабзи тару тоза» (пешфарз),
-   2 — «Ҷангалӣ + норинҷӣ», 3 — «Сабзи нармранг». Фарқҳои шакл — бо вариантҳои d1/d2/d3. */
-@custom-variant d1 (&:where(html:not([data-design="2"]):not([data-design="3"]) *));
-@custom-variant d2 (&:where([data-design="2"], [data-design="2"] *));
+/* 2 дизайн (data-design дар <html>, тугмаи 🎨 дар сарлавҳа): 1 — «Сабзи тару тоза» (пешфарз),
+   3 — «Сабзи нармранг». Дизайни 2 («Ҷангалӣ + норинҷӣ») бо дархости соҳиби лоиҳа хориҷ шуд.
+   Фарқҳои шакл — бо вариантҳои d1/d3. */
+@custom-variant d1 (&:where(html:not([data-design="3"]) *));
 @custom-variant d3 (&:where([data-design="3"], [data-design="3"] *));
 
 /* --- 1. Сабзи тару тоза (равшан) — пешфарз --- */
@@ -97,75 +97,6 @@
   --step-btn: #1b3a28;
   --r-card: 22px;
   --r-btn: 14px;
-  color-scheme: dark;
-}
-
-/* --- 2. Ҷангалӣ + норинҷӣ (равшан) --- */
-[data-design="2"] {
-  --background: #f6f1e7;
-  --page-bg: #f6f1e7;
-  --foreground: #1a231d;
-  --muted: #7a7566;
-  --surface: #ffffff;
-  --surface-hover: #efe8da;
-  --border: #e8e0cf;
-  --brand-from: #ff8a2a;
-  --brand-to: #f2580c;
-  --accent: #ff7a1a;
-  --accent-glow: rgba(255, 122, 26, 0.24);
-  --on-accent: #ffffff;
-  --nav-icon: rgba(255, 255, 255, 0.55);
-  --card: #ffffff;
-  --card-ring: rgba(15, 61, 46, 0.06);
-  --card-shadow: 0 8px 22px -16px rgba(15, 61, 46, 0.35);
-  --sale: #ff5a1f;
-  --new-bg: #0f3d2e;
-  --new-ink: #ffd9b8;
-  --size-bg: #f6f1e7;
-  --size-ink: #0f3d2e;
-  --brand-soft: #ffe9d6;
-  --brand-soft-ink: #b34d06;
-  --brand-text: #c4570a;
-  --price: #0f3d2e;
-  --header-bg: #0f3d2e;
-  --header-ink: #ffffff;
-  --header-chip: rgba(255, 255, 255, 0.1);
-  --header-chip-ink: #ffffff;
-  --search-bg: #ffffff;
-  --search-ring: rgba(255, 255, 255, 0);
-  --nav-bg: #0f3d2e;
-  --nav-ink: rgba(255, 255, 255, 0.6);
-  --nav-active: #ffb27a;
-  --nav-active-bg: rgba(255, 255, 255, 0.08);
-  --step-bg: #0f3d2e;
-  --step-ink: #ffffff;
-  --step-btn: rgba(255, 255, 255, 0.12);
-  --r-card: 18px;
-  --r-btn: 14px;
-  color-scheme: light;
-}
-
-/* --- 2. Ҷангалӣ + норинҷӣ (торик) --- */
-[data-design="2"][data-theme="dark"] {
-  --background: #0e1512;
-  --page-bg: #0e1512;
-  --foreground: #efe9dc;
-  --muted: #a39d8e;
-  --surface: #16201b;
-  --surface-hover: #1f2a24;
-  --border: #22302a;
-  --card: #16201b;
-  --card-ring: rgba(255, 255, 255, 0.05);
-  --card-shadow: none;
-  --size-bg: #0f3d2e;
-  --size-ink: #ffd9b8;
-  --brand-soft: #3a2412;
-  --brand-soft-ink: #ffb27a;
-  --brand-text: #ffa060;
-  --price: #ffb27a;
-  --header-bg: #0a2a20;
-  --nav-bg: #0a2a20;
-  --step-bg: #123f2f;
   color-scheme: dark;
 }
 

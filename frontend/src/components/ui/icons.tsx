@@ -237,7 +237,7 @@ export function UserIcon({ active, ...props }: LineIconProps) {
   );
 }
 
-/** Ивази дизайн (1 → 2 → 3) */
+/** Ивази дизайн (1 ⇄ 3) */
 export function PaletteIcon(props: IconProps) {
   return (
     <svg {...base} {...props}>
@@ -253,16 +253,6 @@ export function BoltIcon(props: IconProps) {
   return (
     <svg {...base} {...props}>
       <path d="M13.2 3 5.5 13.4h5.6L10.4 21l7.9-10.5h-5.7z" />
-    </svg>
-  );
-}
-
-export function ScooterIcon(props: IconProps) {
-  return (
-    <svg {...base} {...props}>
-      <circle cx="6.5" cy="17" r="2.6" />
-      <circle cx="17.5" cy="17" r="2.6" />
-      <path d="M9.1 17h5.8l1.6-7H19M14 6h2.6l1.4 4M3.5 12.5h6l1.5 4.5" />
     </svg>
   );
 }

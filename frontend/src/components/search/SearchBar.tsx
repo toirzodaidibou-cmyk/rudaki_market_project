@@ -97,7 +97,7 @@ export function SearchBar() {
       }}
     >
       {/* Майдони тоза бо тугмаи ҷустуҷӯ дар дохил (шакл ва ранг аз дизайн) */}
-      <div className="flex h-12 items-center gap-2 rounded-2xl bg-search-bg pr-1.5 pl-3.5 shadow-[0_6px_18px_-12px_var(--accent-glow)] ring-1 ring-[var(--search-ring)] transition-shadow duration-200 focus-within:shadow-[0_0_0_4px_var(--accent-glow)] focus-within:ring-accent sm:h-[52px] d2:ring-0 d3:rounded-full">
+      <div className="flex h-12 items-center gap-2 rounded-2xl bg-search-bg pr-1.5 pl-3.5 shadow-[0_6px_18px_-12px_var(--accent-glow)] ring-1 ring-[var(--search-ring)] transition-shadow duration-200 focus-within:shadow-[0_0_0_4px_var(--accent-glow)] focus-within:ring-accent sm:h-[52px] d3:rounded-full">
         <SearchIcon width={20} height={20} className="shrink-0 text-muted" />
         <div className="flex min-w-0 flex-1 items-center">
           <input

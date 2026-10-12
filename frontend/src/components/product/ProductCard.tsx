@@ -48,9 +48,9 @@ export function ProductCard({ product, priority = false }: { product: ProductCar
       : 0;
 
   return (
-    <article className="flex flex-col rounded-card bg-card p-2 shadow-[var(--card-shadow)] ring-1 ring-card-ring transition-shadow hover:shadow-[0_14px_30px_-18px_rgba(0,0,0,0.35)] d2:p-0">
+    <article className="flex flex-col rounded-card bg-card p-2 shadow-[var(--card-shadow)] ring-1 ring-card-ring transition-shadow hover:shadow-[0_14px_30px_-18px_rgba(0,0,0,0.35)]">
       {/* Сурат(ҳо) — бо ангушт варақ мезанед (scroll-snap); замина ҳамеша сафед (суратҳои мол сафеданд) */}
-      <div className="relative aspect-square overflow-hidden rounded-[calc(var(--r-card)-6px)] bg-white d2:rounded-b-none d2:rounded-t-card d2:border-b d2:border-border">
+      <div className="relative aspect-square overflow-hidden rounded-[calc(var(--r-card)-6px)] bg-white">
         {/* Зер кардан — саҳифаи мол; варақ задан — сурати дигар */}
         <Link
           href={href}
@@ -122,7 +122,7 @@ export function ProductCard({ product, priority = false }: { product: ProductCar
         )}
       </div>
 
-      <div className="flex flex-1 flex-col px-1 pt-2.5 pb-0.5 d2:px-2.5 d2:pb-2.5">
+      <div className="flex flex-1 flex-col px-1 pt-2.5 pb-0.5">
         <div className="flex flex-wrap items-baseline gap-x-1.5">
           <span className="text-[17px] font-extrabold tracking-tight text-price tabular-nums sm:text-lg">
             {formatPrice(product.price)}
@@ -131,14 +131,14 @@ export function ProductCard({ product, priority = false }: { product: ProductCar
             <span className="text-xs text-muted line-through tabular-nums">{formatPrice(product.oldPrice!)}</span>
           )}
         </div>
-        <h3 className="mt-0.5 line-clamp-2 min-h-[2.6em] text-[13.5px] leading-[1.3] text-foreground sm:text-sm d2:pr-11">
+        <h3 className="mt-0.5 line-clamp-2 min-h-[2.6em] text-[13.5px] leading-[1.3] text-foreground sm:text-sm">
           <Link href={href} className="hover:underline">
             {product.name}
           </Link>
         </h3>
 
         <div className="mt-auto pt-2.5">
-          <CartButton productId={product.id} label={t.addToCart} inCard />
+          <CartButton productId={product.id} label={t.addToCart} />
         </div>
       </div>
     </article>
@@ -147,17 +147,15 @@ export function ProductCard({ product, priority = false }: { product: ProductCar
 
 /**
  * "Ба сабад" → баъд аз илова: [ − 2 + ].
- * inCard — дар корти мол (дизайни 2: тугмаи мудаввари «+» дар кунҷ); size="lg" — саҳифаи мол.
+ * size="lg" — саҳифаи мол.
  */
 export function CartButton({
   productId,
   label,
-  inCard = false,
   size = "md",
 }: {
   productId: number;
   label: string;
-  inCard?: boolean;
   size?: "md" | "lg";
 }) {
   const { dict } = useI18n();
@@ -171,12 +169,10 @@ export function CartButton({
         type="button"
         onClick={() => setCartQuantity(productId, 1)}
         aria-label={label || dict.cart.increase}
-        className={`flex w-full items-center justify-center gap-1.5 rounded-btn bg-accent font-bold text-on-accent shadow-[0_8px_18px_-10px_var(--accent-glow)] transition-all hover:brightness-105 active:scale-[0.97] ${h} d3:bg-transparent d3:text-brand-text d3:shadow-none d3:ring-[1.5px] d3:ring-[#9fe0bd] d3:ring-inset d3:hover:bg-brand-soft dark:d3:ring-[#2b6b49] ${
-          inCard ? "d2:-mt-11 d2:ml-auto d2:h-10 d2:w-10 d2:rounded-full d2:p-0" : ""
-        }`}
+        className={`flex w-full items-center justify-center gap-1.5 rounded-btn bg-accent font-bold text-on-accent shadow-[0_8px_18px_-10px_var(--accent-glow)] transition-all hover:brightness-105 active:scale-[0.97] ${h} d3:bg-transparent d3:text-brand-text d3:shadow-none d3:ring-[1.5px] d3:ring-[#9fe0bd] d3:ring-inset d3:hover:bg-brand-soft dark:d3:ring-[#2b6b49]`}
       >
         <PlusIcon width={18} height={18} strokeWidth={2.4} />
-        {label && <span className={inCard ? "d2:sr-only" : ""}>{label}</span>}
+        {label && <span>{label}</span>}
       </button>
     );
   }

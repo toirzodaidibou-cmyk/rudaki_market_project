@@ -53,7 +53,7 @@ export function LanguageSwitcher() {
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="flex h-9 items-center gap-1.5 rounded-btn bg-header-chip px-3 text-[13px] font-semibold text-header-chip-ink shadow-[0_1px_2px_rgba(0,0,0,0.05)] transition-all hover:brightness-95 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent d2:shadow-none"
+        className="flex h-9 items-center gap-1.5 rounded-btn bg-header-chip px-3 text-[13px] font-semibold text-header-chip-ink shadow-[0_1px_2px_rgba(0,0,0,0.05)] transition-all hover:brightness-95 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
         <GlobeIcon width={16} height={16} className="hidden sm:block" />
         {localeNames[locale].short}

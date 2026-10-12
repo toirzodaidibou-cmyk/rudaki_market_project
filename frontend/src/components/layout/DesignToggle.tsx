@@ -4,10 +4,11 @@ import { IconButton } from "@/components/ui/IconButton";
 import { PaletteIcon } from "@/components/ui/icons";
 import { useI18n } from "@/i18n/I18nProvider";
 
-const DESIGNS = ["1", "2", "3"] as const;
+// Дизайни 2 («Ҷангалӣ + норинҷӣ») бо дархости соҳиби лоиҳа хориҷ шуд — рақамҳо ҳамон мемонанд
+const DESIGNS = ["1", "3"] as const;
 
 /**
- * Ивази дизайн: 1 «Сабзи тару тоза» → 2 «Ҷангалӣ + норинҷӣ» → 3 «Сабзи нармранг» → 1.
+ * Ивази дизайн: 1 «Сабзи тару тоза» ⇄ 3 «Сабзи нармранг».
  * Интихоб дар localStorage нигоҳ дошта мешавад (скрипти layout онро пеш аз расми саҳифа мегузорад).
  */
 export function DesignToggle() {
@@ -25,13 +26,12 @@ export function DesignToggle() {
     }
   }
 
-  // Рақами дизайни ҷорӣ (1/2/3) бо CSS нишон дода мешавад — бе ихтилофи server/client
+  // Рақами дизайни ҷорӣ (1/3) бо CSS нишон дода мешавад — бе ихтилофи server/client
   return (
     <IconButton label={dict.header.changeDesign} onClick={next} className="relative">
       <PaletteIcon />
       <span className="absolute -right-0.5 -bottom-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[9px] leading-none font-extrabold text-on-accent ring-2 ring-header-bg">
-        <span className="d2:hidden d3:hidden">1</span>
-        <span className="hidden d2:inline">2</span>
+        <span className="d3:hidden">1</span>
         <span className="hidden d3:inline">3</span>
       </span>
     </IconButton>

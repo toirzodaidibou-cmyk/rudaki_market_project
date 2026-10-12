@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { BoltIcon, ChevronRightIcon, ScooterIcon } from "@/components/ui/icons";
+import { BoltIcon, ChevronRightIcon } from "@/components/ui/icons";
 import { FREE_DELIVERY_FROM } from "@/config/store";
 import { format, localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/config";
@@ -13,11 +13,10 @@ export function DeliveryEta({ lang, dict }: { lang: Locale; dict: Dictionary }) 
   return (
     <Link
       href={`${localizePath(lang, "/")}#delivery-map`}
-      className="flex items-center gap-3 rounded-2xl bg-brand-soft px-3.5 py-2.5 text-brand-soft-ink transition-transform active:scale-[0.99] d2:bg-card d2:text-[#0f3d2e] d2:shadow-[var(--card-shadow)] dark:d2:text-foreground d3:bg-card d3:text-foreground d3:ring-1 d3:ring-card-ring"
+      className="flex items-center gap-3 rounded-2xl bg-brand-soft px-3.5 py-2.5 text-brand-soft-ink transition-transform active:scale-[0.99] d3:bg-card d3:text-foreground d3:ring-1 d3:ring-card-ring"
     >
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent d3:rounded-full">
-        <BoltIcon width={20} height={20} className="d2:hidden" />
-        <ScooterIcon width={20} height={20} className="hidden d2:block" />
+        <BoltIcon width={20} height={20} />
       </span>
       <span className="min-w-0 leading-tight">
         <span className="block text-sm font-bold">{dict.home.eta}</span>
@@ -25,7 +24,7 @@ export function DeliveryEta({ lang, dict }: { lang: Locale; dict: Dictionary }) 
           {format(dict.home.etaFree, { amount: `${FREE_DELIVERY_FROM} ${dict.product.currency}` })}
         </span>
       </span>
-      <span className="ml-auto shrink-0 rounded-full bg-accent px-3 py-1.5 text-xs font-extrabold text-on-accent d2:bg-[#0f3d2e] d2:text-[#ffd9b8]">
+      <span className="ml-auto shrink-0 rounded-full bg-accent px-3 py-1.5 text-xs font-extrabold text-on-accent">
         {dict.home.etaMap}
       </span>
     </Link>
@@ -53,7 +52,7 @@ export function HomeCategories({ lang, dict, categories }: { lang: Locale; dict:
         {visible.map((c) => (
           <li key={c.slug} className="w-[76px] shrink-0 snap-start sm:w-[92px]">
             <Link href={localizePath(lang, `/catalog/${c.slug}`)} className="group flex flex-col items-center gap-1.5 text-center">
-              <span className="flex aspect-square w-full items-center justify-center rounded-[22px] bg-card shadow-[var(--card-shadow)] ring-1 ring-card-ring transition-transform group-hover:-translate-y-0.5 group-active:scale-95 d2:rounded-full d3:rounded-[24px]">
+              <span className="flex aspect-square w-full items-center justify-center rounded-[22px] bg-card shadow-[var(--card-shadow)] ring-1 ring-card-ring transition-transform group-hover:-translate-y-0.5 group-active:scale-95 d3:rounded-[24px]">
                 {c.icon && (
                   <Image
                     src={fileUrl(c.icon)!}
