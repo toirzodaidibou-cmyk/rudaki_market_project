@@ -259,7 +259,6 @@ export const api = {
     create: (data: SaveCategoryRequest) => request<Category>('/api/admin/categories', json('POST', data)),
     update: (id: number, data: SaveCategoryRequest) =>
       request<Category>(`/api/admin/categories/${id}`, json('PUT', data)),
-    remove: (id: number) => request<void>(`/api/admin/categories/${id}`, { method: 'DELETE' }),
     uploadIcon: (id: number, file: File) => {
       const form = new FormData()
       form.append('icon', file)
@@ -271,7 +270,6 @@ export const api = {
     list: () => request<Bundle[]>("/api/admin/bundles"),
     create: (data: SaveBundleRequest) => request<Bundle>("/api/admin/bundles", json("POST", data)),
     update: (id: number, data: SaveBundleRequest) => request<Bundle>(`/api/admin/bundles/${id}`, json("PUT", data)),
-    remove: (id: number) => request<void>(`/api/admin/bundles/${id}`, { method: "DELETE" }),
   },
 
   prices: {
@@ -294,7 +292,6 @@ export const api = {
     list: () => request<Banner[]>("/api/admin/banners"),
     create: (data: SaveBannerRequest) => request<Banner>("/api/admin/banners", json("POST", data)),
     update: (id: number, data: SaveBannerRequest) => request<Banner>(`/api/admin/banners/${id}`, json("PUT", data)),
-    remove: (id: number) => request<void>(`/api/admin/banners/${id}`, { method: "DELETE" }),
     uploadImage: (id: number, file: File) => {
       const form = new FormData()
       form.append("image", file)
@@ -330,7 +327,6 @@ export const api = {
     get: (id: number) => request<Product>(`/api/admin/products/${id}`),
     create: (data: SaveProductRequest) => request<Product>('/api/admin/products', json('POST', data)),
     update: (id: number, data: SaveProductRequest) => request<Product>(`/api/admin/products/${id}`, json('PUT', data)),
-    remove: (id: number) => request<void>(`/api/admin/products/${id}`, { method: 'DELETE' }),
     uploadImages: (id: number, files: File[]) => {
       const form = new FormData()
       for (const f of files) form.append('images', f)

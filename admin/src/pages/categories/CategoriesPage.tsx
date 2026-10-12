@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { ImageIcon, PencilIcon, PlusIcon, SearchIcon, TrashIcon } from '../../components/icons'
-import { Button, Modal, Spinner, Switch, useToast } from '../../components/ui'
+import { ImageIcon, PencilIcon, PlusIcon, SearchIcon } from '../../components/icons'
+import { Button, Spinner, Switch, useToast } from '../../components/ui'
 import { api, ApiError, fileUrl } from '../../lib/api'
 import type { Category, SaveCategoryRequest } from '../../lib/api'
 import { CategoryForm } from './CategoryForm'
@@ -12,8 +12,6 @@ export function CategoriesPage() {
   const [query, setQuery] = useState('')
   const [editing, setEditing] = useState<Category | null>(null)
   const [formOpen, setFormOpen] = useState(false)
-  const [deleting, setDeleting] = useState<Category | null>(null)
-  const [deleteBusy, setDeleteBusy] = useState(false)
   const [togglingId, setTogglingId] = useState<number | null>(null)
 
   const fetchList = useCallback(() => {
@@ -72,21 +70,6 @@ export function CategoriesPage() {
       toast('error', e instanceof ApiError ? e.message : 'Хато')
     } finally {
       setTogglingId(null)
-    }
-  }
-
-  async function confirmDelete() {
-    if (!deleting) return
-    setDeleteBusy(true)
-    try {
-      await api.categories.remove(deleting.id)
-      setItems((list) => (list ?? []).filter((x) => x.id !== deleting.id))
-      toast('success', `«${deleting.name.tg}» нест карда шуд`)
-      setDeleting(null)
-    } catch (e) {
-      toast('error', e instanceof ApiError ? e.message : 'Хато')
-    } finally {
-      setDeleteBusy(false)
     }
   }
 
@@ -168,29 +151,19 @@ export function CategoriesPage() {
                   label={c.isActive ? 'Фаъол (дар сайт)' : 'Ғайрифаъол (пинҳон)'}
                 />
 
-                <div className="flex gap-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditing(c)
-                      setFormOpen(true)
-                    }}
-                    aria-label={`Тағйир додани «${c.name.tg}»`}
-                    title="Тағйир додан"
-                    className="flex h-9 w-9 items-center justify-center rounded-xl text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
-                  >
-                    <PencilIcon />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setDeleting(c)}
-                    aria-label={`Нест кардани «${c.name.tg}»`}
-                    title="Нест кардан"
-                    className="flex h-9 w-9 items-center justify-center rounded-xl text-muted transition-colors hover:bg-danger/10 hover:text-danger"
-                  >
-                    <TrashIcon />
-                  </button>
-                </div>
+                {/* Нест кардан нест — категория танҳо пинҳон мешавад (тугмаи «Фаъол») */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditing(c)
+                    setFormOpen(true)
+                  }}
+                  aria-label={`Тағйир додани «${c.name.tg}»`}
+                  title="Тағйир додан"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
+                >
+                  <PencilIcon />
+                </button>
               </li>
             ))}
           </ul>
@@ -205,30 +178,6 @@ export function CategoriesPage() {
         onClose={() => setFormOpen(false)}
         onSave={save}
       />
-
-      <Modal
-        open={deleting !== null}
-        onClose={() => setDeleting(null)}
-        title="Нест кардани категория"
-        size="sm"
-        footer={
-          <>
-            <Button variant="secondary" onClick={() => setDeleting(null)}>
-              Бекор кардан
-            </Button>
-            <Button variant="danger" loading={deleteBusy} onClick={confirmDelete}>
-              Нест кардан
-            </Button>
-          </>
-        }
-      >
-        <p>
-          Категорияи <b>«{deleting?.name.tg}»</b> пурра нест карда шавад?
-        </p>
-        <p className="mt-2 text-sm text-muted">
-          Ин амалро бекор кардан мумкин нест. Агар танҳо пинҳон кардан лозим бошад, тугмаи «фаъол»-ро хомӯш кунед.
-        </p>
-      </Modal>
     </div>
   )
 }

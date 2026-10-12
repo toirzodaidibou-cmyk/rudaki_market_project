@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ImageIcon, PencilIcon, PlusIcon, TrashIcon, UploadIcon } from '../../components/icons'
+import { ImageIcon, PencilIcon, PlusIcon, UploadIcon } from '../../components/icons'
 import { Button, Modal, Spinner, Switch, useToast } from '../../components/ui'
 import { ApiError, api, fileUrl } from '../../lib/api'
 import type { Banner, Category, LocalizedNames, SaveBannerRequest } from '../../lib/api'
@@ -39,7 +39,7 @@ function Preview({ theme, title, badge, image }: { theme: string; title: string;
   )
 }
 
-/** Слайдҳои саҳифаи асосӣ: илова, тағйир, сурат, ранг, пайванд, тартиб, пинҳон/нест. */
+/** Слайдҳои саҳифаи асосӣ: илова, тағйир, сурат, ранг, пайванд, тартиб, пинҳон (нест кардан нест). */
 export function BannersPage() {
   const toast = useToast()
   const [banners, setBanners] = useState<Banner[] | null>(null)
@@ -54,14 +54,28 @@ export function BannersPage() {
     api.categories.list().then(setCategories).catch(() => {})
   }, [])
 
-  async function remove(b: Banner) {
-    if (!window.confirm(`«${b.title.tg}»-ро нест мекунед?`)) return
+  const [togglingId, setTogglingId] = useState<number | null>(null)
+
+  // Нест кардан нест — слайд танҳо аз сайт пинҳон мешавад
+  async function toggleActive(b: Banner, isActive: boolean) {
+    setTogglingId(b.id)
     try {
-      await api.banners.remove(b.id)
-      toast('success', 'Нест шуд')
-      setReload((r) => r + 1)
+      const saved = await api.banners.update(b.id, {
+        badge: b.badge,
+        title: b.title,
+        text: b.text,
+        cta: b.cta,
+        href: b.href,
+        theme: b.theme,
+        sortOrder: b.sortOrder,
+        isActive,
+      })
+      setBanners((list) => (list ?? []).map((x) => (x.id === b.id ? saved : x)))
+      toast('success', isActive ? 'Слайд дар сайт нишон дода мешавад' : 'Слайд аз сайт пинҳон шуд')
     } catch (e) {
       toast('error', e instanceof ApiError ? e.message : 'Хато')
+    } finally {
+      setTogglingId(null)
     }
   }
 
@@ -91,13 +105,15 @@ export function BannersPage() {
               <div className="mt-2 flex items-center gap-2 text-sm">
                 <span className="text-muted tabular-nums">#{b.sortOrder}</span>
                 <span className="min-w-0 flex-1 truncate text-muted">→ {b.href}</span>
-                {!b.isActive && <span className="text-xs font-semibold">пинҳон</span>}
                 {!b.image && <span className="text-xs font-semibold text-danger">бе сурат</span>}
+                <Switch
+                  checked={b.isActive}
+                  disabled={togglingId === b.id}
+                  onChange={(v) => toggleActive(b, v)}
+                  label={b.isActive ? 'Дар сайт' : 'Пинҳон'}
+                />
                 <button type="button" onClick={() => setEditing(b)} aria-label="Тағйир" className="rounded-lg p-2 text-muted hover:bg-surface-2 hover:text-foreground">
                   <PencilIcon />
-                </button>
-                <button type="button" onClick={() => remove(b)} aria-label="Нест кардан" className="rounded-lg p-2 text-muted hover:bg-danger/10 hover:text-danger">
-                  <TrashIcon />
                 </button>
               </div>
             </li>

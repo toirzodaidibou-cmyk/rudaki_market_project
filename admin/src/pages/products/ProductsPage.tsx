@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ImageIcon, PencilIcon, PlusIcon, SearchIcon, TrashIcon } from '../../components/icons'
-import { Button, Modal, Spinner, Switch, useToast } from '../../components/ui'
+import { ImageIcon, PencilIcon, PlusIcon, SearchIcon } from '../../components/icons'
+import { Button, Spinner, Switch, useToast } from '../../components/ui'
 import { api, ApiError, fileUrl, formatPrice, toListItem } from '../../lib/api'
 import type { Category, Product, ProductListItem } from '../../lib/api'
 import { PriceExcel } from './PriceExcel'
@@ -24,8 +24,6 @@ export function ProductsPage() {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Product | null>(null)
   const [openingId, setOpeningId] = useState<number | null>(null)
-  const [deleting, setDeleting] = useState<ProductListItem | null>(null)
-  const [deleteBusy, setDeleteBusy] = useState(false)
   const [togglingId, setTogglingId] = useState<number | null>(null)
 
   useEffect(() => {
@@ -123,22 +121,6 @@ export function ProductsPage() {
       toast('error', e instanceof ApiError ? e.message : 'Хато')
     } finally {
       setTogglingId(null)
-    }
-  }
-
-  async function confirmDelete() {
-    if (!deleting) return
-    setDeleteBusy(true)
-    try {
-      await api.products.remove(deleting.id)
-      setItems((list) => (list ?? []).filter((x) => x.id !== deleting.id))
-      setTotal((t) => t - 1)
-      toast('success', `«${deleting.name.tg}» нест карда шуд`)
-      setDeleting(null)
-    } catch (e) {
-      toast('error', e instanceof ApiError ? e.message : 'Хато')
-    } finally {
-      setDeleteBusy(false)
     }
   }
 
@@ -258,26 +240,16 @@ export function ProductsPage() {
                     onChange={(v) => toggleActive(p, v)}
                     label={p.isActive ? 'Дар сайт' : 'Пинҳон'}
                   />
-                  <div className="flex gap-0.5">
-                    <button
-                      type="button"
-                      onClick={() => openEdit(p.id)}
-                      aria-label="Тағйир додан"
-                      title="Тағйир додан"
-                      className="flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface-2 hover:text-foreground"
-                    >
-                      <PencilIcon width={16} height={16} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDeleting(p)}
-                      aria-label="Нест кардан"
-                      title="Нест кардан"
-                      className="flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-danger/10 hover:text-danger"
-                    >
-                      <TrashIcon width={16} height={16} />
-                    </button>
-                  </div>
+                  {/* Нест кардан нест — мол танҳо пинҳон мешавад (тугмаи «Дар сайт»), то маълумот гум нашавад */}
+                  <button
+                    type="button"
+                    onClick={() => openEdit(p.id)}
+                    aria-label="Тағйир додан"
+                    title="Тағйир додан"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface-2 hover:text-foreground"
+                  >
+                    <PencilIcon width={16} height={16} />
+                  </button>
                 </div>
               </li>
             ))}
@@ -303,28 +275,6 @@ export function ProductsPage() {
           onSaved={onSaved}
         />
       )}
-
-      <Modal
-        open={deleting !== null}
-        onClose={() => setDeleting(null)}
-        title="Нест кардани мол"
-        size="sm"
-        footer={
-          <>
-            <Button variant="secondary" onClick={() => setDeleting(null)}>
-              Бекор кардан
-            </Button>
-            <Button variant="danger" loading={deleteBusy} onClick={confirmDelete}>
-              Нест кардан
-            </Button>
-          </>
-        }
-      >
-        <p>
-          Моли <b>«{deleting?.name.tg}»</b> ва ҳамаи суратҳояш пурра нест карда шаванд?
-        </p>
-        <p className="mt-2 text-sm text-muted">Агар танҳо аз сайт пинҳон кардан лозим бошад, тугмаи «фаъол»-ро хомӯш кунед.</p>
-      </Modal>
     </div>
   )
 }

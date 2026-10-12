@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ImageIcon, PencilIcon, PlusIcon, SearchIcon, TrashIcon, XIcon } from '../../components/icons'
+import { ImageIcon, PencilIcon, PlusIcon, SearchIcon, XIcon } from '../../components/icons'
 import { Button, Modal, Spinner, Switch, useToast } from '../../components/ui'
 import { ApiError, api, fileUrl, formatPrice } from '../../lib/api'
 import type { Bundle, LocalizedNames, ProductListItem } from '../../lib/api'
@@ -23,6 +23,7 @@ export function BundlesPage() {
   const [bundles, setBundles] = useState<Bundle[] | null>(null)
   const [editing, setEditing] = useState<Bundle | 'new' | null>(null)
   const [reload, setReload] = useState(0)
+  const [togglingId, setTogglingId] = useState<number | null>(null)
 
   useEffect(() => {
     api.bundles
@@ -31,14 +32,24 @@ export function BundlesPage() {
       .catch(() => toast('error', 'Маҷмӯаҳо бор нашуданд'))
   }, [reload, toast])
 
-  async function remove(b: Bundle) {
-    if (!window.confirm(`«${b.name.tg}»-ро нест мекунед?`)) return
+  // Нест кардан нест — маҷмӯа танҳо аз сайт пинҳон мешавад, то маълумот гум нашавад
+  async function toggleActive(b: Bundle, isActive: boolean) {
+    setTogglingId(b.id)
     try {
-      await api.bundles.remove(b.id)
-      toast('success', 'Нест шуд')
-      setReload((r) => r + 1)
+      const saved = await api.bundles.update(b.id, {
+        name: b.name,
+        description: b.description,
+        emoji: b.emoji,
+        sortOrder: b.sortOrder,
+        isActive,
+        items: b.items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+      })
+      setBundles((list) => (list ?? []).map((x) => (x.id === b.id ? saved : x)))
+      toast('success', isActive ? `«${b.name.tg}» дар сайт нишон дода мешавад` : `«${b.name.tg}» аз сайт пинҳон шуд`)
     } catch (e) {
       toast('error', e instanceof ApiError ? e.message : 'Хато')
+    } finally {
+      setTogglingId(null)
     }
   }
 
@@ -72,11 +83,14 @@ export function BundlesPage() {
                     {b.items.length} мол · {formatPrice(b.total)} {b.isActive ? '' : '· пинҳон'}
                   </p>
                 </div>
+                <Switch
+                  checked={b.isActive}
+                  disabled={togglingId === b.id}
+                  onChange={(v) => toggleActive(b, v)}
+                  label={b.isActive ? 'Дар сайт' : 'Пинҳон'}
+                />
                 <button type="button" onClick={() => setEditing(b)} aria-label="Тағйир" className="rounded-lg p-2 text-muted hover:bg-surface-2 hover:text-foreground">
                   <PencilIcon />
-                </button>
-                <button type="button" onClick={() => remove(b)} aria-label="Нест кардан" className="rounded-lg p-2 text-muted hover:bg-danger/10 hover:text-danger">
-                  <TrashIcon />
                 </button>
               </div>
               <div className="mt-3 flex -space-x-2">
