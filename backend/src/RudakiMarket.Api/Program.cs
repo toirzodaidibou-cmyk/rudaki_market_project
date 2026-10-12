@@ -178,8 +178,22 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGet("/", () => Results.Ok(new { name = "RUDAKI MARKET API" }));
-// Санҷиши зинда будан (UptimeRobot ҳар 5 дақиқа — то сервери ройгон хоб наравад)
+// Санҷиши зинда будан барои Render (бе база — то хатои муваққатии база серверро аз нав сар накунад)
 app.MapGet("/health", () => Results.Ok(new { ok = true }));
+// UptimeRobot ҳар 5 дақиқа: сервер ва база (Supabase-и ройгон пас аз 7 рӯзи бекорӣ таваққуф мекунад) бедор мемонанд.
+// База дастнорас — 503, то UptimeRobot огоҳ кунад.
+app.MapGet("/health/db", async (AppDbContext db, CancellationToken ct) =>
+{
+    try
+    {
+        var products = await db.Products.CountAsync(p => p.IsActive, ct);
+        return Results.Ok(new { ok = true, db = true, products });
+    }
+    catch (Exception) when (!ct.IsCancellationRequested)
+    {
+        return Results.Json(new { ok = false, db = false }, statusCode: StatusCodes.Status503ServiceUnavailable);
+    }
+});
 
 // Файлҳо дар Supabase: "/uploads/..." → суроғаи оммавии Supabase (барои пайвандҳои кӯҳна ва админ).
 if (RudakiMarket.Infrastructure.DependencyInjection.SupabaseStorage(app.Configuration) is { } supabase)
