@@ -21,6 +21,7 @@ public interface IAppDbContext
     DbSet<Bundle> Bundles { get; }
     DbSet<BundleItem> BundleItems { get; }
     DbSet<Banner> Banners { get; }
+    DbSet<OutboxMessage> OutboxMessages { get; }
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 
     Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct);

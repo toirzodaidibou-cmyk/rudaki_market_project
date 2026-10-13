@@ -1313,6 +1313,24 @@ RYDAKIMARKET/
 - **Санҷиши барқароркунӣ:** кластери муваққатии PostgreSQL 18 (порт 5440, `E:\rudaki-market\restore-test`) → `pg_trgm` → `pg_restore` (бе сатри `CREATE SCHEMA public`) — бе хато: **1 265 мол, 2 651 сурат, 28 категория, 19 фармоиш, 5 мизоҷ, 14 миграция, 17 ҷадвал, 44 индекс**. Кластери санҷишӣ нест карда шуд; базаи асосӣ (5434) дахолат нашуд. Тарзи барқароркунӣ дар сарлавҳаи скрипт.
 - ⚠️ Нусха дар ҳамин компютер аст (диски E:). Агар диск вайрон шавад, нусха ҳам гум мешавад — нусхаи дуюм дар ҷои дигар (флешка / Google Drive) беҳтар.
 - **Ҳаррӯза** (соҳиби лоиҳа: «1 2 3 қадам ба қадам»): вазифаи Task Scheduler **`RudakiMarket-Backup`** — ҳар рӯз 23:00, равзанаи пинҳон, корбари ҷорӣ (бе администратор); агар компютер хомӯш бошад — баъд аз фурӯзон шудан (`StartWhenAvailable`); то 2 бозкӯшиш пас аз 30 дақ; ҳадди 2 соат. Иҷрои санҷишӣ: натиҷа 0, 29 сония. Хориҷ кардан: `Unregister-ScheduledTask -TaskName "RudakiMarket-Backup"`.
+- Commit `f1f92e6` → push (скрипт + ин сабт).
+
+**№66. Қадами 2 (устуворӣ): навбати огоҳиҳо дар база (outbox) — паём бо бозоғозии сервер гум намешавад**
+- **Ҳолат дар сервер:** `/health` пас аз хоб — **23,8 с** (Render хоб буд → UptimeRobot ҳанӯз кор намекунад), `/health/db` баъд аз он — 1,1 с.
+- **Мушкил:** навбати огоҳиҳо (WhatsApp/Telegram ба мағоза, Telegram ба мизоҷ) дар **хотираи сервер** буд (`Channel`). Render-и ройгон хоб меравад ва ҳангоми deploy аз нав сар мешавад — паёмҳои нафиристода (масалан, CallMeBot дар бозкӯшиш) гум мешуданд.
+- **Domain/DB:** `OutboxMessage` (channel, recipient, text, created_at, next_attempt_at, attempts, sent_at, failed_at, last_error), `OutboxChannels` (`owner-telegram`, `owner-whatsapp`, `customer-telegram`); миграция `AddOutboxMessages`; индекси қисмӣ `next_attempt_at WHERE sent_at IS NULL AND failed_at IS NULL`.
+- **Backend:**
+  - `OutboxOrderNotifier` / `OutboxCustomerNotifier` (scoped): паёмро ба `db.OutboxMessages` илова мекунанд — **дар ҳамон транзаксия** бо фармоиш (`OrderService.PlaceAsync`: SaveChanges → рақам → паёмҳо → SaveChanges → тоза кардани сабад → Commit) ва бо ҳолат (`AdminOrderService.SetStatusAsync`: паём пеш аз SaveChanges). Фармоиш бекор шавад — паём ҳам нест.
+  - `OutboxWorker` (ба ҷои `OrderNotificationWorker` ва `CustomerNotificationWorker`): ҳар 5 с; гирифтан бо `UPDATE … WHERE id IN (SELECT … FOR UPDATE SKIP LOCKED) RETURNING *` (кӯшиш +1, «иҷора» 5 дақ) — ҳангоми deploy ду нусхаи сервер як паёмро намегиранд; роҳҳо параллел; бозкӯшиш 10 с → 1 д → 5 д → 15 д → 1 с (6 кӯшиш); паёми аз 12 соат кӯҳна — `expired`; рақами бе Telegram — `no_telegram_link`; паёмҳои анҷомёфта пас аз 30 рӯз нест мешаванд (як бор дар соат).
+  - `IOrderChannel.Key`; `CustomerTelegramSender` — ҷустуҷӯи чат ва фиристодан.
+- **Санҷиш** (Telegram ва CallMeBot-и **тақлидӣ** дар 127.0.0.1:5998/5997, API-и санҷишӣ 5081 бо базаи компютер — ба Telegram/WhatsApp-и воқеӣ ҳеҷ паём нарафт), **8/8**:
+  - даромад тавассути Telegram-и тақлидӣ;
+  - A: фармоиш №14 → WhatsApp, Telegram-и мағоза ва мизоҷ — ҳар кадом **як бор**;
+  - B: WhatsApp 500 медиҳад → фармоиш №15 → кӯшиши 1 ноком → **API маҷбурӣ кушта шуд** (мисли афтидан) → WhatsApp «тамир» → API аз нав → паём **расид** (кӯшиши 2), Telegram-ҳо такрор нашуданд.
+  - Маълумоти санҷишӣ пок шуд (2 фармоиш, мизоҷ +992900000071, 6 сатри outbox), сиквенс → 13. `dotnet build` 0/0; `has-pending-model-changes` — тоза.
+  - ⚠️ Дарс: exe-и кӯҳна (пеш аз миграция сохташуда) хатои `PendingModelChangesWarning` дод — пас аз `dotnet build` дуруст.
+  - Роҳи админ (тағйири ҳолат → паём) бо HTTP санҷида нашуд (пароли админ дар user-secrets); код — ҳамон `customers.Enqueue`, танҳо пеш аз SaveChanges.
+- Эзоҳ: кафолат — «ақаллан як бор»: агар сервер маҳз дар байни фиристодан ва сабти натиҷа афтад, паём баъд аз 5 дақ такрор мешавад (нодир).
 
 ## Қадами оянда (интизори иҷозат)
 - Нақшаи №49, қадами 2: footer ва саҳифаҳои ҳуқуқӣ; баъд — огоҳии ҳолати фармоиш ба мизоҷ (Telegram), SEO-и асосӣ, тозаи маълумот, нусхаи эҳтиётӣ.

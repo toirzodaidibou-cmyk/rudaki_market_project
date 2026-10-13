@@ -114,10 +114,10 @@ public sealed class AdminOrderService(IAppDbContext db, ICustomerNotifier custom
                 return Result<AdminOrderDto>.Conflict($"Аз «{Name(order.Status)}» ба «{Name(next)}» гузаштан мумкин нест.");
             order.Status = next;
             order.StatusUpdatedAt = clock.GetUtcNow();
-            await db.SaveChangesAsync(ct);
-            // Мизоҷ дар Telegram хабар мегирад (дар замина; агар рақамаш ба бот пайваст бошад)
+            // Мизоҷ дар Telegram хабар мегирад (агар рақамаш ба бот пайваст бошад); паём бо ҳолат якҷоя сабт мешавад
             if (CustomerMessages.StatusChanged(order.Id, next, delivery.OwnerWhatsApp) is { } text)
                 customers.Enqueue(order.Phone, text);
+            await db.SaveChangesAsync(ct);
         }
         return await GetAsync(id, ct);
     }

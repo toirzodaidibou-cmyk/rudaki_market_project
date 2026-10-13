@@ -21,7 +21,8 @@ public sealed record OrderPlaced(int Number, decimal Subtotal, decimal DeliveryF
 
 /// <summary>
 /// Огоҳ кардани фурӯшанда дар бораи фармоиши нав (масалан, WhatsApp тавассути CallMeBot).
-/// Паём ба навбат гузошта мешавад ва дар замина фиристода мешавад — мизоҷ интизор намешавад.
+/// Паём ба навбати база (outbox) илова мешавад ва бо SaveChanges-и навбатӣ — дар ҳамон транзаксия — сабт мешавад;
+/// фиристодан дар замина — мизоҷ интизор намешавад, бозоғозии сервер паёмро гум намекунад.
 /// </summary>
 public interface IOrderNotifier
 {
@@ -145,13 +146,15 @@ public sealed class OrderService(
         order.Total = order.Subtotal + order.DeliveryFee;
 
         db.Orders.Add(order);
-        await db.SaveChangesAsync(ct);
-        await db.CartItems.Where(c => c.CustomerId == customerId).ExecuteDeleteAsync(ct);
-        await tx.CommitAsync(ct);
+        await db.SaveChangesAsync(ct); // рақами фармоиш барои паёмҳо
 
-        // Танҳо баъд аз сабти ниҳоӣ; дар замина — фармоиш аз ин вобаста нест
+        // Огоҳиҳо — дар ҳамон транзаксия: бо фармоиш якҷоя сабт мешаванд ё якҷоя бекор (фиристодан — дар замина)
         var notified = notifier.Enqueue(FormatMessage(order));
         customers.Enqueue(order.Phone, CustomerMessages.Placed(order, schedule.Describe(order.DeliveryFrom, order.DeliveryTo)));
+        await db.SaveChangesAsync(ct);
+
+        await db.CartItems.Where(c => c.CustomerId == customerId).ExecuteDeleteAsync(ct);
+        await tx.CommitAsync(ct);
         return Result<OrderPlaced>.Ok(Placed(order, notified));
     }
 

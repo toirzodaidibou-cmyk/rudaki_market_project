@@ -27,6 +27,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Bundle> Bundles => Set<Bundle>();
     public DbSet<BundleItem> BundleItems => Set<BundleItem>();
     public DbSet<Banner> Banners => Set<Banner>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct) => Database.BeginTransactionAsync(ct);
 
@@ -98,6 +99,19 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             e.Property(x => x.SizeLabel).HasMaxLength(20);
             e.Property(x => x.Price).HasPrecision(12, 2);
             e.Property(x => x.LineTotal).HasPrecision(12, 2);
+        });
+
+        b.Entity<OutboxMessage>(e =>
+        {
+            e.ToTable("outbox_messages");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Channel).HasMaxLength(32).IsRequired();
+            e.Property(x => x.Recipient).HasMaxLength(20);
+            e.Property(x => x.Text).IsRequired(); // бе ҳад: фармоиш то 200 мол дорад
+            e.Property(x => x.LastError).HasMaxLength(500);
+            // Навбати коргар: танҳо паёмҳои интизор (хурд мемонад, ҳатто вақте ки ҷадвал калон шавад)
+            e.HasIndex(x => x.NextAttemptAt).HasFilter("sent_at IS NULL AND failed_at IS NULL");
+            e.HasIndex(x => x.CreatedAt);
         });
 
         b.Entity<Banner>(e =>

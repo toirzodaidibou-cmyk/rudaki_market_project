@@ -1,75 +1,37 @@
-using System.Threading.Channels;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RudakiMarket.Application.Abstractions;
 using RudakiMarket.Application.Orders;
+using RudakiMarket.Domain.Entities;
 
 namespace RudakiMarket.Infrastructure.Notifications;
 
 /// <summary>Як роҳи огоҳии фурӯшанда (Telegram, WhatsApp ...).</summary>
 public interface IOrderChannel
 {
+    /// <summary>Калиди роҳ дар навбат (<see cref="OutboxChannels"/>).</summary>
+    string Key { get; }
+
     string Name { get; }
 
     /// <returns>true — фиристода шуд</returns>
     Task<bool> SendAsync(string text, CancellationToken ct);
 }
 
-/// <summary>Навбати паёмҳо дар бораи фармоишҳои нав (дар хотира). Фиристодан — дар OrderNotificationWorker.</summary>
-public sealed class QueuedOrderNotifier : IOrderNotifier
-{
-    private readonly Channel<string> _queue = Channel.CreateBounded<string>(
-        new BoundedChannelOptions(1000) { FullMode = BoundedChannelFullMode.DropOldest });
-
-    public bool IsEnabled => true;
-    public bool Enqueue(string text) => _queue.Writer.TryWrite(text);
-    internal ChannelReader<string> Reader => _queue.Reader;
-}
-
 /// <summary>
-/// Ҳар фармоиши навро ба ҲАМАИ роҳҳои танзимшуда мефиристад (масалан, Telegram ва WhatsApp).
-/// Ҳар роҳ мустақил аст: то 3 кӯшиш бо танаффус; хатои як роҳ ба дигаре таъсир намерасонад.
+/// Фармоиши навро ба навбати база мегузорад — барои ҲАР роҳи танзимшуда як паём (Telegram, WhatsApp),
+/// то ҳар роҳ мустақил бозкӯшиш кунад. Сабт — бо SaveChanges-и ҳамон транзаксияи фармоиш; фиристодан — OutboxWorker.
 /// </summary>
-public sealed class OrderNotificationWorker(
-    QueuedOrderNotifier notifier, IEnumerable<IOrderChannel> channels, ILogger<OrderNotificationWorker> logger)
-    : BackgroundService
+public sealed class OutboxOrderNotifier(IAppDbContext db, IEnumerable<IOrderChannel> channels, TimeProvider clock) : IOrderNotifier
 {
-    private static readonly TimeSpan[] RetryDelays = [TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(30)];
+    public bool IsEnabled => true;
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    public bool Enqueue(string text)
     {
-        logger.LogInformation("Огоҳии фармоишҳо: {Channels}", string.Join(", ", channels.Select(c => c.Name)));
-        await foreach (var text in notifier.Reader.ReadAllAsync(stoppingToken))
-        {
-            await Task.WhenAll(channels.Select(channel => SendWithRetryAsync(channel, text, stoppingToken)));
-        }
-    }
-
-    private async Task SendWithRetryAsync(IOrderChannel channel, string text, CancellationToken ct)
-    {
-        for (var attempt = 0; ; attempt++)
-        {
-            try
-            {
-                if (await channel.SendAsync(text, ct))
-                {
-                    logger.LogInformation("Фармоиш ба {Channel} фиристода шуд", channel.Name);
-                    return;
-                }
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                logger.LogWarning("{Channel}: {Message}", channel.Name, ex.Message);
-            }
-            if (attempt >= RetryDelays.Length)
-            {
-                // Фармоиш дар база ҳаст — танҳо огоҳӣ нарасид
-                logger.LogError("{Channel}: паём баъд аз {Attempts} кӯшиш фиристода нашуд", channel.Name, attempt + 1);
-                return;
-            }
-            await Task.Delay(RetryDelays[attempt], ct);
-        }
+        var now = clock.GetUtcNow();
+        foreach (var channel in channels)
+            db.OutboxMessages.Add(new OutboxMessage { Channel = channel.Key, Text = text, CreatedAt = now, NextAttemptAt = now });
+        return true;
     }
 }
 
@@ -79,6 +41,7 @@ public sealed record TelegramOwnerOptions(long ChatId);
 /// <summary>Фармоиш ба Telegram-и фурӯшанда (тавассути боти ҳамин сайт).</summary>
 public sealed class TelegramOwnerChannel(IServiceScopeFactory scopes, TelegramOwnerOptions options) : IOrderChannel
 {
+    public string Key => OutboxChannels.OwnerTelegram;
     public string Name => "Telegram";
 
     public async Task<bool> SendAsync(string text, CancellationToken ct)
@@ -100,6 +63,7 @@ public sealed class CallMeBotChannel(IHttpClientFactory httpFactory, CallMeBotOp
     : IOrderChannel
 {
     internal const string HttpClientName = "callmebot";
+    public string Key => OutboxChannels.OwnerWhatsApp;
     public string Name => "WhatsApp (CallMeBot)";
 
     public async Task<bool> SendAsync(string text, CancellationToken ct)

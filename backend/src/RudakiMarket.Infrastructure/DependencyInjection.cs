@@ -79,10 +79,9 @@ public static class DependencyInjection
             services.AddHttpClient<TelegramBotClient>(c => c.Timeout = TimeSpan.FromSeconds(40));
             services.AddTransient<ITelegramBot>(sp => sp.GetRequiredService<TelegramBotClient>());
             services.AddHostedService<TelegramPollingService>();
-            // Огоҳии мизоҷон дар бораи фармоиш (қабул шуд, тасдиқ, дар роҳ ...) — ба чати пайвасти Telegram
-            services.AddSingleton<QueuedCustomerNotifier>();
-            services.AddSingleton<ICustomerNotifier>(sp => sp.GetRequiredService<QueuedCustomerNotifier>());
-            services.AddHostedService<CustomerNotificationWorker>();
+            // Огоҳии мизоҷон дар бораи фармоиш (қабул шуд, тасдиқ, дар роҳ ...) — ба чати пайвасти Telegram (тавассути навбати база)
+            services.AddScoped<ICustomerNotifier, OutboxCustomerNotifier>();
+            services.AddScoped<CustomerTelegramSender>();
         }
         else
         {
@@ -109,15 +108,12 @@ public static class DependencyInjection
             anyChannel = true;
         }
         if (anyChannel)
-        {
-            services.AddSingleton<QueuedOrderNotifier>();
-            services.AddSingleton<IOrderNotifier>(sp => sp.GetRequiredService<QueuedOrderNotifier>());
-            services.AddHostedService<OrderNotificationWorker>();
-        }
+            services.AddScoped<IOrderNotifier, OutboxOrderNotifier>();
         else
-        {
             services.AddSingleton<IOrderNotifier, NoOrderNotifier>();
-        }
+
+        // Паёмҳои навбати база (фурӯшанда ва мизоҷ) — дар замина, бо бозкӯшиш; бозоғозии сервер онҳоро гум намекунад
+        services.AddHostedService<OutboxWorker>();
 
         return services;
     }
