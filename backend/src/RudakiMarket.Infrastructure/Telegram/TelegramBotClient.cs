@@ -40,7 +40,9 @@ public sealed class TelegramBotClient(HttpClient http, TelegramOptions options) 
         {
             using var response = await http.PostAsJsonAsync(Url("sendMessage"), body, ct);
             if (!response.IsSuccessStatusCode)
-                throw new TelegramSendException($"Telegram sendMessage: {(int)response.StatusCode} {await response.Content.ReadAsStringAsync(ct)}");
+                throw new TelegramSendException(
+                    $"Telegram sendMessage: {(int)response.StatusCode} {await response.Content.ReadAsStringAsync(ct)}",
+                    statusCode: (int)response.StatusCode);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {

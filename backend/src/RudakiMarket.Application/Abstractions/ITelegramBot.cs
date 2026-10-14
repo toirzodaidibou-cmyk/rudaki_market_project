@@ -16,4 +16,14 @@ public interface ITelegramBot
 }
 
 /// <summary>Паём ба Telegram нарасид.</summary>
-public sealed class TelegramSendException(string message, Exception? inner = null) : Exception(message, inner);
+/// <param name="statusCode">Ҷавоби HTTP-и Telegram; null — Telegram дастрас набуд (шабака, timeout)</param>
+public sealed class TelegramSendException(string message, Exception? inner = null, int? statusCode = null) : Exception(message, inner)
+{
+    public int? StatusCode { get; } = statusCode;
+
+    /// <summary>
+    /// Бозкӯшиш фоида надорад: 403 — корбар ботро бастааст ё ҳеҷ гоҳ сар накардааст, 400 — чат нест / дархости нодуруст.
+    /// (429 — «бисёр дархост» — муваққатӣ аст, бозкӯшиш мешавад.)
+    /// </summary>
+    public bool IsPermanent => StatusCode is 400 or 403;
+}

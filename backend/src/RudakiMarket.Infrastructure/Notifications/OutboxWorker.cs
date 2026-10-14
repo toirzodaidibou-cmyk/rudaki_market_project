@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using RudakiMarket.Application.Abstractions;
 using RudakiMarket.Domain.Entities;
 using RudakiMarket.Infrastructure.Persistence;
 
@@ -131,6 +132,11 @@ public sealed class OutboxWorker(
             if (!_owner.TryGetValue(m.Channel, out var channel)) return (Outcome.Permanent, "channel_not_configured");
             return await channel.SendAsync(m.Text, ct) ? (Outcome.Sent, null) : (Outcome.Retry, "rejected");
         }
+        catch (TelegramSendException ex) when (ex.IsPermanent)
+        {
+            // Масалан, мизоҷ ботро бастааст — бозкӯшиш фоида надорад
+            return (Outcome.Permanent, ex.Message);
+        }
         catch (Exception ex) when (!ct.IsCancellationRequested)
         {
             return (Outcome.Retry, ex.Message);
@@ -145,9 +151,11 @@ public sealed class OutboxWorker(
         var now = clock.GetUtcNow();
         var minCreated = now - MaxAge;
         var keepFrom = now - KeepFinished;
+        // Хатои охирин нигоҳ дошта мешавад ("expired: Telegram sendMessage: 403 ...") — то сабаб маълум бошад
         var expired = await db.OutboxMessages
             .Where(m => m.SentAt == null && m.FailedAt == null && m.CreatedAt < minCreated)
-            .ExecuteUpdateAsync(s => s.SetProperty(m => m.FailedAt, now).SetProperty(m => m.LastError, "expired"), ct);
+            .ExecuteUpdateAsync(s => s.SetProperty(m => m.FailedAt, now)
+                .SetProperty(m => m.LastError, m => m.LastError == null ? "expired" : "expired: " + m.LastError), ct);
         if (expired > 0) logger.LogWarning("Навбати огоҳиҳо: {Count} паёми кӯҳна фиристода нашуд (аз 12 соат зиёд)", expired);
         await db.OutboxMessages.Where(m => (m.SentAt != null || m.FailedAt != null) && m.CreatedAt < keepFrom).ExecuteDeleteAsync(ct);
         _nextCleanup = now + TimeSpan.FromHours(1);
@@ -157,5 +165,6 @@ public sealed class OutboxWorker(
         _owner.TryGetValue(key, out var c) ? c.Name : key == OutboxChannels.CustomerTelegram ? "Telegram-и мизоҷ" : key;
 
     private static string Last4(string? phone) => phone is { Length: >= 4 } ? phone[^4..] : "????";
-    private static string? Trim(string? s) => s is { Length: > 500 } ? s[..500] : s;
+    // 480, на 500 (ҳадди сутун): ҷой барои "expired: " ҳангоми кӯҳна шудан
+    private static string? Trim(string? s) => s is { Length: > 480 } ? s[..480] : s;
 }
