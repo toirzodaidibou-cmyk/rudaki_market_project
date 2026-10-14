@@ -191,10 +191,12 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             e.Property(x => x.SizeLabel).HasMaxLength(20);
             // Матни ҷустуҷӯ: ҳар 4 ном, ҳарфҳои хурд, ҳарфҳои махсуси тоҷикӣ → оддӣ (ҷ→ч, ӯ→у, ӣ→и, ҳ→х, қ→к, ғ→г, ё→е, й→и),
             // апострофҳо хориҷ (Lay's → lays) — то "чои", "кахва", "lays" ҳам ёфт шаванд. База худаш нигоҳ медорад (STORED), индекси trigram — барои миллионҳо мол.
+            // Илова: номи русӣ бо ҳарфҳои лотинӣ → кириллӣ (rm_latin_to_cyr, миграцияи AddSearchTransliteration):
+            // "Coca-Cola" → "кока-кола", "Pepsi" → "пепси", "Snickers" → "сникерс" — мизоҷ брендро бо кириллӣ менависад.
             e.Property<string>(PostgresTextSearch.SearchTextProperty)
                 .HasColumnName("search_text")
                 .HasComputedColumnSql(
-                    "translate(lower(name_tg || ' ' || name_ru || ' ' || name_en || ' ' || name_uz), 'ҷӯӣҳқғёй''’`ʼ', 'чуихкгеи')",
+                    "translate(lower(name_tg || ' ' || name_ru || ' ' || name_en || ' ' || name_uz || ' ' || public.rm_latin_to_cyr(name_ru)), 'ҷӯӣҳқғёй''’`ʼ', 'чуихкгеи')",
                     stored: true);
             e.HasIndex(PostgresTextSearch.SearchTextProperty).HasMethod("gin").HasOperators("gin_trgm_ops");
             // Рӯйхати сайт: WHERE category_id = ? AND is_active ORDER BY id DESC

@@ -76,31 +76,55 @@ public sealed class ProductService(IAppDbContext db, IFileStorage files, IImageP
         }
 
         var q = term?.Trim();
-        if (q is { Length: > 0 }) query = search.ProductsByName(query, q[..Math.Min(q.Length, 100)]);
-        if (minPrice is > 0) query = query.Where(p => p.Price >= minPrice);
-        if (maxPrice is > 0) query = query.Where(p => p.Price <= maxPrice);
-
-        var total = await query.CountAsync(ct);
-        IOrderedQueryable<Product> ordered = sort switch
+        if (q is { Length: > 100 }) q = q[..100];
+        IQueryable<Product> Prices(IQueryable<Product> source)
         {
-            ProductSort.Cheap => query.OrderBy(p => p.Price).ThenByDescending(p => p.Id),
-            ProductSort.Expensive => query.OrderByDescending(p => p.Price).ThenByDescending(p => p.Id),
-            // Аксиядорҳо аввал (бузургтарин тахфиф), баъд навтаринҳо
-            ProductSort.Discount => query
-                .OrderByDescending(p => p.OldPrice != null && p.OldPrice > p.Price ? (p.OldPrice - p.Price) / p.OldPrice : 0)
-                .ThenByDescending(p => p.Id),
-            ProductSort.New => query.OrderByDescending(p => p.Id),
-            // Пешфарз: дар ҷустуҷӯ — мувофиқтарин, дар каталог — навтаринҳо
-            _ => q is { Length: > 0 } ? search.OrderByRelevance(query, q) : query.OrderByDescending(p => p.Id),
-        };
-        var items = await ordered
-            .Skip((page - 1) * pageSize).Take(pageSize)
-            .Select(p => new PublicProductDto(
-                p.Id, new LocalizedNames(p.NameTg, p.NameRu, p.NameEn, p.NameUz),
-                p.Price, p.OldPrice, p.SizeLabel, p.IsNew,
-                p.Images.OrderBy(i => i.SortOrder).Select(i => i.ThumbPath).Take(3).ToList()))
-            .ToListAsync(ct);
-        return Result<PagedResult<PublicProductDto>>.Ok(new PagedResult<PublicProductDto>(items, total, page, pageSize));
+            if (minPrice is > 0) source = source.Where(p => p.Price >= minPrice);
+            if (maxPrice is > 0) source = source.Where(p => p.Price <= maxPrice);
+            return source;
+        }
+
+        async Task<PagedResult<PublicProductDto>> PageAsync(IQueryable<Product> source, int total, bool fuzzy)
+        {
+            IOrderedQueryable<Product> ordered = sort switch
+            {
+                ProductSort.Cheap => source.OrderBy(p => p.Price).ThenByDescending(p => p.Id),
+                ProductSort.Expensive => source.OrderByDescending(p => p.Price).ThenByDescending(p => p.Id),
+                // Аксиядорҳо аввал (бузургтарин тахфиф), баъд навтаринҳо
+                ProductSort.Discount => source
+                    .OrderByDescending(p => p.OldPrice != null && p.OldPrice > p.Price ? (p.OldPrice - p.Price) / p.OldPrice : 0)
+                    .ThenByDescending(p => p.Id),
+                ProductSort.New => source.OrderByDescending(p => p.Id),
+                // Пешфарз: дар ҷустуҷӯ — мувофиқтарин (ё монандтарин), дар каталог — навтаринҳо
+                _ when fuzzy => search.OrderBySimilarity(source, q!),
+                _ => q is { Length: > 0 } ? search.OrderByRelevance(source, q) : source.OrderByDescending(p => p.Id),
+            };
+            var items = await ordered
+                .Skip((page - 1) * pageSize).Take(pageSize)
+                .Select(p => new PublicProductDto(
+                    p.Id, new LocalizedNames(p.NameTg, p.NameRu, p.NameEn, p.NameUz),
+                    p.Price, p.OldPrice, p.SizeLabel, p.IsNew,
+                    p.Images.OrderBy(i => i.SortOrder).Select(i => i.ThumbPath).Take(3).ToList()))
+                .ToListAsync(ct);
+            return new PagedResult<PublicProductDto>(items, total, page, pageSize);
+        }
+
+        var filtered = Prices(q is { Length: > 0 } ? search.ProductsByName(query, q) : query);
+        var total = await filtered.CountAsync(ct);
+
+        // Аниқ ҳеҷ чиз наёфт — шояд хатои имлоӣ ("шоклад"): ҷустуҷӯи «наздик»
+        if (total == 0 && q is { Length: > 0 } && search.ProductsByNameFuzzy(query, q) is { } similar)
+        {
+            var fuzzyPage = await search.WithFuzzyThresholdAsync(async () =>
+            {
+                var source = Prices(similar);
+                var count = await source.CountAsync(ct);
+                return count == 0 ? null : await PageAsync(source, count, fuzzy: true);
+            }, ct);
+            if (fuzzyPage is not null) return Result<PagedResult<PublicProductDto>>.Ok(fuzzyPage);
+        }
+
+        return Result<PagedResult<PublicProductDto>>.Ok(await PageAsync(filtered, total, fuzzy: false));
     }
 
     public const int SimilarLimit = 12;

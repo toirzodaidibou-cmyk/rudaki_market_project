@@ -44,7 +44,7 @@ public static class DependencyInjection
         }
         services.AddSingleton<IImageProcessor, SkiaImageProcessor>();
         services.AddSingleton<IPriceSheet, ClosedXmlPriceSheet>();
-        services.AddSingleton<ITextSearch, PostgresTextSearch>();
+        services.AddScoped<ITextSearch, PostgresTextSearch>();
         // SMS: Sms:Provider = "OsonSms" — SMS-и воқеӣ; вагарна DevSmsSender (танҳо log, барои development).
         if (IsOsonSms(config))
         {

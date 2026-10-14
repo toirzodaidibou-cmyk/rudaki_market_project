@@ -856,7 +856,7 @@ namespace RudakiMarket.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("text")
                         .HasColumnName("search_text")
-                        .HasComputedColumnSql("translate(lower(name_tg || ' ' || name_ru || ' ' || name_en || ' ' || name_uz), 'ҷӯӣҳқғёй''’`ʼ', 'чуихкгеи')", true);
+                        .HasComputedColumnSql("translate(lower(name_tg || ' ' || name_ru || ' ' || name_en || ' ' || name_uz || ' ' || public.rm_latin_to_cyr(name_ru)), 'ҷӯӣҳқғёй''’`ʼ', 'чуихкгеи')", true);
 
                     b.Property<string>("SizeLabel")
                         .HasMaxLength(20)
