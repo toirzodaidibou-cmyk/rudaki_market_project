@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BundleCard } from "@/components/bundle/BundleCard";
 import { HeroSlider } from "@/components/home/HeroSlider";
 import { DeliveryEta, HomeCategories } from "@/components/home/HomeExtras";
 import { heroTheme } from "@/components/home/heroThemes";
@@ -10,7 +11,7 @@ import { ChevronRightIcon } from "@/components/ui/icons";
 import { hasLocale, localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
-import { fileUrl, getBanners, getCategories, getHomeProducts } from "@/lib/api";
+import { fileUrl, getBanners, getBundles, getCategories, getHomeProducts } from "@/lib/api";
 import { STORE_CONTACT } from "@/config/store";
 import { alternates, jsonLd, localeUrl, SITE_URL } from "@/lib/seo";
 
@@ -62,11 +63,12 @@ function homeJsonLd(lang: Locale, description: string) {
 export default async function Home({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
-  const [dict, products, banners, categories] = await Promise.all([
+  const [dict, products, banners, categories, bundles] = await Promise.all([
     getDictionary(lang),
     getHomeProducts(),
     getBanners(),
     getCategories(),
+    getBundles(),
   ]);
   // Слайдҳо аз админ (матн бо забони ҷорӣ); агар набошанд — HeroSlider пешфарзро нишон медиҳад
   const slides = (banners ?? [])
@@ -90,6 +92,23 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       </div>
       <HeroSlider slides={slides} />
       {categories && <HomeCategories lang={lang} dict={dict} categories={categories} />}
+
+      {/* Маҷмӯаҳо: "Дастархони чой", ... — ҳама бо як тугма ба сабад (бо тахфиф, агар дар админ гузошта шуда бошад) */}
+      {bundles && bundles.length > 0 && (
+        <section aria-labelledby="bundles">
+          <h2 id="bundles" className="text-xl font-extrabold tracking-tight text-foreground sm:text-2xl">
+            {dict.bundles.title}
+          </h2>
+          <p className="mt-1 mb-4 text-sm text-muted">{dict.bundles.subtitle}</p>
+          <ul className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
+            {bundles.map((b, i) => (
+              <li key={b.id} className="w-[78%] shrink-0 snap-start sm:w-auto">
+                <BundleCard bundle={b} index={i} lang={lang} dict={dict} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* Танҳо 20 мол: аксиядорҳо аввал, баъд навтаринҳо. Ҳамаи дигар — дар каталог */}
       {products && products.length > 0 && (
