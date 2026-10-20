@@ -6,7 +6,7 @@ using RudakiMarket.Domain.Entities;
 
 namespace RudakiMarket.Application.Categories;
 
-public sealed partial class CategoryService(IAppDbContext db, IFileStorage files, ISiteCache siteCache, TimeProvider clock)
+public sealed partial class CategoryService(IAppDbContext db, IFileStorage files, IImageProcessor images, ISiteCache siteCache, TimeProvider clock)
 {
     public const int MaxIconBytes = 1024 * 1024; // 1 MB
     private const int MaxNameLength = 100;
@@ -93,17 +93,43 @@ public sealed partial class CategoryService(IAppDbContext db, IFileStorage files
         using var buffer = new MemoryStream();
         await content.CopyToAsync(buffer, ct);
         var extension = DetectImageExtension(buffer.GetBuffer().AsSpan(0, (int)buffer.Length));
-        if (extension is null)
+        // Иконаи калон (то 1 MB) то 160px WebP хурд мешавад — дар сайт то 52px намоён аст.
+        var icon = extension is null ? null : images.Icon(buffer.ToArray());
+        if (icon is null)
             return Result<CategoryDto>.Invalid("icon", "Танҳо PNG, JPEG ё WebP қабул мешавад.");
 
-        buffer.Position = 0;
         var oldPath = category.IconPath;
-        category.IconPath = await files.SaveAsync(buffer, "categories", extension, ct);
+        category.IconPath = await files.SaveAsync(new MemoryStream(icon), "categories", "webp", ct);
         category.UpdatedAt = clock.GetUtcNow();
         await db.SaveChangesAsync(ct);
         await siteCache.InvalidateAsync([SiteCacheTags.Categories, SiteCacheTags.Products], ct);
         if (oldPath is not null) await files.DeleteAsync(oldPath, ct);
         return Result<CategoryDto>.Ok(ToDto(category));
+    }
+
+    /// <summary>
+    /// Иконаҳои мавҷударо то 160px WebP хурд мекунад (пеш аз ин бе коркард нигоҳ дошта мешуданд).
+    /// Агар нусхаи нав хурдтар набошад — икона бетағйир мемонад. Файли нав бо номи нав, кӯҳна нест мешавад.
+    /// </summary>
+    /// <returns>(хурд шуд, бетағйир монд)</returns>
+    public async Task<(int Done, int Skipped)> RegenerateIconsAsync(CancellationToken ct)
+    {
+        int done = 0, skipped = 0;
+        var oldPaths = new List<string>();
+        foreach (var category in await db.Categories.Where(c => c.IconPath != null).ToListAsync(ct))
+        {
+            var source = await files.ReadAsync(category.IconPath!, ct);
+            var icon = source is null ? null : images.Icon(source);
+            if (icon is null || icon.Length >= source!.Length) { skipped++; continue; }
+            oldPaths.Add(category.IconPath!);
+            category.IconPath = await files.SaveAsync(new MemoryStream(icon), "categories", "webp", ct);
+            category.UpdatedAt = clock.GetUtcNow();
+            done++;
+        }
+        await db.SaveChangesAsync(ct);
+        foreach (var path in oldPaths) await files.DeleteAsync(path, ct);
+        if (done > 0) await siteCache.InvalidateAsync([SiteCacheTags.Categories, SiteCacheTags.Products], ct);
+        return (done, skipped);
     }
 
     private static string? DetectImageExtension(ReadOnlySpan<byte> b)

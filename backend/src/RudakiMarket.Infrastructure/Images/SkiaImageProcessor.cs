@@ -38,6 +38,15 @@ public sealed class SkiaImageProcessor : IImageProcessor
         return oriented is null ? null : Encode(oriented, BannerSize);
     }
 
+    // Иконаи категория дар сайт то 52px намоён аст × зичии экран 3 ≈ 160px
+    private const int IconSize = 160;
+
+    public byte[]? Icon(byte[] input)
+    {
+        using var oriented = DecodeOriented(input);
+        return oriented is null ? null : Encode(oriented, IconSize);
+    }
+
     private static SKBitmap? Decode(byte[] input)
     {
         using var oriented = DecodeOriented(input);

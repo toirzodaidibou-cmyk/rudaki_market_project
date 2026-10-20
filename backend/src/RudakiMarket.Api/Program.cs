@@ -7,6 +7,7 @@ using RudakiMarket.Api;
 using RudakiMarket.Api.Endpoints;
 using RudakiMarket.Api.Seed;
 using RudakiMarket.Application;
+using RudakiMarket.Application.Categories;
 using RudakiMarket.Application.Customers;
 using RudakiMarket.Application.Orders;
 using RudakiMarket.Application.Products;
@@ -152,6 +153,17 @@ if (args.Contains("--regenerate-thumbs"))
     var (done, skipped) = await scope.ServiceProvider.GetRequiredService<ProductService>()
         .RegenerateThumbnailsAsync(CancellationToken.None);
     app.Logger.LogInformation("Суратҳои хурд аз нав сохта шуданд: {Done}, гузаронида шуд: {Skipped}", done, skipped);
+    return;
+}
+
+// Фармони хидматӣ: dotnet run --project src/RudakiMarket.Api -- --regenerate-icons
+// Иконаҳои категорияҳоро то 160px WebP хурд мекунад ва барнома тамом мешавад.
+if (args.Contains("--regenerate-icons"))
+{
+    using var scope = app.Services.CreateScope();
+    var (done, skipped) = await scope.ServiceProvider.GetRequiredService<CategoryService>()
+        .RegenerateIconsAsync(CancellationToken.None);
+    app.Logger.LogInformation("Иконаҳо хурд шуданд: {Done}, бетағйир: {Skipped}", done, skipped);
     return;
 }
 

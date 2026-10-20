@@ -100,6 +100,17 @@ export function HeroSlider({ slides: fromAdmin }: { slides?: HeroSlide[] }) {
     return () => window.clearTimeout(id);
   }, [emblaApi, running, selected]);
 
+  // Суратҳо: аввал танҳо слайди 1; слайди ҷорӣ фавран, слайди навбатӣ — 1 сония баъд (то autoplay
+  // омода бошад). Бе ин ҳамаи баннерҳо (~0.5 МБ) якбора бор мешуданд.
+  const [loaded, setLoaded] = useState<ReadonlySet<number>>(() => new Set([0]));
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      const next = (selected + 1) % slides.length;
+      setLoaded((prev) => (prev.has(next) ? prev : new Set(prev).add(next)));
+    }, 1000);
+    return () => window.clearTimeout(id);
+  }, [selected, slides.length]);
+
   const prev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const next = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
 
@@ -153,17 +164,19 @@ export function HeroSlider({ slides: fromAdmin }: { slides?: HeroSlide[] }) {
                 {/* Мол */}
                 <div className="absolute right-0 bottom-0 h-[96%] w-[60%] transition-all duration-700 ease-out group-data-[active=false]/slide:translate-x-6 group-data-[active=false]/slide:scale-90 sm:w-[56%] md:right-[2%] md:w-[52%]">
                   <div className="relative h-full w-full motion-safe:animate-hero-float">
-                    <Image
-                      src={slide.image}
-                      // Сурат аз API (localhost ё /backend) — бе оптимизатсияи Next (суратҳо аллакай WebP ва хурд)
-                      unoptimized={!slide.image.startsWith("/banners/")}
-                      alt={slide.title}
-                      fill
-                      sizes="(min-width: 1280px) 640px, (min-width: 768px) 52vw, 60vw"
-                      preload={i === 0}
-                      loading={i === 0 ? undefined : "eager"}
-                      className="object-contain object-bottom"
-                    />
+                    {(active || loaded.has(i)) && (
+                      <Image
+                        src={slide.image}
+                        // Сурат аз API (localhost ё /backend) — бе оптимизатсияи Next (суратҳо аллакай WebP ва хурд)
+                        unoptimized={!slide.image.startsWith("/banners/")}
+                        alt={slide.title}
+                        fill
+                        sizes="(min-width: 1280px) 640px, (min-width: 768px) 52vw, 60vw"
+                        preload={i === 0}
+                        loading={i === 0 ? undefined : "eager"}
+                        className="object-contain object-bottom"
+                      />
+                    )}
                   </div>
                 </div>
 

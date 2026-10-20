@@ -13,4 +13,7 @@ public interface IImageProcessor
 
     /// <summary>Сурати баннер: шаффофӣ нигоҳ дошта мешавад (бе заминаи сафед), то 1000px, WebP.</summary>
     byte[]? Banner(byte[] input);
+
+    /// <summary>Иконаи категория: шаффофӣ нигоҳ дошта мешавад, то 160px, WebP. Агар сурат набошад — null.</summary>
+    byte[]? Icon(byte[] input);
 }
