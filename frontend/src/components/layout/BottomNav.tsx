@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import type { ComponentType, SVGProps } from "react";
+import { CART_BUMP } from "@/lib/flyToCart";
 import { BagIcon, GridIcon, HeartLineIcon, HomeIcon, UserIcon } from "@/components/ui/icons";
 import { localizePath, stripLocale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/getDictionary";
@@ -35,6 +37,13 @@ export function BottomNav() {
   const { locale, dict } = useI18n();
   const { cartCount } = useCustomer();
   const path = stripLocale(usePathname());
+  // Ҳар «парвози мол» — сабад як бор меҷунбад (key-и нав аниматсияро аз нав сар мекунад)
+  const [bumps, setBumps] = useState(0);
+  useEffect(() => {
+    const onBump = () => setBumps((n) => n + 1);
+    window.addEventListener(CART_BUMP, onBump);
+    return () => window.removeEventListener(CART_BUMP, onBump);
+  }, []);
 
   return (
     <nav
@@ -70,7 +79,11 @@ export function BottomNav() {
                       : ""
                   }`}
                 >
-                  <span className="relative">
+                  <span
+                    key={isCart ? bumps : undefined}
+                    data-cart-target={isCart ? "" : undefined}
+                    className={`relative ${isCart && bumps > 0 ? "rm-cart-bump" : ""}`}
+                  >
                     <Icon active={active} width={23} height={23} />
                     {badge}
                   </span>

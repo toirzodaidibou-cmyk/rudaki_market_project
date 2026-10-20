@@ -52,7 +52,7 @@ export function CheckoutOptions({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reloadKey]);
 
-  if (!options) return <div className="h-28 animate-pulse rounded-2xl bg-background" />;
+  if (!options) return <div className="rm-shimmer h-28 rounded-2xl" />;
 
   const dayLabel = (offset: number, date: string) =>
     offset === 0 ? tc.today : offset === 1 ? tc.tomorrow : date.split("-").reverse().slice(0, 2).join(".");

@@ -4,6 +4,7 @@ import { Spinner, useToast } from '../../components/ui'
 import { api, fileUrl, formatPrice } from '../../lib/api'
 import type { SalesReport, SalesSummary } from '../../lib/api'
 import { PaymentMethod } from '../orders/PaymentMethod'
+import { SalesChart } from './SalesChart'
 
 /** Ҳисобот: фурӯши имрӯз / 7 / 30 рӯз, график, молҳои пурфурӯш, пардохт ва мизоҷон. */
 export function ReportsPage() {
@@ -40,10 +41,7 @@ export function ReportsPage() {
         <SummaryCard title="30 рӯз" s={report.month} />
       </div>
 
-      <section className="rounded-2xl border border-border bg-surface p-4">
-        <h2 className="mb-3 font-bold">Фурӯш дар 30 рӯз</h2>
-        <SalesChart daily={report.daily} />
-      </section>
+      <SalesChart daily={report.daily} />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="rounded-2xl border border-border bg-surface p-4">
@@ -134,62 +132,6 @@ function Stat({ value, label }: { value: number; label: string }) {
     <div className="rounded-xl bg-surface-2 p-3">
       <p className="text-2xl font-extrabold tabular-nums">{value}</p>
       <p className="text-xs text-muted">{label}</p>
-    </div>
-  )
-}
-
-/** Сутунҳои фурӯши рӯзона (SVG, бе китобхона). Ангушт/муш — маблағи рӯз. */
-function SalesChart({ daily }: { daily: SalesReport['daily'] }) {
-  const [hover, setHover] = useState<number | null>(null)
-  const max = Math.max(1, ...daily.map((d) => d.revenue))
-  const w = 600
-  const h = 160
-  const bw = w / daily.length
-  const shown = hover !== null ? daily[hover] : null
-  const label = (date: string) => date.slice(8, 10) + '.' + date.slice(5, 7)
-
-  return (
-    <div>
-      <p className="mb-2 h-5 text-sm tabular-nums">
-        {shown ? (
-          <>
-            <b>{label(shown.date)}</b> · {formatPrice(shown.revenue)} · {shown.orders} фармоиш
-          </>
-        ) : (
-          <span className="text-muted">Ба сутун ангушт ё мушро баред</span>
-        )}
-      </p>
-      <svg viewBox={`0 0 ${w} ${h + 18}`} className="w-full" role="img" aria-label="Графики фурӯш">
-        {[0.25, 0.5, 0.75, 1].map((f) => (
-          <line key={f} x1="0" x2={w} y1={h - h * f} y2={h - h * f} stroke="currentColor" className="text-border" strokeDasharray="3 4" />
-        ))}
-        {daily.map((d, i) => {
-          const bh = d.revenue > 0 ? Math.max(3, (d.revenue / max) * (h - 6)) : 0
-          return (
-            <g key={d.date} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)} onTouchStart={() => setHover(i)}>
-              <rect x={i * bw} y="0" width={bw} height={h} fill="transparent" />
-              <rect
-                x={i * bw + bw * 0.15}
-                y={h - bh}
-                width={bw * 0.7}
-                height={bh}
-                rx="3"
-                className={hover === i ? 'fill-foreground' : 'fill-accent'}
-              />
-              {i % 5 === 4 || i === daily.length - 1 ? (
-                <text
-                  x={i === daily.length - 1 ? w : i * bw + bw / 2}
-                  y={h + 14}
-                  textAnchor={i === daily.length - 1 ? "end" : "middle"}
-                  className="fill-muted text-[10px]"
-                >
-                  {label(d.date)}
-                </text>
-              ) : null}
-            </g>
-          )
-        })}
-      </svg>
     </div>
   )
 }

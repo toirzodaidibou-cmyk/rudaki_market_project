@@ -20,10 +20,12 @@ public static class CustomerMessages
     private static readonly CultureInfo Money = CultureInfo.GetCultureInfo("ru-RU");
     private static string M(decimal v) => v.ToString("N2", Money) + " с.";
 
-    public static string Placed(Order order, string deliveryTg) =>
+    public static string Placed(Order order, string deliveryTg, PayToDto? payTo = null) =>
         $"🛒 Фармоиши №{order.Id} қабул шуд!\n" +
         $"Ҳамагӣ: {M(order.Total)} · {deliveryTg}\n" +
         (order.Discount > 0 ? $"Сарфаи шумо: {M(order.Discount)}\n" : "") +
+        (order.BonusUsed > 0 ? $"Бо бонус пардохт шуд: {M(order.BonusUsed)}\n" : "") +
+        (payTo is null ? "" : $"💳 Пардохт: {payTo.Phone} ({payTo.Recipient}), {M(payTo.Amount)}, шарҳ: «{payTo.Comment}»\n") +
         "Мо ба зудӣ онро тасдиқ мекунем.\n\n" +
         $"🛒 Заказ №{order.Id} принят!\n" +
         $"Итого: {M(order.Total)}." + (order.Discount > 0 ? $" Ваша экономия: {M(order.Discount)}." : "") + " Скоро подтвердим.";

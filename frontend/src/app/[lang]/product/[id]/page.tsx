@@ -86,7 +86,7 @@ export default async function ProductPage({ params }: Props) {
         {p.category.name[lang] || p.category.name.tg}
       </Link>
 
-      <div className="grid gap-6 lg:grid-cols-2 lg:gap-12">
+      <div data-fly-root className="grid gap-6 lg:grid-cols-2 lg:gap-12">
         <ProductGallery
           images={p.images.map((i) => ({ url: fileUrl(i.url)!, thumb: fileUrl(i.thumb)! }))}
           name={name}

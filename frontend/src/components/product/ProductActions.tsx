@@ -49,12 +49,9 @@ export function ProductActions({ id, name, price, oldPrice }: { id: number; name
           title={favorite ? t.favoriteRemove : t.favoriteAdd}
           className="flex h-13 w-13 shrink-0 items-center justify-center rounded-btn bg-card ring-1 ring-border transition-transform hover:bg-surface-hover active:scale-90"
         >
-          <HeartIcon
-            width={26}
-            height={26}
-            strokeWidth={1.8}
-            className={favorite ? "fill-sale text-sale" : "text-foreground"}
-          />
+          <span key={String(favorite)} className={favorite ? "rm-heart-pop" : "inline-flex"}>
+            <HeartIcon width={26} height={26} strokeWidth={1.8} className={favorite ? "fill-sale text-sale" : "text-foreground"} />
+          </span>
         </button>
         <button
           type="button"

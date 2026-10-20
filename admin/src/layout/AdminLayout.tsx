@@ -1,3 +1,4 @@
+import { Gift } from 'lucide-react'
 import { NavLink, Navigate, Outlet } from 'react-router'
 import { useAuth } from '../auth/AuthContext'
 import { BasketIcon, BoxIcon, ChartIcon, SlidesIcon, ExternalIcon, GridIcon, LogoutIcon, Logo, MoonIcon, ReceiptIcon, SunIcon } from '../components/icons'
@@ -9,6 +10,7 @@ const SITE_URL = 'http://localhost:3123'
 const nav = [
   { to: '/orders', label: 'Фармоишҳо', Icon: ReceiptIcon },
   { to: '/reports', label: 'Ҳисобот', Icon: ChartIcon },
+  { to: '/bonuses', label: 'Бонусҳо', Icon: Gift },
   { to: '/products', label: 'Молҳо', Icon: BoxIcon },
   { to: '/categories', label: 'Категорияҳо', Icon: GridIcon },
   { to: '/banners', label: 'Баннерҳо', Icon: SlidesIcon },

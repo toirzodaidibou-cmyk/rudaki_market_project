@@ -16,6 +16,9 @@
   --on-accent: #111111;
   --danger: #e5484d;
   --success: #2f9e66;
+  /* Сутунҳои график: зарди бренд, як қадам торик (дар заминаи сафед #ffc940 намоён нест) */
+  --chart-bar: #e0a100;
+  --chart-grid: #eceef1;
   color-scheme: light;
 }
 
@@ -32,6 +35,8 @@
   --on-accent: #111111;
   --danger: #ff6369;
   --success: #3dd68c;
+  --chart-bar: #c08600;
+  --chart-grid: #22252a;
   color-scheme: dark;
 }
 

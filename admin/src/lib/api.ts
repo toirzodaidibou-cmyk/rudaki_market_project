@@ -126,6 +126,34 @@ export type PricePreview = {
 
 export type SalesSummary = { revenue: number; orders: number; averageOrder: number }
 
+/** Бонуси як мизоҷ (Корти Рӯдакӣ). */
+export type LoyaltyRow = {
+  customerId: number
+  cardNumber: string
+  phone: string
+  registeredAt: string
+  /** Бонуси дастрас */
+  balance: number
+  /** Бонуси оянда (фармоишҳои ҳанӯз расонида нашуда) */
+  pending: number
+  earned: number
+  spent: number
+  purchases: number
+  lastOrderAt: string | null
+}
+export type LoyaltySummary = {
+  percent: number
+  customers: number
+  withBonus: number
+  /** Ҳамаи бонусҳои дастрас дар кортҳо */
+  outstanding: number
+  pending: number
+  earned: number
+  spent: number
+}
+export type LoyaltyPage = { summary: LoyaltySummary; rows: Paged<LoyaltyRow> }
+export type LoyaltySort = 'balance' | 'pending' | 'purchases' | 'recent'
+
 export type SalesReport = {
   today: SalesSummary
   week: SalesSummary
@@ -194,6 +222,8 @@ export type Order = {
   discount: number
   discountNote: string | null
   deliveryFee: number
+  /** Бонуси корти Рӯдакӣ, ки мизоҷ сарф кард (аз Total кам шудааст) */
+  bonusUsed: number
   total: number
   items: OrderItem[]
   nextStatuses: OrderStatus[]
@@ -316,6 +346,13 @@ export const api = {
   },
 
   reports: () => request<SalesReport>("/api/admin/reports"),
+  loyalty: (params: { q?: string; sort?: LoyaltySort; page?: number }, signal?: AbortSignal) => {
+    const q = new URLSearchParams()
+    if (params.q) q.set('q', params.q)
+    if (params.sort) q.set('sort', params.sort)
+    if (params.page && params.page > 1) q.set('page', String(params.page))
+    return request<LoyaltyPage>(`/api/admin/loyalty${q.size ? `?${q}` : ''}`, { signal })
+  },
 
   orders: {
     list: (params: { status?: OrderStatus | null; q?: string; page?: number }, signal?: AbortSignal) => {

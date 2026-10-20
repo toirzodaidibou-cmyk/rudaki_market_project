@@ -330,6 +330,12 @@ function OrderModal({ number, onClose, onChanged }: { number: number | null; onC
               <span>Расонидан</span>
               <span className="tabular-nums">{order.deliveryFee === 0 ? 'ройгон' : formatPrice(order.deliveryFee)}</span>
             </div>
+            {order.bonusUsed > 0 && (
+              <div className="flex justify-between text-emerald-700 dark:text-emerald-400">
+                <span>Бо бонуси корти Рӯдакӣ</span>
+                <span className="tabular-nums">−{formatPrice(order.bonusUsed)}</span>
+              </div>
+            )}
             <div className="flex justify-between border-t border-border pt-2 text-lg font-extrabold">
               <span>Ҳамагӣ</span>
               <span className="tabular-nums">{formatPrice(order.total)}</span>

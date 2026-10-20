@@ -5,6 +5,7 @@ namespace RudakiMarket.Application.Orders;
 /// <summary>
 /// Танзимоти вақти расонидан (appsettings "Delivery:*"): соатҳои кор (вақти Душанбе), дарозии ҳар вақт,
 /// чанд дақиқа пеш аз оғоз фармоиш қабул мешавад, чанд рӯз пеш ва тарзҳои пардохт.
+/// PaymentRecipient* — ба кӣ мизоҷ бо Алиф / DC / Корти Миллӣ пул мефиристад (null — блоки пардохт нишон дода намешавад).
 /// </summary>
 public sealed record DeliveryScheduleOptions(
     int OpenHour = 8,
@@ -13,11 +14,16 @@ public sealed record DeliveryScheduleOptions(
     int LeadMinutes = 60,
     int Days = 2,
     int UtcOffsetHours = 5,
-    IReadOnlyList<PaymentMethod>? PaymentMethods = null)
+    IReadOnlyList<PaymentMethod>? PaymentMethods = null,
+    string PaymentRecipientName = "RUDAKI MARKET",
+    string? PaymentRecipientPhone = null)
 {
     public IReadOnlyList<PaymentMethod> EnabledPayments =>
         PaymentMethods is { Count: > 0 } ? PaymentMethods : Enum.GetValues<PaymentMethod>();
 }
+
+/// <summary>Маълумоти пардохт бо корт: гиранда, рақам, маблағ ва шарҳ (барои нусха гирифтан дар барномаи бонк).</summary>
+public sealed record PayToDto(string Method, string Recipient, string Phone, decimal Amount, string Comment);
 
 public sealed record DeliverySlotDto(DateTimeOffset Start, DateTimeOffset End, string From, string To);
 
@@ -90,6 +96,12 @@ public sealed class DeliverySchedule(DeliveryScheduleOptions options, TimeProvid
         var day = f.Date == today ? "Имрӯз" : f.Date == today.AddDays(1) ? "Пагоҳ" : f.ToString("dd.MM");
         return $"{day} {f:HH:mm}–{t:HH:mm}";
     }
+
+    /// <summary>Барои пардохт бо корт — ба кӣ ва чӣ қадар; барои нақд ё агар рақам танзим нашуда бошад — null.</summary>
+    public PayToDto? PayTo(Order order) =>
+        order.PaymentMethod == PaymentMethod.Cash || string.IsNullOrWhiteSpace(options.PaymentRecipientPhone) || order.Total <= 0
+            ? null
+            : new PayToDto(Name(order.PaymentMethod), options.PaymentRecipientName, options.PaymentRecipientPhone.Trim(), order.Total, $"Фармоиш №{order.Id}");
 
     public static string PaymentLabel(PaymentMethod m) => m switch
     {

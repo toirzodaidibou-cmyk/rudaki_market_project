@@ -194,7 +194,21 @@
     "payKortiMilli": "Korti Milli",
     "payHint": "Pay on delivery",
     "closedNow": "The store is closed now — choose a delivery time.",
-    "bonusEarned": "+{amount} bonus on your Rudaki Card (after delivery)"
+    "bonusEarned": "+{amount} bonus on your Rudaki Card (after delivery)",
+    "bonusOnCard": "On card: {amount}",
+    "useBonus": "Pay with bonus",
+    "bonusApplied": "−{amount} will be paid with bonus",
+    "bonusWillEarn": "+{amount} bonus for this purchase (after delivery)",
+    "bonusPaid": "Paid with bonus",
+    "payTitle": "Pay with {method}",
+    "payRecipient": "Recipient",
+    "payPhone": "Number",
+    "payAmount": "Amount",
+    "payComment": "Comment",
+    "copy": "Copy",
+    "copied": "Copied",
+    "payHowTo": "Copy the number, amount and comment, then send a transfer to RUDAKI MARKET in your bank app. The comment lets us match the payment to your order.",
+    "openAlif": "Open the Alif app"
   },
   "profile": {
     "title": "Profile",

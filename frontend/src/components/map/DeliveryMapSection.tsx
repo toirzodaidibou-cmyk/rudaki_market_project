@@ -6,7 +6,7 @@ import { useI18n } from "@/i18n/I18nProvider";
 // Leaflet танҳо дар браузер кор мекунад (window) — бе SSR ва баъдтар бор мешавад
 const RudakiMap = dynamic(() => import("./RudakiMap"), {
   ssr: false,
-  loading: () => <div className="h-[420px] animate-pulse rounded-[28px] bg-surface sm:h-[500px] lg:h-[560px]" />,
+  loading: () => <div className="rm-shimmer h-[420px] rounded-[28px] sm:h-[500px] lg:h-[560px]" />,
 });
 
 /** Қисми поёни саҳифаи асосӣ: харитаи минтақаи расонидан (ноҳияи Рӯдакӣ). */

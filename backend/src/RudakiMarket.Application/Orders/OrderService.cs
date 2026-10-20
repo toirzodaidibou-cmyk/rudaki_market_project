@@ -19,8 +19,10 @@ public sealed record DeliveryOptions(decimal FreeDeliveryFrom, decimal DeliveryF
 
 /// <param name="WhatsAppUrl">wa.me/{рақами фурӯшанда}?text={фармоиш} — мизоҷ паёми тайёрро мефиристад</param>
 /// <param name="OwnerNotified">true — паём ба фурӯшанда худкор (сервер) фиристода шуд</param>
+/// <param name="BonusUsed">Бонуси корти Рӯдакӣ, ки дар ин фармоиш сарф шуд</param>
 /// <param name="Bonus">Бонуси корти Рӯдакӣ барои ин фармоиш (пас аз «Расонида шуд» ба баланс меравад)</param>
-public sealed record OrderPlaced(int Number, decimal Subtotal, decimal Discount, decimal DeliveryFee, decimal Total, decimal Bonus, string WhatsAppUrl, bool OwnerNotified);
+/// <param name="PayTo">Барои Алиф / DC / Корти Миллӣ — ба кӣ, чӣ қадар ва бо кадом шарҳ пул фиристодан (нақд — null)</param>
+public sealed record OrderPlaced(int Number, decimal Subtotal, decimal Discount, decimal DeliveryFee, decimal BonusUsed, decimal Total, decimal Bonus, PayToDto? PayTo, string WhatsAppUrl, bool OwnerNotified);
 
 /// <summary>
 /// Огоҳ кардани фурӯшанда дар бораи фармоиши нав (масалан, WhatsApp тавассути CallMeBot).
@@ -42,14 +44,14 @@ public sealed record OrderItemDto(string Name, string? SizeLabel, decimal Price,
 public sealed record CustomerOrderDto(
     int Number, DateTimeOffset CreatedAt, string Status, string Address, string? Comment,
     DateTimeOffset? DeliveryFrom, DateTimeOffset? DeliveryTo, string PaymentMethod,
-    decimal Subtotal, decimal Discount, decimal DeliveryFee, decimal Total, IReadOnlyList<OrderItemDto> Items)
+    decimal Subtotal, decimal Discount, decimal DeliveryFee, decimal BonusUsed, decimal Total, IReadOnlyList<OrderItemDto> Items)
 {
     /// <summary>Бонус барои ин фармоиш (0 — бекор шуд).</summary>
     public decimal Bonus { get; init; }
 }
 
 public sealed class OrderService(
-    IAppDbContext db, DeliveryOptions delivery, DeliverySchedule schedule, BundleDiscounts discounts, LoyaltyOptions loyalty,
+    IAppDbContext db, DeliveryOptions delivery, DeliverySchedule schedule, BundleDiscounts discounts, LoyaltyOptions loyalty, LoyaltyService loyaltyCards,
     IOrderNotifier notifier, ICustomerNotifier customers, TimeProvider clock)
 {
     public const int OrdersPageSize = 20;
@@ -66,14 +68,14 @@ public sealed class OrderService(
             .Select(o => new CustomerOrderDto(
                 o.Id, o.CreatedAt, o.Status.ToString().ToLower(), o.Address, o.Comment,
                 o.DeliveryFrom, o.DeliveryTo, o.PaymentMethod == PaymentMethod.Alif ? "alif" : o.PaymentMethod == PaymentMethod.Dc ? "dc" : o.PaymentMethod == PaymentMethod.KortiMilli ? "korti_milli" : "cash",
-                o.Subtotal, o.Discount, o.DeliveryFee, o.Total,
+                o.Subtotal, o.Discount, o.DeliveryFee, o.BonusUsed, o.Total,
                 o.Items.OrderBy(i => i.Id).Select(i => new OrderItemDto(
                     i.Name, i.SizeLabel, i.Price, i.Quantity, i.LineTotal,
                     // Сурати хурди мол (агар мол то ҳол бошад)
                     db.ProductImages.Where(img => img.ProductId == i.ProductId).OrderBy(img => img.SortOrder)
                         .Select(img => img.ThumbPath).FirstOrDefault())).ToList()))
             .ToListAsync(ct);
-        var withBonus = orders.Select(o => o with { Bonus = o.Status == "cancelled" ? 0 : loyalty.BonusFor(o.Subtotal - o.Discount) }).ToList();
+        var withBonus = orders.Select(o => o with { Bonus = o.Status == "cancelled" ? 0 : loyalty.BonusFor(o.Subtotal - o.Discount - o.BonusUsed) }).ToList();
         return new PagedResult<CustomerOrderDto>(withBonus, total, page, OrdersPageSize);
     }
 
@@ -88,8 +90,9 @@ public sealed class OrderService(
     /// <param name="deliveryStart">оғози вақти интихобшуда; null — "ҳарчи зудтар"</param>
     /// <param name="paymentInput">cash | alif | dc | korti_milli (холӣ — нақд)</param>
     /// <param name="requestId">калиди дархост аз браузер: такрори ҳамон дархост ҳамон фармоишро бармегардонад</param>
+    /// <param name="useBonus">бонуси корти Рӯдакиро сарф кардан (то нархи молҳо; расонидан — бо пул)</param>
     public async Task<Result<OrderPlaced>> PlaceAsync(int customerId, string? addressInput, string? commentInput,
-        DateTimeOffset? deliveryStart, string? paymentInput, CancellationToken ct, Guid? requestId = null)
+        DateTimeOffset? deliveryStart, string? paymentInput, CancellationToken ct, Guid? requestId = null, bool useBonus = false)
     {
         // Ҳамон дархост дубора омад (ҷавоби аввал ба браузер нарасид) — фармоиши аллакай сохташуда.
         // Пеш аз санҷиши вақт: дар такрор вақти интихобшуда шояд аллакай гузашта бошад.
@@ -158,14 +161,16 @@ public sealed class OrderService(
             : string.Join(", ", applied.Select(d => d.Times > 1 ? $"{d.Name.Tg} ×{d.Times}" : d.Name.Tg));
         if (order.DiscountNote?.Length > 500) order.DiscountNote = order.DiscountNote[..500];
         order.DeliveryFee = delivery.FeeFor(order.Subtotal - order.Discount);
-        order.Total = order.Subtotal - order.Discount + order.DeliveryFee;
+        // Бонус — баъд аз қулфи мизоҷ: ду фармоиши ҳамзамон ҳамон бонусро ду бор сарф карда наметавонанд
+        order.BonusUsed = useBonus ? Math.Min(await loyaltyCards.AvailableAsync(customerId, ct), order.Subtotal - order.Discount) : 0;
+        order.Total = order.Subtotal - order.Discount + order.DeliveryFee - order.BonusUsed;
 
         db.Orders.Add(order);
         await db.SaveChangesAsync(ct); // рақами фармоиш барои паёмҳо
 
         // Огоҳиҳо — дар ҳамон транзаксия: бо фармоиш якҷоя сабт мешаванд ё якҷоя бекор (фиристодан — дар замина)
         var notified = notifier.Enqueue(FormatMessage(order));
-        customers.Enqueue(order.Phone, CustomerMessages.Placed(order, schedule.Describe(order.DeliveryFrom, order.DeliveryTo)));
+        customers.Enqueue(order.Phone, CustomerMessages.Placed(order, schedule.Describe(order.DeliveryFrom, order.DeliveryTo), schedule.PayTo(order)));
         await db.SaveChangesAsync(ct);
 
         await db.CartItems.Where(c => c.CustomerId == customerId).ExecuteDeleteAsync(ct);
@@ -183,8 +188,8 @@ public sealed class OrderService(
     {
         var owner = new string(delivery.OwnerWhatsApp.Where(char.IsAsciiDigit).ToArray());
         var waUrl = $"https://wa.me/{owner}?text={Uri.EscapeDataString(FormatMessage(order))}";
-        return new OrderPlaced(order.Id, order.Subtotal, order.Discount, order.DeliveryFee, order.Total,
-            loyalty.BonusFor(order.Subtotal - order.Discount), waUrl, ownerNotified);
+        return new OrderPlaced(order.Id, order.Subtotal, order.Discount, order.DeliveryFee, order.BonusUsed, order.Total,
+            loyalty.EarnedFor(order), schedule.PayTo(order), waUrl, ownerNotified);
     }
 
     private static string M(decimal v) => v.ToString("N2", Money) + " с.";
@@ -210,6 +215,7 @@ public sealed class OrderService(
         sb.AppendLine($"Молҳо: {M(order.Subtotal)}");
         if (order.Discount > 0) sb.AppendLine($"🎁 Тахфифи маҷмӯа ({order.DiscountNote}): −{M(order.Discount)}");
         sb.AppendLine(order.DeliveryFee == 0 ? "🚚 Расонидан: ройгон" : $"🚚 Расонидан: {M(order.DeliveryFee)}");
+        if (order.BonusUsed > 0) sb.AppendLine($"⭐ Бо бонуси корти Рӯдакӣ: −{M(order.BonusUsed)}");
         sb.Append($"💰 Ҳамагӣ: {M(order.Total)}");
         return sb.ToString();
     }

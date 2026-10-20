@@ -194,7 +194,21 @@
     "payKortiMilli": "Korti Milli",
     "payHint": "Qabul qilganda to‘lov",
     "closedNow": "Do‘kon hozir yopiq — yetkazish vaqtini tanlang.",
-    "bonusEarned": "+{amount} bonus Rudaki kartasiga (yetkazilgandan soʻng)"
+    "bonusEarned": "+{amount} bonus Rudaki kartasiga (yetkazilgandan soʻng)",
+    "bonusOnCard": "Kartada: {amount}",
+    "useBonus": "Bonus bilan toʻlash",
+    "bonusApplied": "−{amount} bonus bilan toʻlanadi",
+    "bonusWillEarn": "+{amount} bonus bu xariddan (yetkazilgandan soʻng)",
+    "bonusPaid": "Bonus bilan",
+    "payTitle": "{method} orqali toʻlov",
+    "payRecipient": "Qabul qiluvchi",
+    "payPhone": "Raqam",
+    "payAmount": "Summa",
+    "payComment": "Izoh",
+    "copy": "Nusxa",
+    "copied": "Nusxalandi",
+    "payHowTo": "Raqam, summa va izohni nusxalab, bank ilovasida RUDAKI MARKET raqamiga oʻtkazing. Izoh toʻlovni buyurtmangizga bogʻlash uchun kerak.",
+    "openAlif": "Alif ilovasini ochish"
   },
   "profile": {
     "title": "Profil",

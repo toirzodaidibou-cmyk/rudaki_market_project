@@ -8,6 +8,7 @@ import { HeartLineIcon, MinusIcon, PlusIcon } from "@/components/ui/icons";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useCustomer } from "@/customer/CustomerProvider";
+import { flyToCart } from "@/lib/flyToCart";
 
 export type ProductCardData = {
   id: number;
@@ -53,7 +54,7 @@ export function ProductCard({ product, priority = false }: { product: ProductCar
       : 0;
 
   return (
-    <article className="flex flex-col rounded-card bg-card p-2 shadow-[var(--card-shadow)] ring-1 ring-card-ring transition-shadow hover:shadow-[0_14px_30px_-18px_rgba(0,0,0,0.35)]">
+    <article data-fly-root className="rm-card rm-reveal flex flex-col rounded-card bg-card p-2 shadow-[var(--card-shadow)] ring-1 ring-card-ring">
       {/* Сурат(ҳо) — бо ангушт варақ мезанед (scroll-snap); замина ҳамеша сафед (суратҳои мол сафеданд) */}
       <div className="relative aspect-square overflow-hidden rounded-[calc(var(--r-card)-6px)] bg-white">
         {/* Зер кардан — саҳифаи мол; варақ задан — сурати дигар */}
@@ -112,11 +113,9 @@ export function ProductCard({ product, priority = false }: { product: ProductCar
           title={favorite ? t.favoriteRemove : t.favoriteAdd}
           className="absolute right-2 bottom-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-[#1b2420] shadow-[0_2px_8px_-2px_rgba(0,0,0,0.25)] transition-transform active:scale-90"
         >
-          <HeartLineIcon
-            width={17}
-            height={17}
-            className={`transition-colors ${favorite ? "fill-sale text-sale" : ""}`}
-          />
+          <span key={String(favorite)} className={favorite ? "rm-heart-pop" : "inline-flex"}>
+            <HeartLineIcon width={17} height={17} className={`transition-colors ${favorite ? "fill-sale text-sale" : ""}`} />
+          </span>
         </button>
 
         {/* Нуқтаҳо (агар зиёда аз 1 сурат бошад) */}
@@ -177,7 +176,10 @@ export function CartButton({
     return (
       <button
         type="button"
-        onClick={() => setCartQuantity(productId, 1)}
+        onClick={(e) => {
+          flyToCart(e.currentTarget);
+          setCartQuantity(productId, 1);
+        }}
         aria-label={label || dict.cart.increase}
         className={`flex w-full items-center justify-center gap-1.5 rounded-btn bg-accent font-bold text-on-accent shadow-[0_8px_18px_-10px_var(--accent-glow)] transition-all hover:brightness-105 active:scale-[0.97] ${h} d3:bg-transparent d3:text-brand-text d3:shadow-none d3:ring-[1.5px] d3:ring-[#9fe0bd] d3:ring-inset d3:hover:bg-brand-soft dark:d3:ring-[#2b6b49]`}
       >
@@ -204,7 +206,10 @@ export function CartButton({
       </span>
       <button
         type="button"
-        onClick={() => setCartQuantity(productId, qty + 1)}
+        onClick={(e) => {
+          flyToCart(e.currentTarget);
+          setCartQuantity(productId, qty + 1);
+        }}
         disabled={qty >= 99}
         aria-label={dict.cart.increase}
         className="flex aspect-square h-[80%] items-center justify-center rounded-[10px] bg-step-btn transition-transform active:scale-90 disabled:opacity-40 d3:rounded-full"

@@ -24,6 +24,7 @@ public static class DependencyInjection
         services.AddScoped<TelegramLoginService>();
         services.AddScoped<CartService>();
         services.AddScoped<LoyaltyService>();
+        services.AddScoped<AdminLoyaltyService>();
         services.AddScoped<OrderService>();
         services.AddScoped<AdminOrderService>();
         services.AddScoped<BundleService>();

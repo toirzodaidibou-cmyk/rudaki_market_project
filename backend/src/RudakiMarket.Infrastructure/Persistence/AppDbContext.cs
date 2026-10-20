@@ -84,6 +84,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             e.Property(x => x.Discount).HasPrecision(12, 2);
             e.Property(x => x.DiscountNote).HasMaxLength(500);
             e.Property(x => x.DeliveryFee).HasPrecision(12, 2);
+            e.Property(x => x.BonusUsed).HasPrecision(12, 2);
             e.Property(x => x.Total).HasPrecision(12, 2);
             e.HasIndex(x => new { x.CustomerId, x.CreatedAt });
             e.HasIndex(x => new { x.Status, x.CreatedAt });

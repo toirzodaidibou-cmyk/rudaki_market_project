@@ -40,6 +40,13 @@ public sealed class Order
     public string? DiscountNote { get; set; }
 
     public decimal DeliveryFee { get; set; }
+
+    /// <summary>
+    /// Бонуси корти Рӯдакӣ, ки дар ин фармоиш сарф шуд (0 — не). Total аз он кам аст.
+    /// Ҳангоми фармоиш банд мешавад; агар фармоиш бекор шавад — ба корт бармегардад.
+    /// </summary>
+    public decimal BonusUsed { get; set; }
+
     public decimal Total { get; set; }
 
     public OrderStatus Status { get; set; } = OrderStatus.New;

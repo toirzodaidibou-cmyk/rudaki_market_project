@@ -3,6 +3,7 @@ import { AuthProvider } from './auth/AuthContext'
 import { ToastProvider } from './components/ui'
 import { AdminLayout } from './layout/AdminLayout'
 import { BannersPage } from './pages/banners/BannersPage'
+import { BonusesPage } from './pages/bonuses/BonusesPage'
 import { BundlesPage } from './pages/bundles/BundlesPage'
 import { CategoriesPage } from './pages/categories/CategoriesPage'
 import { LoginPage } from './pages/LoginPage'
@@ -21,6 +22,7 @@ export default function App() {
               <Route index element={<Navigate to="/orders" replace />} />
               <Route path="/orders" element={<OrdersPage />} />
               <Route path="/reports" element={<ReportsPage />} />
+              <Route path="/bonuses" element={<BonusesPage />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/categories" element={<CategoriesPage />} />
               <Route path="/bundles" element={<BundlesPage />} />

@@ -40,6 +40,9 @@ export type Cart = {
   /** Нархи расонидан, вақте ки ройгон нест */
   deliveryPrice: number;
 };
+/** Маълумоти пардохт бо корт: гиранда, рақам, маблағ ва шарҳ. */
+export type PayTo = { method: string; recipient: string; phone: string; amount: number; comment: string };
+
 /** Корти бонусии Рӯдакӣ (профил). */
 export type LoyaltyCard = {
   /** "RM 0000 0002" */
@@ -68,6 +71,8 @@ export type CustomerOrder = {
   subtotal: number;
   discount: number;
   deliveryFee: number;
+  /** Бонуси сарфшуда */
+  bonusUsed: number;
   total: number;
   /** Бонус барои ин фармоиш (0 — бекор шуд) */
   bonus: number;
@@ -79,8 +84,12 @@ export type OrderPlaced = {
   discount: number;
   deliveryFee: number;
   total: number;
+  /** Бонуси корти Рӯдакӣ, ки дар ин фармоиш сарф шуд */
+  bonusUsed: number;
   /** Бонуси корти Рӯдакӣ барои ин фармоиш (пас аз расонидан) */
   bonus: number;
+  /** Барои Алиф / DC / Корти Миллӣ — ба кӣ ва чӣ қадар пул фиристодан (нақд — null) */
+  payTo: PayTo | null;
   /** wa.me/{рақами мағоза}?text={фармоиш} */
   whatsAppUrl: string;
   ownerNotified: boolean;
@@ -162,9 +171,10 @@ export const clientApi = {
   /**
    * deliveryStart: null — "ҳарчи зудтар"; paymentMethod: cash | alif | dc | korti_milli.
    * requestId — ҳамон калид дар такрор (интернети суст): сервер фармоиши дуюм намесозад.
+   * useBonus — бонуси корти Рӯдакиро сарф кардан (сервер то нархи молҳо кам мекунад).
    */
-  placeOrder: (address: string, comment: string, deliveryStart: string | null, paymentMethod: string, requestId: string) =>
-    request<OrderPlaced>("/api/orders", "POST", { address, comment, deliveryStart, paymentMethod, requestId }),
+  placeOrder: (address: string, comment: string, deliveryStart: string | null, paymentMethod: string, requestId: string, useBonus = false) =>
+    request<OrderPlaced>("/api/orders", "POST", { address, comment, deliveryStart, paymentMethod, requestId, useBonus }),
 };
 
 export type CartLine = { productId: number; quantity: number };

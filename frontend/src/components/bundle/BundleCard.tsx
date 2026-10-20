@@ -20,7 +20,7 @@ export function BundleCard({ bundle, index, lang, dict }: { bundle: Bundle; inde
   return (
     <Link
       href={localizePath(lang, `/bundle/${bundle.id}`)}
-      className="group flex h-full flex-col rounded-[24px] p-4 text-[#1d1a2b] transition-transform active:scale-[0.98]"
+      className="rm-card group flex h-full flex-col rounded-[24px] p-4 text-[#1d1a2b] active:scale-[0.98]"
       style={{ background: GRADIENTS[index % GRADIENTS.length] }}
     >
       <div className="flex items-start justify-between gap-2">

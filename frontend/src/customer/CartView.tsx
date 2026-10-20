@@ -10,11 +10,12 @@ import { WhatsAppIcon as WhatsAppLogo } from "@/components/ui/BrandIcons";
 import { CartSolidIcon, XIcon } from "@/components/ui/icons";
 import { useCustomer } from "@/customer/CustomerProvider";
 import { CheckoutOptions } from "@/customer/CheckoutOptions";
+import { PayToBlock } from "@/customer/PayToBlock";
 import type { DeliveryChoice } from "@/customer/CheckoutOptions";
 import { format, localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/I18nProvider";
 import { ClientApiError, clientApi, clientFileUrl, formatPhone, newRequestId } from "@/lib/clientApi";
-import type { CartItem, OrderPlaced } from "@/lib/clientApi";
+import type { CartItem, LoyaltyCard, OrderPlaced } from "@/lib/clientApi";
 import { loadDeliveryAddress } from "@/lib/geo";
 
 /** Молҳои дастрас ва миқдорашон — барои муқоисаи сабад пеш ва пас аз даромад. */
@@ -49,6 +50,21 @@ export function CartView() {
   const [resumeAfterLogin, setResumeAfterLogin] = useState<string | null>(null);
   // Як калид барои ҳамин фармоиш: такрори дархост (интернети суст) фармоиши дуюм намесозад
   const requestId = useRef<string | null>(null);
+  // Корти бонусӣ: бонуси дастрас (null — ҳанӯз маълум нест ё ворид нашудааст) ва «бо бонус пардохт кардан»
+  const [loyalty, setLoyalty] = useState<LoyaltyCard | null>(null);
+  const [useBonus, setUseBonus] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    let alive = true;
+    clientApi.loyalty().then(
+      (c) => alive && setLoyalty(c),
+      () => alive && setLoyalty(null),
+    );
+    return () => {
+      alive = false;
+    };
+  }, [user]);
 
   const nf = new Intl.NumberFormat(locale === "en" ? "en-US" : "ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const money = (v: number) => `${nf.format(v)} ${dict.product.currency}`;
@@ -60,7 +76,7 @@ export function CartView() {
     requestId.current ??= newRequestId();
     try {
       // Фармоиш ба мағоза аз сервер худкор меравад (WhatsApp-и фурӯшанда); WhatsApp-и мизоҷ — ихтиёрӣ
-      const order = await clientApi.placeOrder(address, comment, delivery ?? null, payment, requestId.current);
+      const order = await clientApi.placeOrder(address, comment, delivery ?? null, payment, requestId.current, useBonus);
       setPlaced(order);
       void refreshCart();
     } catch (err) {
@@ -114,11 +130,23 @@ export function CartView() {
             <span>{tc.delivery}</span>
             <span>{placed.deliveryFee === 0 ? tc.free : money(placed.deliveryFee)}</span>
           </div>
+          {placed.bonusUsed > 0 && (
+            <div className="flex justify-between font-medium text-[#1f9d55]">
+              <span>{tc.bonusPaid}</span>
+              <span className="tabular-nums">−{money(placed.bonusUsed)}</span>
+            </div>
+          )}
           <div className="flex justify-between border-t border-border pt-1.5 text-base font-bold text-foreground">
             <span>{t.total}</span>
             <span className="tabular-nums">{money(placed.total)}</span>
           </div>
         </div>
+        {placed.payTo && (
+          <PayToBlock
+            payTo={placed.payTo}
+            label={{ alif: tc.payAlif, dc: tc.payDc, korti_milli: tc.payKortiMilli }[placed.payTo.method] ?? placed.payTo.method}
+          />
+        )}
         {placed.bonus > 0 && (
           <p className="mt-3 rounded-xl bg-[#19b25c]/10 px-3 py-2 text-sm font-semibold text-[#1f9d55]">
             {format(tc.bonusEarned, { amount: money(placed.bonus) })}
@@ -163,6 +191,10 @@ export function CartView() {
   const discounts = synced ? (cart?.discounts ?? []) : [];
   const discount = discounts.reduce((s, d) => s + d.amount, 0);
   const goods = total - discount;
+  // Бонус: то нархи молҳо (расонидан — бо пул); ҳисоби ниҳоӣ дар сервер
+  const bonusBalance = user && loyalty ? loyalty.balance : 0;
+  const bonusApplied = useBonus ? Math.min(bonusBalance, goods) : 0;
+  const bonusEarn = loyalty ? Math.round((goods - bonusApplied) * loyalty.percent) / 100 : 0;
   // Расонидан: аз FreeDeliveryFrom ва зиёд (баъд аз тахфиф) — ройгон (ҳисоби ниҳоӣ дар сервер)
   const freeFrom = cart?.freeDeliveryFrom ?? 200;
   const deliveryFee = goods >= freeFrom ? 0 : (cart?.deliveryPrice ?? 0);
@@ -314,9 +346,58 @@ export function CartView() {
           </div>
         </div>
 
+        {/* Корти бонусии Рӯдакӣ: «бо бонус пардохт кардан» */}
+        {user && loyalty && (
+          <div
+            className="mt-3 overflow-hidden rounded-2xl p-3.5 text-white shadow-[0_10px_24px_-14px_rgba(9,90,45,0.7)]"
+            style={{ background: "linear-gradient(135deg, #3fd27f 0%, #19b25c 45%, #0b7f3d 100%)" }}
+          >
+            <div className="flex items-center gap-3">
+              <svg viewBox="0 0 32 32" aria-hidden className="h-9 w-9 shrink-0">
+                <rect width="32" height="32" rx="10" fill="#fff" />
+                <path d="M11 23V9h6.2a4.6 4.6 0 0 1 1 9.1L22 23" fill="none" stroke="#11a24f" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M21.5 6.5c3 .2 4.3 2 4.2 4.6-2.8-.1-4.3-1.8-4.2-4.6z" fill="#7ad94a" />
+              </svg>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm leading-tight font-bold">{dict.loyalty.title}</p>
+                <p className="mt-0.5 text-xs opacity-90 tabular-nums">{format(tc.bonusOnCard, { amount: money(bonusBalance) })}</p>
+              </div>
+              {bonusBalance > 0 && goods > 0 && (
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={useBonus}
+                  aria-label={tc.useBonus}
+                  onClick={() => setUseBonus((v) => !v)}
+                  className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${useBonus ? "bg-white" : "bg-white/30"}`}
+                >
+                  <span
+                    className={`absolute top-1 h-5 w-5 rounded-full shadow transition-all ${useBonus ? "left-6 bg-[#11a24f]" : "left-1 bg-white"}`}
+                  />
+                </button>
+              )}
+            </div>
+            {bonusBalance > 0 && goods > 0 ? (
+              <p className="mt-2 text-xs font-semibold">
+                {useBonus ? format(tc.bonusApplied, { amount: money(bonusApplied) }) : tc.useBonus}
+              </p>
+            ) : null}
+            {bonusEarn > 0 && (
+              <p className="mt-1 text-xs text-[#d9f99d]">{format(tc.bonusWillEarn, { amount: money(bonusEarn) })}</p>
+            )}
+          </div>
+        )}
+
+        {bonusApplied > 0 && (
+          <div className="mt-3 flex justify-between text-sm font-medium text-[#1f9d55]">
+            <span>{tc.bonusPaid}</span>
+            <span className="tabular-nums">−{money(bonusApplied)}</span>
+          </div>
+        )}
+
         <div className="mt-3 flex items-baseline justify-between border-t border-border pt-3">
           <span className="font-semibold text-foreground">{t.total}</span>
-          <span className="text-2xl font-extrabold tracking-tight text-foreground tabular-nums">{money(goods + deliveryFee)}</span>
+          <span className="text-2xl font-extrabold tracking-tight text-foreground tabular-nums">{money(goods + deliveryFee - bonusApplied)}</span>
         </div>
         {discount > 0 && (
           <p className="mt-1 text-right text-xs font-semibold text-[#1f9d55]">{format(t.saved, { amount: money(discount) })}</p>

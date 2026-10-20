@@ -13,7 +13,8 @@ internal sealed record CartQuantityRequest(int Quantity);
 /// <param name="DeliveryStart">оғози вақти расонидан (аз /api/delivery/options); null — "ҳарчи зудтар"</param>
 /// <param name="PaymentMethod">cash | alif | dc | korti_milli</param>
 /// <param name="RequestId">калиди тасодуфӣ аз браузер (як бор барои ҳар фармоиш) — ҳимоя аз фармоиши дукарата</param>
-internal sealed record PlaceOrderRequest(string Address, string? Comment, DateTimeOffset? DeliveryStart, string? PaymentMethod, Guid? RequestId);
+/// <param name="UseBonus">бонуси корти Рӯдакиро сарф кардан</param>
+internal sealed record PlaceOrderRequest(string Address, string? Comment, DateTimeOffset? DeliveryStart, string? PaymentMethod, Guid? RequestId, bool? UseBonus);
 /// <summary>Сабади меҳмон (дар браузер): мол ва миқдор.</summary>
 internal sealed record GuestCartRequest(IReadOnlyList<CartLineInput>? Items);
 
@@ -133,7 +134,7 @@ internal static class CustomerEndpoints
 
         // Фармоиш аз сабад → база + паём барои WhatsApp-и фурӯшанда
         app.MapPost("/api/orders", async (PlaceOrderRequest req, ClaimsPrincipal user, OrderService s, CancellationToken ct) =>
-                (await s.PlaceAsync(CustomerId(user), req.Address, req.Comment, req.DeliveryStart, req.PaymentMethod, ct, req.RequestId)).ToHttp(Results.Ok))
+                (await s.PlaceAsync(CustomerId(user), req.Address, req.Comment, req.DeliveryStart, req.PaymentMethod, ct, req.RequestId, req.UseBonus == true)).ToHttp(Results.Ok))
             .RequireCors(Cors.Site)
             .RequireAuthorization(AuthSchemes.Customer)
             .RequireRateLimiting(OrderRateLimit);

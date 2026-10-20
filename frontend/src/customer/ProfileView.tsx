@@ -294,6 +294,12 @@ export function ProfileView() {
                             {o.deliveryFee === 0 ? dict.checkout.free : money(o.deliveryFee)}
                           </span>
                         </div>
+                        {o.bonusUsed > 0 && (
+                          <div className="flex justify-between font-medium text-[#1f9d55]">
+                            <span>{dict.checkout.bonusPaid}</span>
+                            <span className="tabular-nums">−{money(o.bonusUsed)}</span>
+                          </div>
+                        )}
                         <div className="flex justify-between pt-1 text-base font-bold text-foreground">
                           <span>{dict.cart.total}</span>
                           <span className="tabular-nums">{money(o.total)}</span>
