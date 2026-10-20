@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -72,7 +74,23 @@ static void ApiCookie(CookieAuthenticationOptions o, string name, SameSiteMode s
 var isDev = builder.Environment.IsDevelopment();
 builder.Services.AddAuthentication(AuthSchemes.Admin)
     .AddCookie(AuthSchemes.Admin, o => ApiCookie(o, "rm_admin", SameSiteMode.Strict, TimeSpan.FromHours(8), isDev))
-    .AddCookie(AuthSchemes.Customer, o => ApiCookie(o, "rm_session", SameSiteMode.Lax, TimeSpan.FromDays(30), isDev));
+    .AddCookie(AuthSchemes.Customer, o =>
+    {
+        ApiCookie(o, "rm_session", SameSiteMode.Lax, TimeSpan.FromDays(30), isDev);
+        // Cookie танҳо вақте эътибор дорад, ки мизоҷ бо ҳамон Id ВА ҳамон рақам дар база ҳаст: мизоҷи нестшуда
+        // бо сабади кор накунанда намемонад, ва Id-и аз нав додашуда ба аккаунти шахси дигар роҳ намедиҳад.
+        o.Events.OnValidatePrincipal = async ctx =>
+        {
+            var phone = ctx.Principal?.FindFirstValue(ClaimTypes.MobilePhone);
+            var valid = int.TryParse(ctx.Principal?.FindFirstValue(ClaimTypes.NameIdentifier), out var customerId)
+                && phone is not null
+                && await ctx.HttpContext.RequestServices.GetRequiredService<AppDbContext>().Customers
+                    .AnyAsync(c => c.Id == customerId && c.Phone == phone, ctx.HttpContext.RequestAborted);
+            if (valid) return;
+            ctx.RejectPrincipal();
+            await ctx.HttpContext.SignOutAsync(AuthSchemes.Customer);
+        };
+    });
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy(AuthSchemes.Customer, p => p.AddAuthenticationSchemes(AuthSchemes.Customer).RequireAuthenticatedUser());
 
