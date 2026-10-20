@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import type { DragEvent, FormEvent } from 'react'
+import { Camera } from 'lucide-react'
 import { ArrowLeftIcon, ArrowRightIcon, UploadIcon, XIcon } from '../../components/icons'
 import { Button, Modal, Switch } from '../../components/ui'
 import { api, ApiError, fileUrl } from '../../lib/api'
@@ -245,7 +246,8 @@ export function ProductForm({ open, product, categories, defaultCategoryId, onCl
         {temporaryPhoto && (
           <div className="-mt-3 flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-[#f59e0b]/12 px-4 py-3 text-sm">
             <span>
-              <b>📷 Сурати муваққатӣ</b> — аз манбаи бегона. Бо акси худӣ иваз кунед (тугмаи «Акс гирифтан»).
+              <Camera size={16} strokeWidth={2.2} className="mr-1 inline-block align-[-3px] text-[#d97706]" />
+              <b>Сурати муваққатӣ</b> — аз манбаи бегона. Бо акси худӣ иваз кунед (тугмаи «Акс гирифтан»).
             </span>
             <button
               type="button"
@@ -457,7 +459,7 @@ function ImageManager({
             disabled={preparing}
             className="flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-sm font-bold text-on-accent transition-transform active:scale-95 disabled:opacity-60"
           >
-            📷 Акс гирифтан
+            <Camera size={17} strokeWidth={2.2} /> Акс гирифтан
           </button>
         )}
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCustomer } from "@/customer/CustomerProvider";
 import { format, localizePath } from "@/i18n/config";
@@ -40,7 +41,7 @@ export function AddBundleButton({ bundleId, label }: { bundleId: number; label: 
         disabled={busy}
         className="flex h-13 w-full items-center justify-center gap-2 rounded-2xl bg-accent text-base font-bold text-on-accent shadow-lg shadow-accent/30 transition-all hover:brightness-95 active:scale-[0.98] disabled:opacity-70"
       >
-        {busy ? <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-r-transparent" /> : "🛒"}
+        {busy ? <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-r-transparent" /> : <ShoppingCart size={20} strokeWidth={2.4} aria-hidden />}
         {label}
       </button>
       {note && (

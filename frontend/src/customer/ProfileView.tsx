@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { CircleCheckBig, CircleDot, CircleX, Clock, CreditCard, MapPin, MessageCircle, Package, RotateCcw, Truck } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronDownIcon, ProfileSolidIcon } from "@/components/ui/icons";
 import { useCustomer } from "@/customer/CustomerProvider";
-import { PAYMENT_ICONS } from "@/customer/CheckoutOptions";
+import { PaymentLogo } from "@/customer/PaymentLogo";
 import { LoginForm } from "@/customer/LoginForm";
 import { format, localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -24,13 +26,23 @@ const timeFormat = new Intl.DateTimeFormat("ru-RU", { timeZone: "Asia/Dushanbe",
 
 /** Саҳифаи "Профил": ворид нашуда — формаи даромад; ворид шуда — рақам ва таърихи харид. */
 /** Ранг ва аломати ҳолати фармоиш (ҳамон ҳолатҳо дар админ). */
-const STATUS_STYLE = {
-  new: { icon: "✓", color: "text-[#d97706]" },
-  confirmed: { icon: "📦", color: "text-[#0284c7]" },
-  delivering: { icon: "🚚", color: "text-[#7c3aed]" },
-  delivered: { icon: "✅", color: "text-[#1f9d55]" },
-  cancelled: { icon: "✕", color: "text-muted" },
-} as const;
+const STATUS_STYLE: Record<string, { icon: LucideIcon; color: string }> = {
+  new: { icon: CircleDot, color: "text-[#d97706]" },
+  confirmed: { icon: Package, color: "text-[#0284c7]" },
+  delivering: { icon: Truck, color: "text-[#7c3aed]" },
+  delivered: { icon: CircleCheckBig, color: "text-[#1f9d55]" },
+  cancelled: { icon: CircleX, color: "text-muted" },
+};
+
+/** Сатри маълумоти фармоиш бо иконаи хурд. */
+function DetailRow({ icon: Icon, children }: { icon: LucideIcon; children: React.ReactNode }) {
+  return (
+    <span className="flex items-start gap-1.5 pt-0.5 first:pt-0">
+      <Icon size={14} strokeWidth={2.2} aria-hidden className="mt-px shrink-0" />
+      <span className="min-w-0">{children}</span>
+    </span>
+  );
+}
 
 export function ProfileView() {
   const { locale, dict } = useI18n();
@@ -185,8 +197,12 @@ export function ProfileView() {
                         {dateFormat.format(created)} · {timeFormat.format(created)}
                       </p>
                       <p className="mt-0.5 text-xs">
-                        <span className={`font-semibold ${STATUS_STYLE[o.status as keyof typeof STATUS_STYLE]?.color ?? "text-muted"}`}>
-                          {STATUS_STYLE[o.status as keyof typeof STATUS_STYLE]?.icon ?? "•"} {t.status[o.status as keyof typeof t.status] ?? o.status}
+                        <span className={`inline-flex items-center gap-1 align-middle font-semibold ${STATUS_STYLE[o.status]?.color ?? "text-muted"}`}>
+                          {(() => {
+                            const StatusIcon = STATUS_STYLE[o.status]?.icon ?? CircleDot;
+                            return <StatusIcon size={13} strokeWidth={2.5} aria-hidden />;
+                          })()}
+                          {t.status[o.status as keyof typeof t.status] ?? o.status}
                         </span>
                         {/* Дар экрани танг ба ҷои суратҳо — шумораи молҳо */}
                         <span className="text-muted sm:hidden"> · {format(t.itemsCount, { n: String(o.items.reduce((n, i) => n + i.quantity, 0)) })}</span>
@@ -272,24 +288,27 @@ export function ProfileView() {
                         </div>
                       </div>
     
-                      <p className="mt-3 rounded-xl bg-background px-3 py-2 text-xs text-muted">
-                        📍 {t.address}: <span className="text-foreground">{o.address}</span>
-                        <span className="block pt-0.5">
-                          🕐 {dict.checkout.deliveryTime}:{" "}
+                      <div className="mt-3 rounded-xl bg-background px-3 py-2 text-xs text-muted">
+                        <DetailRow icon={MapPin}>
+                          {t.address}: <span className="text-foreground">{o.address}</span>
+                        </DetailRow>
+                        <DetailRow icon={Clock}>
+                          {dict.checkout.deliveryTime}:{" "}
                           <span className="text-foreground">
                             {o.deliveryFrom && o.deliveryTo
                               ? `${dateFormat.format(new Date(o.deliveryFrom))} ${timeFormat.format(new Date(o.deliveryFrom))}–${timeFormat.format(new Date(o.deliveryTo))}`
-                              : `⚡ ${dict.checkout.asap}`}
+                              : dict.checkout.asap}
                           </span>
-                        </span>
-                        <span className="block pt-0.5">
-                          {PAYMENT_ICONS[o.paymentMethod] ?? "💳"} {dict.checkout.payment}:{" "}
-                          <span className="text-foreground">
+                        </DetailRow>
+                        <DetailRow icon={CreditCard}>
+                          {dict.checkout.payment}:{" "}
+                          <span className="inline-flex items-center gap-1.5 align-middle text-foreground">
+                            <PaymentLogo method={o.paymentMethod} size={20} />
                             {{ cash: dict.checkout.payCash, alif: dict.checkout.payAlif, dc: dict.checkout.payDc, korti_milli: dict.checkout.payKortiMilli }[o.paymentMethod] ?? o.paymentMethod}
                           </span>
-                        </span>
-                        {o.comment && <span className="block pt-0.5">💬 {o.comment}</span>}
-                      </p>
+                        </DetailRow>
+                        {o.comment && <DetailRow icon={MessageCircle}>{o.comment}</DetailRow>}
+                      </div>
 
                       <button
                         type="button"
@@ -300,7 +319,7 @@ export function ProfileView() {
                         {reordering === o.number ? (
                           <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-r-transparent" />
                         ) : (
-                          "🔁"
+                          <RotateCcw size={18} strokeWidth={2.4} aria-hidden />
                         )}
                         {t.reorder}
                       </button>

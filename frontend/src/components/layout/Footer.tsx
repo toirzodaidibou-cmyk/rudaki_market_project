@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Logo } from "@/components/layout/Logo";
 import { InstallAppButton } from "@/components/layout/Pwa";
+import { InstagramIcon, TelegramIcon, WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { ClockIcon } from "@/components/ui/icons";
 import { DEVELOPER, STORE_CONTACT } from "@/config/store";
 import { format, localizePath } from "@/i18n/config";
@@ -58,16 +59,18 @@ export function Footer({ lang, dict }: { lang: Locale; dict: Dictionary }) {
               href={STORE_CONTACT.whatsapp}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-btn bg-[#25D366]/12 px-3 py-1.5 text-sm font-semibold text-[#128C4A] hover:bg-[#25D366]/20 dark:text-[#5be38f]"
+              className="inline-flex items-center gap-1.5 rounded-btn bg-[#25D366]/12 px-3 py-1.5 text-sm font-semibold text-[#128C4A] hover:bg-[#25D366]/20 dark:text-[#5be38f]"
             >
+              <WhatsAppIcon className="h-4 w-4" />
               WhatsApp
             </a>
             <a
               href={STORE_CONTACT.telegram}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-btn bg-[#229ED9]/12 px-3 py-1.5 text-sm font-semibold text-[#1a7fb0] hover:bg-[#229ED9]/20 dark:text-[#6cc6f0]"
+              className="inline-flex items-center gap-1.5 rounded-btn bg-[#229ED9]/12 px-3 py-1.5 text-sm font-semibold text-[#1a7fb0] hover:bg-[#229ED9]/20 dark:text-[#6cc6f0]"
             >
+              <TelegramIcon className="h-4 w-4" />
               Telegram
             </a>
           </div>
@@ -101,17 +104,21 @@ export function Footer({ lang, dict }: { lang: Locale; dict: Dictionary }) {
                   href={DEVELOPER.telegram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#1a7fb0] hover:underline dark:text-[#6cc6f0]"
+                  className="inline-flex items-center gap-1 text-[#1a7fb0] hover:underline dark:text-[#6cc6f0]"
                 >
+                  <TelegramIcon className="h-3.5 w-3.5" />
                   {DEVELOPER.telegramName}
                 </a>
                 <a
                   href={DEVELOPER.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-gradient-to-r from-[#fa7e1e] via-[#d62976] to-[#962fbf] bg-clip-text text-transparent hover:underline"
+                  className="inline-flex items-center gap-1 hover:underline"
                 >
-                  {DEVELOPER.instagramName}
+                  <InstagramIcon className="h-3.5 w-3.5 text-[#d62976]" />
+                  <span className="bg-gradient-to-r from-[#fa7e1e] via-[#d62976] to-[#962fbf] bg-clip-text text-transparent">
+                    {DEVELOPER.instagramName}
+                  </span>
                 </a>
               </div>
             </div>

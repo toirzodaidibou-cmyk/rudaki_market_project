@@ -135,7 +135,7 @@
   },
   "favorites": {
     "title": "Favorites",
-    "empty": "Nothing here yet. Tap ❤️ on a product!",
+    "empty": "Nothing here yet. Tap ♥ on a product!",
     "toCatalog": "Go to catalog"
   },
   "cart": {
@@ -158,7 +158,7 @@
     "delivery": "Delivery",
     "free": "free",
     "freeHint": "Add {amount} more to get free delivery!",
-    "freeReached": "🎉 Free delivery!",
+    "freeReached": "Free delivery!",
     "address": "Delivery address",
     "addressPlaceholder": "City, street, house, apartment, landmark",
     "comment": "Comment (optional)",
@@ -334,6 +334,6 @@
       "areaValue": "Rudaki district",
       "map": "Show on map"
     },
-    "install": "📲 Install app"
+    "install": "Install app"
   }
 }

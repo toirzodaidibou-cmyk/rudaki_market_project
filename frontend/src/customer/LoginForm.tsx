@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
+import { TelegramIcon as TelegramLogo } from "@/components/ui/BrandIcons";
 import { useCustomer } from "@/customer/CustomerProvider";
 import { format } from "@/i18n/config";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -13,14 +14,6 @@ const CODE_LENGTH = 4;
 /** "921234567" → "92 123 45 67" */
 const formatLocal = (d: string) =>
   [d.slice(0, 2), d.slice(2, 5), d.slice(5, 7), d.slice(7, 9)].filter(Boolean).join(" ");
-
-function TelegramLogo({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden className={className} fill="currentColor">
-      <path d="M21.9 4.6 18.7 19.7c-.2 1.1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.2 13.4 1.4 11.9c-1-.3-1.1-1 .2-1.5L20.5 3.1c.9-.3 1.6.2 1.4 1.5Z" />
-    </svg>
-  );
-}
 
 /** Даромад бо рақам: 1) рақам + роҳ (Telegram / SMS) → 2) рамз. Дар равзана ва дар саҳифаи писандидаҳо. */
 export function LoginForm() {

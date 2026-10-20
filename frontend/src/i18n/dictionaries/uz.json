@@ -135,7 +135,7 @@
   },
   "favorites": {
     "title": "Sevimlilar",
-    "empty": "Hozircha hech narsa yoʻq. Mahsulotga ❤️ bosing!",
+    "empty": "Hozircha hech narsa yoʻq. Mahsulotga ♥ bosing!",
     "toCatalog": "Katalogga"
   },
   "cart": {
@@ -158,7 +158,7 @@
     "delivery": "Yetkazib berish",
     "free": "bepul",
     "freeHint": "Yana {amount} qoʻshing — yetkazib berish bepul boʻladi!",
-    "freeReached": "🎉 Bepul yetkazib berish!",
+    "freeReached": "Bepul yetkazib berish!",
     "address": "Yetkazib berish manzili",
     "addressPlaceholder": "Shahar, koʻcha, uy, xonadon, moʻljal",
     "comment": "Izoh (ixtiyoriy)",
@@ -334,6 +334,6 @@
       "areaValue": "Rudakiy tumani",
       "map": "Xaritada koʻrish"
     },
-    "install": "📲 Ilovani oʻrnatish"
+    "install": "Ilovani oʻrnatish"
   }
 }

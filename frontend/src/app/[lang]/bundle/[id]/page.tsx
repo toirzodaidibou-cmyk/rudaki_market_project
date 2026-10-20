@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddBundleButton } from "@/components/bundle/AddBundleButton";
+import { BundleCover } from "@/components/bundle/BundleCover";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ChevronLeftIcon } from "@/components/ui/icons";
 import { format, hasLocale, localizePath } from "@/i18n/config";
@@ -17,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const bid = idFrom(id);
   if (!hasLocale(lang) || !bid) return {};
   const b = await getBundle(bid);
-  return b ? { title: `${b.emoji} ${b.name[lang] || b.name.tg} — RUDAKI MARKET` } : {};
+  return b ? { title: `${b.name[lang] || b.name.tg} — RUDAKI MARKET` } : {};
 }
 
 /** Маҷмӯа: рӯйхати молҳо бо миқдор ва тугмаи "Ҳамаашро ба сабад". */
@@ -43,9 +44,7 @@ export default async function BundlePage({ params }: Props) {
 
       <div className="rounded-[28px] bg-surface p-5 sm:p-8">
         <div className="flex items-start gap-4">
-          <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-background text-4xl sm:h-20 sm:w-20 sm:text-5xl" aria-hidden>
-            {b.emoji}
-          </span>
+          <BundleCover images={b.items.flatMap((i) => i.product.images.slice(0, 1))} className="h-20 w-20 sm:h-24 sm:w-24" />
           <div className="min-w-0">
             <h1 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">{b.name[lang] || b.name.tg}</h1>
             {(b.description[lang] || b.description.tg) && (

@@ -69,7 +69,14 @@ export function FavoritesView() {
       ) : visible.length === 0 ? (
         <div className="flex flex-col items-center gap-4 py-16 text-center">
           <HeartIcon width={48} height={48} className="text-muted/50" />
-          <p className="text-muted">{dict.favorites.empty}</p>
+          <p className="text-muted">
+            {dict.favorites.empty.split("♥").map((part, i) => (
+              <span key={i}>
+                {i > 0 && <HeartIcon width={16} height={16} className="inline-block fill-sale align-[-2px] text-sale" />}
+                {part}
+              </span>
+            ))}
+          </p>
           <Link
             href={localizePath(locale, "/catalog")}
             className="rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-on-accent hover:brightness-95"

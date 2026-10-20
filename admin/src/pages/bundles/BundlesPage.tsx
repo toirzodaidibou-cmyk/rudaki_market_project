@@ -11,7 +11,24 @@ const LANGS = [
   { key: 'uz', label: 'Ӯзбекӣ' },
 ] as const
 
-const EMOJIS = ['🍵', '☕', '🍿', '🍼', '🍚', '🥘', '🎉', '🌙', '🧺', '🍰', '🥗', '🧃']
+/** Муқова: суратҳои аслии то 4 моли маҷмӯа (2×2). */
+function BundleCover({ thumbs, size = 64 }: { thumbs: (string | null)[]; size?: number }) {
+  const pics = thumbs.filter((t): t is string => !!t).slice(0, 4)
+  return (
+    <span
+      style={{ width: size, height: size }}
+      className={`grid shrink-0 gap-0.5 overflow-hidden rounded-2xl bg-white p-1 ring-1 ring-black/5 ${pics.length > 1 ? 'grid-cols-2' : ''}`}
+    >
+      {pics.length === 0 ? (
+        <ImageIcon className="m-auto text-muted" />
+      ) : (
+        pics.map((src, i) => (
+          <img key={i} src={fileUrl(src)!} alt="" className={`h-full w-full object-contain ${pics.length === 3 && i === 0 ? 'row-span-2' : ''}`} />
+        ))
+      )}
+    </span>
+  )
+}
 
 type Line = { productId: number; name: string; sizeLabel: string | null; price: number; thumb: string | null; isActive: boolean; quantity: number }
 
@@ -76,7 +93,7 @@ export function BundlesPage() {
           {bundles.map((b) => (
             <li key={b.id} className={`rounded-2xl border border-border bg-surface p-4 ${b.isActive ? '' : 'opacity-60'}`}>
               <div className="flex items-start gap-3">
-                <span className="text-4xl leading-none">{b.emoji}</span>
+                <BundleCover thumbs={b.items.map((i) => i.thumb)} />
                 <div className="min-w-0 flex-1">
                   <p className="font-bold">{b.name.tg}</p>
                   <p className="text-sm text-muted">
@@ -123,7 +140,8 @@ function BundleForm({ bundle, onClose, onSaved }: { bundle: Bundle | null; onClo
   const toast = useToast()
   const [name, setName] = useState<LocalizedNames>(bundle?.name ?? empty)
   const [description, setDescription] = useState<LocalizedNames>(bundle?.description ?? empty)
-  const [emoji, setEmoji] = useState(bundle?.emoji ?? '🧺')
+  // Майдони emoji дар API боқӣ мемонад (дар сайт ва админ акнун ба ҷояш суратҳои молҳо)
+  const emoji = bundle?.emoji ?? '🧺'
   const [sortOrder, setSortOrder] = useState(bundle?.sortOrder ?? 100)
   const [isActive, setIsActive] = useState(bundle?.isActive ?? true)
   const [lines, setLines] = useState<Line[]>(
@@ -203,20 +221,9 @@ function BundleForm({ bundle, onClose, onSaved }: { bundle: Bundle | null; onClo
       }
     >
       <div className="space-y-5">
-        <div>
-          <p className="mb-2 text-sm font-semibold">Аломат</p>
-          <div className="flex flex-wrap gap-1.5">
-            {EMOJIS.map((e) => (
-              <button
-                key={e}
-                type="button"
-                onClick={() => setEmoji(e)}
-                className={`h-10 w-10 rounded-xl text-xl ${emoji === e ? 'bg-accent' : 'bg-surface-2 hover:bg-surface-hover'}`}
-              >
-                {e}
-              </button>
-            ))}
-          </div>
+        <div className="flex items-center gap-3">
+          <BundleCover thumbs={lines.map((l) => l.thumb)} size={72} />
+          <p className="text-sm text-muted">Муқова худкор аз суратҳои 4 моли аввали маҷмӯа сохта мешавад.</p>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">

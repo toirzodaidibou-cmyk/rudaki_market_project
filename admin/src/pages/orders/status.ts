@@ -34,13 +34,13 @@ export const STATUS: Record<OrderStatus, { label: string; action: string; badge:
   },
 }
 
-export const PAYMENT: Record<string, string> = { cash: '💵 Нақд', alif: '🟢 Алиф', dc: '🔵 Душанбе Сити', korti_milli: '💳 Корти Миллӣ' }
+export const PAYMENT: Record<string, string> = { cash: 'Нақд', alif: 'Алиф', dc: 'Душанбе Сити', korti_milli: 'Корти Миллӣ' }
 
-/** "⚡ Ҳарчи зудтар" ё "8 окт, 18:00–20:00" */
+/** "Ҳарчи зудтар" ё "8 окт, 18:00–20:00" */
 export function deliveryText(from: string | null, to: string | null): string {
-  if (!from || !to) return '⚡ Ҳарчи зудтар'
+  if (!from || !to) return 'Ҳарчи зудтар'
   const end = new Date(to).toLocaleTimeString('ru-RU', { timeZone: 'Asia/Dushanbe', hour: '2-digit', minute: '2-digit' })
-  return `🕐 ${formatTime(from)}–${end}`
+  return `${formatTime(from)}–${end}`
 }
 
 /** Вақти Душанбе: "8 окт, 14:05" */

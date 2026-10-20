@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { Eye, EyeOff, FileSpreadsheet } from 'lucide-react'
 import { AlertIcon, UploadIcon } from '../../components/icons'
 import { Button, Modal, useToast } from '../../components/ui'
 import { ApiError, api, formatPrice } from '../../lib/api'
@@ -68,7 +69,7 @@ export function PriceExcel({ categoryId, onApplied }: { categoryId: number | nul
   return (
     <>
       <Button variant="secondary" onClick={download} loading={downloading} className="h-11" title="Нархҳоро ба Excel гирифтан">
-        📥 Excel
+        <FileSpreadsheet size={18} strokeWidth={2.2} className="text-[#107C41]" /> Excel
       </Button>
       <Button variant="secondary" onClick={() => input.current?.click()} loading={checking} className="h-11" title="Excel-и ивазшударо бор кардан">
         <UploadIcon /> Бор кардан
@@ -143,7 +144,12 @@ export function PriceExcel({ categoryId, onApplied }: { categoryId: number | nul
                           Аксия: <s className="text-muted">{price(c.oldPrice)}</s> → <b className="text-danger">{price(c.newOldPrice)}</b>
                         </span>
                       )}
-                      {c.isActive !== c.newIsActive && <span>{c.newIsActive ? '👁 Намоён мешавад' : '🙈 Пинҳон мешавад'}</span>}
+                      {c.isActive !== c.newIsActive && (
+                        <span className="inline-flex items-center gap-1">
+                          {c.newIsActive ? <Eye size={13} strokeWidth={2.2} /> : <EyeOff size={13} strokeWidth={2.2} />}
+                          {c.newIsActive ? 'Намоён мешавад' : 'Пинҳон мешавад'}
+                        </span>
+                      )}
                     </p>
                   </li>
                 ))}

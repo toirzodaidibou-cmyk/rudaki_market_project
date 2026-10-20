@@ -1,10 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { InlineScript } from "@/components/InlineScript";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
+import { NavProgress } from "@/components/layout/NavProgress";
 import { PwaRegister } from "@/components/layout/Pwa";
 import { CustomerProvider } from "@/customer/CustomerProvider";
 import { hasLocale, locales } from "@/i18n/config";
@@ -77,6 +79,9 @@ export default async function RootLayout({
       <body className="flex min-h-full flex-col pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-28">
         <I18nProvider locale={lang} dict={dict}>
           <CustomerProvider>
+            <Suspense fallback={null}>
+              <NavProgress />
+            </Suspense>
             <Navbar locale={lang} dict={dict} />
             {children}
             <Footer lang={lang} dict={dict} />

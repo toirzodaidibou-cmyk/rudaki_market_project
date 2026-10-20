@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { Camera, ImageOff } from 'lucide-react'
 import { ImageIcon, PencilIcon, PlusIcon, SearchIcon } from '../../components/icons'
 import { Button, Spinner, Switch, useToast } from '../../components/ui'
 import { api, ApiError, fileUrl, formatPrice, toListItem } from '../../lib/api'
@@ -14,7 +15,7 @@ export function ProductsPage() {
   const [search, setSearch] = useState('')
   const [debounced, setDebounced] = useState('')
   const [categoryId, setCategoryId] = useState<number | null>(null)
-  // 📷 Сурати муваққатӣ — пурфурӯшҳо аввал (аввал онҳоро аксбардорӣ кунед)
+  // Сурати муваққатӣ — пурфурӯшҳо аввал (аввал онҳоро аксбардорӣ кунед)
   const [photo, setPhoto] = useState<PhotoFilter | null>(null)
 
   const [items, setItems] = useState<ProductListItem[] | null>(null)
@@ -172,11 +173,11 @@ export function ProductsPage() {
         </select>
       </div>
 
-      {/* Филтри суратҳо: «📷 Сурати муваққатӣ» — пурфурӯшҳо аввал */}
+      {/* Филтри суратҳо: «Сурати муваққатӣ» — пурфурӯшҳо аввал */}
       <div className="-mt-2 mb-5 flex flex-wrap items-center gap-2">
         {([
           [null, 'Ҳама'],
-          ['temporary', '📷 Сурати муваққатӣ'],
+          ['temporary', 'Сурати муваққатӣ'],
           ['none', 'Бе сурат'],
         ] as const).map(([value, label]) => (
           <button
@@ -184,16 +185,18 @@ export function ProductsPage() {
             type="button"
             onClick={() => setPhoto(value)}
             aria-pressed={photo === value}
-            className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors ${
+            className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors ${
               photo === value ? 'bg-foreground text-background' : 'bg-surface-2 text-muted hover:text-foreground'
             }`}
           >
+            {value === 'temporary' && <Camera size={15} strokeWidth={2.2} />}
+            {value === 'none' && <ImageOff size={15} strokeWidth={2.2} />}
             {label}
             {photo === value && items ? ` · ${total.toLocaleString('ru-RU')}` : ''}
           </button>
         ))}
         {photo === 'temporary' && (
-          <span className="text-xs text-muted">Пурфурӯшҳо аввал — аввал онҳоро аксбардорӣ кунед (📷 дар формаи мол).</span>
+          <span className="text-xs text-muted">Пурфурӯшҳо аввал — аввал онҳоро аксбардорӣ кунед («Акс гирифтан» дар формаи мол).</span>
         )}
       </div>
 
@@ -249,9 +252,9 @@ export function ProductsPage() {
                   {p.temporaryPhoto && (
                     <span
                       title="Сурати муваққатӣ — бо акси худӣ иваз кунед"
-                      className="absolute right-2 bottom-2 rounded-lg bg-[#f59e0b] px-1.5 py-0.5 text-[11px] font-bold text-white shadow"
+                      className="absolute right-2 bottom-2 inline-flex items-center gap-1 rounded-lg bg-[#f59e0b] px-1.5 py-0.5 text-[11px] font-bold text-white shadow"
                     >
-                      📷 муваққатӣ
+                      <Camera size={12} strokeWidth={2.5} /> муваққатӣ
                     </span>
                   )}
                   {openingId === p.id && (

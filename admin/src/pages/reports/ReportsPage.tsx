@@ -3,7 +3,7 @@ import { ImageIcon } from '../../components/icons'
 import { Spinner, useToast } from '../../components/ui'
 import { api, fileUrl, formatPrice } from '../../lib/api'
 import type { SalesReport, SalesSummary } from '../../lib/api'
-import { PAYMENT } from '../orders/status'
+import { PaymentMethod } from '../orders/PaymentMethod'
 
 /** Ҳисобот: фурӯши имрӯз / 7 / 30 рӯз, график, молҳои пурфурӯш, пардохт ва мизоҷон. */
 export function ReportsPage() {
@@ -96,7 +96,9 @@ export function ReportsPage() {
                 {report.payments.map((p) => (
                   <li key={p.method} className="text-sm">
                     <span className="flex justify-between">
-                      <span className="font-medium">{PAYMENT[p.method] ?? p.method}</span>
+                      <span className="font-medium">
+                        <PaymentMethod method={p.method} size={20} />
+                      </span>
                       <span className="text-muted tabular-nums">
                         {p.orders} · {formatPrice(p.revenue)}
                       </span>

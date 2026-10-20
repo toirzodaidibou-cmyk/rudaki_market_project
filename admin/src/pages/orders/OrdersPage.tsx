@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
+import { Clock, MapPin, MessageCircle, Phone } from 'lucide-react'
+import { siWhatsapp } from 'simple-icons'
 import { ArrowLeftIcon, ArrowRightIcon, ImageIcon, SearchIcon } from '../../components/icons'
 import { Button, Modal, Spinner, useToast } from '../../components/ui'
 import { ApiError, ORDER_STATUSES, api, fileUrl, formatPrice } from '../../lib/api'
 import type { Order, OrderListItem, OrderStatus, Paged } from '../../lib/api'
 import { useOrderWatch } from './OrderWatch'
-import { PAYMENT, STATUS, deliveryText, formatPhone, formatTime, mapLink } from './status'
+import { PaymentMethod } from './PaymentMethod'
+import { STATUS, deliveryText, formatPhone, formatTime, mapLink } from './status'
 
 /** Фармоишҳо: ҷадвалҳо аз рӯи ҳолат, ҷустуҷӯ (рақам/телефон/суроға), тафсилот ва иваз кардани ҳолат. */
 export function OrdersPage() {
@@ -121,8 +124,12 @@ export function OrdersPage() {
                 </span>
                 <span className="text-sm text-muted">{formatTime(o.createdAt)}</span>
                 <span className="ml-auto text-lg font-bold tabular-nums">{formatPrice(o.total)}</span>
-                <span className="w-full text-sm font-semibold">
-                  {deliveryText(o.deliveryFrom, o.deliveryTo)} · {PAYMENT[o.paymentMethod] ?? o.paymentMethod}
+                <span className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 text-sm font-semibold">
+                  <span className="inline-flex items-center gap-1.5">
+                    <Clock size={15} strokeWidth={2.2} className="text-muted" />
+                    {deliveryText(o.deliveryFrom, o.deliveryTo)}
+                  </span>
+                  <PaymentMethod method={o.paymentMethod} size={20} />
                 </span>
                 <span className="w-full truncate text-sm">
                   <span className="font-semibold tabular-nums">{formatPhone(o.phone)}</span>
@@ -246,15 +253,18 @@ function OrderModal({ number, onClose, onChanged }: { number: number | null; onC
               <p className="text-xs text-muted">Мизоҷ</p>
               <p className="mt-1 text-lg font-bold tabular-nums">{formatPhone(order.phone)}</p>
               <div className="mt-2 flex gap-2">
-                <a href={`tel:+${phoneDigits}`} className="rounded-lg bg-surface px-3 py-1.5 text-sm font-semibold hover:bg-surface-hover">
-                  📞 Занг
+                <a href={`tel:+${phoneDigits}`} className="inline-flex items-center gap-1.5 rounded-lg bg-surface px-3 py-1.5 text-sm font-semibold hover:bg-surface-hover">
+                  <Phone size={15} strokeWidth={2.2} /> Занг
                 </a>
                 <a
                   href={`https://wa.me/${phoneDigits}?text=${encodeURIComponent(`Салом! Фармоиши №${order.number} аз RUDAKI MARKET.`)}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-lg bg-[#25D366] px-3 py-1.5 text-sm font-semibold text-white hover:brightness-95"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#25D366] px-3 py-1.5 text-sm font-semibold text-white hover:brightness-95"
                 >
+                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className="h-4 w-4">
+                    <path d={siWhatsapp.path} />
+                  </svg>
                   WhatsApp
                 </a>
               </div>
@@ -263,13 +273,23 @@ function OrderModal({ number, onClose, onChanged }: { number: number | null; onC
               <p className="text-xs text-muted">Суроға</p>
               <p className="mt-1 font-semibold break-words">{order.address}</p>
               {map && (
-                <a href={map} target="_blank" rel="noreferrer" className="mt-2 inline-block rounded-lg bg-surface px-3 py-1.5 text-sm font-semibold hover:bg-surface-hover">
-                  📍 Дар харита
+                <a href={map} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-surface px-3 py-1.5 text-sm font-semibold hover:bg-surface-hover">
+                  <MapPin size={15} strokeWidth={2.2} /> Дар харита
                 </a>
               )}
-              {order.comment && <p className="mt-2 text-sm text-muted">💬 {order.comment}</p>}
-              <p className="mt-2 text-sm font-semibold">{deliveryText(order.deliveryFrom, order.deliveryTo)}</p>
-              <p className="text-sm font-semibold">{PAYMENT[order.paymentMethod] ?? order.paymentMethod}</p>
+              {order.comment && (
+                <p className="mt-2 flex items-start gap-1.5 text-sm text-muted">
+                  <MessageCircle size={15} strokeWidth={2.2} className="mt-0.5 shrink-0" />
+                  {order.comment}
+                </p>
+              )}
+              <p className="mt-2 flex items-center gap-1.5 text-sm font-semibold">
+                <Clock size={15} strokeWidth={2.2} className="text-muted" />
+                {deliveryText(order.deliveryFrom, order.deliveryTo)}
+              </p>
+              <p className="mt-1 text-sm font-semibold">
+                <PaymentMethod method={order.paymentMethod} size={20} />
+              </p>
             </div>
           </div>
 

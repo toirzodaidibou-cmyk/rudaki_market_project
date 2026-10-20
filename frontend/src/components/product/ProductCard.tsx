@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { HeartLineIcon, MinusIcon, PlusIcon } from "@/components/ui/icons";
@@ -31,7 +32,7 @@ export function usePriceFormat() {
 
 /**
  * Корти мол. Шакл аз дизайн: 1 — корти сафед бо сояи нарм ва тугмаи сабзи «Ба сабад»;
- * 2 — сурат дар боло бо хат, тугмаи мудаввари норинҷии «+»; 3 — корти «шишагин», тугмаи ҳошиядор.
+ * 3 — корти «шишагин», тугмаи ҳошиядор.
  */
 export function ProductCard({ product, priority = false }: { product: ProductCardData; priority?: boolean }) {
   const { locale, dict } = useI18n();
@@ -41,6 +42,10 @@ export function ProductCard({ product, priority = false }: { product: ProductCar
   const { isFavorite, toggleFavorite } = useCustomer();
   const favorite = isFavorite(product.id);
   const [slide, setSlide] = useState(0);
+  // Сурати 2-юм ва 3-юм танҳо пас аз ламс/мушак/варақ бор мешаванд; то он вақт танҳо якум
+  // (бе ин ҳар корт 2–3 сурат мегирифт: дар саҳифаи асосӣ ~0.5 МБ барзиёд).
+  const [more, setMore] = useState(false);
+  const showMore = () => setMore(true);
   // Аксия: −X% (танҳо агар нархи кӯҳна аз нархи ҷорӣ зиёд бошад)
   const discount =
     product.oldPrice && product.oldPrice > product.price
@@ -56,14 +61,18 @@ export function ProductCard({ product, priority = false }: { product: ProductCar
           href={href}
           aria-label={product.name}
           className="flex h-full snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          onPointerEnter={showMore}
+          onTouchStart={showMore}
+          onFocus={showMore}
           onScroll={(e) => {
+            showMore();
             const el = e.currentTarget;
             setSlide(Math.round(el.scrollLeft / el.clientWidth));
           }}
         >
           {(product.images.length ? product.images : [null]).map((src, i) => (
             <div key={src ?? i} className="relative h-full w-full shrink-0 snap-center">
-              {src && (
+              {src && (i === 0 || more) && (
                 <Image
                   src={src}
                   alt={i === 0 ? product.name : ""}
@@ -89,8 +98,9 @@ export function ProductCard({ product, priority = false }: { product: ProductCar
           </span>
         )}
         {product.isNew && (
-          <span className="pointer-events-none absolute bottom-2 left-2 rounded-md bg-new-bg px-1.5 py-0.5 text-[11px] font-bold text-new-ink sm:text-xs d3:rounded-full d3:px-2">
-            ✦ {t.isNew}
+          <span className="pointer-events-none absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-md bg-new-bg px-1.5 py-0.5 text-[11px] font-bold text-new-ink sm:text-xs d3:rounded-full d3:px-2">
+            <Sparkles size={12} strokeWidth={2.5} aria-hidden />
+            {t.isNew}
           </span>
         )}
 

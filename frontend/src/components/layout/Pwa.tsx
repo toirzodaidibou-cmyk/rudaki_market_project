@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Download } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
 
 /** Сабти service worker (танҳо дар production — дар dev кэш халал мерасонад). */
@@ -17,7 +18,7 @@ export function PwaRegister() {
 type InstallPromptEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> };
 
 /**
- * «📲 Насб кардани барнома» — танҳо вақте ки браузер насбро пешниҳод мекунад (Chrome/Edge/Samsung, Android ва компютер).
+ * «Насб кардани барнома» — танҳо вақте ки браузер насбро пешниҳод мекунад (Chrome/Edge/Samsung, Android ва компютер).
  * Дар iPhone ва вақте ки аллакай насб шудааст — пинҳон.
  */
 export function InstallAppButton() {
@@ -49,6 +50,7 @@ export function InstallAppButton() {
       }}
       className="mt-4 inline-flex items-center gap-2 rounded-btn bg-accent px-4 py-2.5 text-sm font-bold text-on-accent shadow-[0_8px_18px_-10px_var(--accent-glow)] transition-transform active:scale-95"
     >
+      <Download size={18} strokeWidth={2.4} aria-hidden />
       {dict.info.install}
     </button>
   );

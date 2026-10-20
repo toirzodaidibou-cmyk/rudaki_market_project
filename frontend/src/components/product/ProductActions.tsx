@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Check, Share2 } from "lucide-react";
 import { CartButton, usePriceFormat } from "@/components/product/ProductCard";
 import { HeartIcon } from "@/components/ui/icons";
 import { useCustomer } from "@/customer/CustomerProvider";
@@ -63,12 +64,9 @@ export function ProductActions({ id, name, price, oldPrice }: { id: number; name
           className="flex h-13 w-13 shrink-0 items-center justify-center rounded-btn bg-card text-foreground ring-1 ring-border transition-transform hover:bg-surface-hover active:scale-90"
         >
           {copied ? (
-            <span className="text-lg">✓</span>
+            <Check size={22} strokeWidth={2.5} aria-hidden className="text-accent" />
           ) : (
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
-              <path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4" />
-            </svg>
+            <Share2 size={22} strokeWidth={2} aria-hidden />
           )}
         </button>
       </div>

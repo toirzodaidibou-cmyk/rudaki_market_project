@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Check, Clock, CreditCard } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
 import { clientApi } from "@/lib/clientApi";
 import type { DeliveryOptions } from "@/lib/clientApi";
+import { PaymentLogo } from "@/customer/PaymentLogo";
 
 /** null — "ҳарчи зудтар"; string — оғози вақт (ISO); undefined — ҳанӯз интихоб нашудааст */
 export type DeliveryChoice = string | null | undefined;
-
-export const PAYMENT_ICONS: Record<string, string> = { cash: "💵", alif: "🟢", dc: "🔵", korti_milli: "💳" };
 
 /**
  * Вақти расонидан (Ҳарчи зудтар / Имрӯз / Пагоҳ + вақтҳо) ва тарзи пардохт.
@@ -66,10 +66,13 @@ export function CheckoutOptions({
   return (
     <div className="space-y-4">
       <fieldset>
-        <legend className="mb-1.5 text-sm font-medium text-foreground">🕐 {tc.deliveryTime}</legend>
+        <legend className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-foreground">
+          <Clock size={16} strokeWidth={2.2} aria-hidden className="text-accent" />
+          {tc.deliveryTime}
+        </legend>
         {options.asap ? (
           <button type="button" onClick={() => onDelivery(null)} aria-pressed={delivery === null} className={`${chip(delivery === null)} mb-2 w-full text-left`}>
-            ⚡ {tc.asap} <span className="font-normal text-muted">· {tc.asapHint}</span>
+            {tc.asap} <span className="font-normal text-muted">· {tc.asapHint}</span>
           </button>
         ) : (
           <p className="mb-2 rounded-xl bg-[#ff9f0a]/15 px-3 py-2 text-xs text-foreground">{tc.closedNow}</p>
@@ -100,14 +103,33 @@ export function CheckoutOptions({
       </fieldset>
 
       <fieldset>
-        <legend className="mb-1.5 text-sm font-medium text-foreground">💳 {tc.payment}</legend>
+        <legend className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-foreground">
+          <CreditCard size={16} strokeWidth={2.2} aria-hidden className="text-accent" />
+          {tc.payment}
+        </legend>
         <div className="grid grid-cols-2 gap-2">
-          {options.paymentMethods.map((m) => (
-            <button key={m} type="button" onClick={() => onPayment(m)} aria-pressed={payment === m} className={`${chip(payment === m)} flex items-center gap-2 text-left`}>
-              <span aria-hidden>{PAYMENT_ICONS[m] ?? "💳"}</span>
-              {payLabel[m] ?? m}
-            </button>
-          ))}
+          {options.paymentMethods.map((m) => {
+            const active = payment === m;
+            return (
+              <button
+                key={m}
+                type="button"
+                onClick={() => onPayment(m)}
+                aria-pressed={active}
+                className={`${chip(active)} relative flex items-center gap-2.5 text-left`}
+              >
+                <span key={String(active)} className={`inline-flex ${active ? "motion-safe:animate-pay-pop" : ""}`}>
+                  <PaymentLogo method={m} size={34} />
+                </span>
+                <span className="min-w-0 leading-tight">{payLabel[m] ?? m}</span>
+                {active && (
+                  <span aria-hidden className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-on-accent shadow-md motion-safe:animate-pay-check">
+                    <Check size={12} strokeWidth={3.5} />
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
         <p className="mt-1.5 text-xs text-muted">{tc.payHint}</p>
       </fieldset>

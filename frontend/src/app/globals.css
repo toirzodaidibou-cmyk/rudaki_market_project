@@ -245,6 +245,27 @@
     }
   }
 
+  /* Тарзи пардохт: логотипи интихобшуда "меҷаҳад", аломати ✓ пайдо мешавад */
+  --animate-pay-pop: pay-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  @keyframes pay-pop {
+    0% {
+      transform: scale(0.8) rotate(-8deg);
+    }
+    60% {
+      transform: scale(1.15) rotate(4deg);
+    }
+    100% {
+      transform: scale(1) rotate(0);
+    }
+  }
+  --animate-pay-check: pay-check 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  @keyframes pay-check {
+    from {
+      opacity: 0;
+      transform: scale(0);
+    }
+  }
+
   /* Пайдоиши мулоими менюҳои кушодашаванда (масалан, интихоби забон) */
   --animate-menu-in: menu-in 0.16s ease-out;
   @keyframes menu-in {
@@ -360,6 +381,86 @@ body {
     animation: none;
   }
 }
+/* --- Гузариш байни саҳифаҳо ---
+   Саҳифаи нав аз поён бо шаффофӣ ва хираги (blur) пайдо мешавад, сипас блокҳои <main>
+   пай дар пай (каскад) "мешинанд". fill-mode: backwards — пас аз анҷом transform/filter
+   намемонанд, то элементҳои position: fixed (модалҳо) дуруст кор кунанд. */
+.page-enter {
+  animation: page-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.page-enter > main > * {
+  animation: block-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.page-enter > main > :nth-child(1) { animation-delay: 0.04s; }
+.page-enter > main > :nth-child(2) { animation-delay: 0.1s; }
+.page-enter > main > :nth-child(3) { animation-delay: 0.16s; }
+.page-enter > main > :nth-child(4) { animation-delay: 0.22s; }
+.page-enter > main > :nth-child(5) { animation-delay: 0.28s; }
+.page-enter > main > :nth-child(n + 6) { animation-delay: 0.34s; }
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+    filter: blur(6px);
+  }
+}
+@keyframes block-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+/* Хати прогресс дар болои экран (NavProgress) */
+.nav-progress {
+  position: fixed;
+  inset: 0 auto auto 0;
+  z-index: 100;
+  height: 3px;
+  width: 100%;
+  pointer-events: none;
+  transform-origin: left;
+  transform: scaleX(0);
+  opacity: 0;
+  background: linear-gradient(90deg, var(--brand-from), var(--brand-to), var(--brand-from));
+  background-size: 200% 100%;
+  box-shadow:
+    0 0 10px var(--accent-glow),
+    0 0 4px var(--accent);
+  border-radius: 0 9999px 9999px 0;
+}
+.nav-progress[data-phase="loading"] {
+  opacity: 1;
+  animation:
+    nav-progress-grow 8s cubic-bezier(0.1, 0.8, 0.2, 1) forwards,
+    nav-progress-shine 1.2s linear infinite;
+}
+.nav-progress[data-phase="done"] {
+  transform: scaleX(1);
+  opacity: 0;
+  transition:
+    transform 0.25s ease-out,
+    opacity 0.3s ease 0.15s;
+}
+@keyframes nav-progress-grow {
+  from { transform: scaleX(0); }
+  10% { transform: scaleX(0.35); }
+  to { transform: scaleX(0.92); }
+}
+@keyframes nav-progress-shine {
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter,
+  .page-enter > main > * {
+    animation: none;
+  }
+  .nav-progress {
+    display: none;
+  }
+}
+
 /* "Схема" дар мавзӯи торик: тайлҳои OSM торик карда мешаванд */
 .rm-map[data-dark-tiles="true"] .leaflet-tile-pane {
   filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9);

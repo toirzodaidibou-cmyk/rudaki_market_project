@@ -5,6 +5,8 @@ import type { FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { CartButton } from "@/components/product/ProductCard";
+import { BadgeCheck, CircleCheckBig, Truck } from "lucide-react";
+import { WhatsAppIcon as WhatsAppLogo } from "@/components/ui/BrandIcons";
 import { CartSolidIcon, XIcon } from "@/components/ui/icons";
 import { useCustomer } from "@/customer/CustomerProvider";
 import { CheckoutOptions } from "@/customer/CheckoutOptions";
@@ -14,14 +16,6 @@ import { useI18n } from "@/i18n/I18nProvider";
 import { ClientApiError, clientApi, clientFileUrl, formatPhone, newRequestId } from "@/lib/clientApi";
 import type { CartItem, OrderPlaced } from "@/lib/clientApi";
 import { loadDeliveryAddress } from "@/lib/geo";
-
-function WhatsAppLogo({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden className={className} fill="currentColor">
-      <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.5 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .3-3.2-.7-2.7-1.1-4.4-3.9-4.5-4.1-.1-.2-1.1-1.4-1.1-2.7s.7-1.9.9-2.2c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .6l-.4.6-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2.1 1.3 2.4 1.5.3.1.5.1.7-.1l1-1.2c.2-.3.5-.2.7-.1l2 1c.3.1.5.2.5.3.1.2.1.8-.1 1.5Z" />
-    </svg>
-  );
-}
 
 /** Молҳои дастрас ва миқдорашон — барои муқоисаи сабад пеш ва пас аз даромад. */
 const cartSignature = (items: Pick<CartItem, "productId" | "quantity" | "available">[]) =>
@@ -96,7 +90,9 @@ export function CartView() {
   if (placed) {
     return (
       <div className="mx-auto max-w-md rounded-[28px] bg-surface p-6 text-center sm:mt-6 sm:p-8">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#25D366]/15 text-3xl">✅</div>
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-accent/15 text-accent">
+          <CircleCheckBig size={34} strokeWidth={2.2} aria-hidden />
+        </div>
         <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
           {format(tc.successTitle, { n: String(placed.number) })}
         </h2>
@@ -269,8 +265,18 @@ export function CartView() {
 
         {/* То расонидани ройгон чӣ қадар монд */}
         <div className="mt-3 rounded-xl bg-background p-3">
-          <p className="text-xs font-medium text-foreground">
-            {remaining > 0 ? format(tc.freeHint, { amount: money(remaining) }) : tc.freeReached}
+          <p className="flex items-center gap-1.5 text-xs font-medium text-foreground">
+            {remaining > 0 ? (
+              <>
+                <Truck size={15} strokeWidth={2.2} aria-hidden className="shrink-0 text-muted" />
+                {format(tc.freeHint, { amount: money(remaining) })}
+              </>
+            ) : (
+              <>
+                <BadgeCheck size={15} strokeWidth={2.4} aria-hidden className="shrink-0 text-accent" />
+                {tc.freeReached}
+              </>
+            )}
           </p>
           <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-border">
             <div
