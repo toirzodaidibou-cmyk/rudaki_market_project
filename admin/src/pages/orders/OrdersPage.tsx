@@ -320,6 +320,12 @@ function OrderModal({ number, onClose, onChanged }: { number: number | null; onC
               <span>Молҳо</span>
               <span className="tabular-nums">{formatPrice(order.subtotal)}</span>
             </div>
+            {order.discount > 0 && (
+              <div className="flex justify-between gap-3 text-emerald-700 dark:text-emerald-400">
+                <span>Тахфифи маҷмӯа{order.discountNote ? ` (${order.discountNote})` : ''}</span>
+                <span className="shrink-0 tabular-nums">−{formatPrice(order.discount)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-muted">
               <span>Расонидан</span>
               <span className="tabular-nums">{order.deliveryFee === 0 ? 'ройгон' : formatPrice(order.deliveryFee)}</span>

@@ -92,7 +92,12 @@ export type Bundle = {
   name: Record<Locale, string>;
   description: Record<Locale, string>;
   emoji: string;
+  /** Нарх бо тахфиф */
   total: number;
+  /** Нарх бе тахфиф (ҷамъи молҳо) */
+  fullTotal: number;
+  /** 0 — тахфиф нест */
+  discountPercent: number;
   itemCount: number;
   /** То 4 сурати хурди молҳо */
   images: string[];

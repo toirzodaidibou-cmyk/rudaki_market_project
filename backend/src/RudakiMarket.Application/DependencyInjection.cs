@@ -26,6 +26,7 @@ public static class DependencyInjection
         services.AddScoped<OrderService>();
         services.AddScoped<AdminOrderService>();
         services.AddScoped<BundleService>();
+        services.AddScoped<BundleDiscounts>();
         services.AddScoped<PriceSheetService>();
         services.AddScoped<ReportService>();
         services.AddScoped<BannerService>();

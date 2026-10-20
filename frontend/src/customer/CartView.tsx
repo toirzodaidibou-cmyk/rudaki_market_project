@@ -5,7 +5,7 @@ import type { FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { CartButton } from "@/components/product/ProductCard";
-import { BadgeCheck, CircleCheckBig, Truck } from "lucide-react";
+import { BadgeCheck, CircleCheckBig, Gift, Truck } from "lucide-react";
 import { WhatsAppIcon as WhatsAppLogo } from "@/components/ui/BrandIcons";
 import { CartSolidIcon, XIcon } from "@/components/ui/icons";
 import { useCustomer } from "@/customer/CustomerProvider";
@@ -104,6 +104,12 @@ export function CartView() {
             <span>{t.summary}</span>
             <span className="tabular-nums">{money(placed.subtotal)}</span>
           </div>
+          {placed.discount > 0 && (
+            <div className="flex justify-between font-medium text-[#1f9d55]">
+              <span>{t.bundleDiscount}</span>
+              <span className="tabular-nums">−{money(placed.discount)}</span>
+            </div>
+          )}
           <div className="flex justify-between text-muted">
             <span>{tc.delivery}</span>
             <span>{placed.deliveryFee === 0 ? tc.free : money(placed.deliveryFee)}</span>
@@ -146,10 +152,16 @@ export function CartView() {
     .map((i) => ({ ...i, quantity: cartQuantity(i.productId) }))
     .filter((i) => i.quantity > 0);
   const total = items.filter((i) => i.available).reduce((s, i) => s + i.price * i.quantity, 0);
-  // Расонидан: аз FreeDeliveryFrom ва зиёд — ройгон (ҳисоби ниҳоӣ дар сервер)
+  // Тахфифи маҷмӯаҳо аз сервер — танҳо вақте ки миқдорҳои сервер бо экран баробаранд
+  // (то ҷавоби сервер барои миқдори нав тахфифи кӯҳна нишон дода намешавад)
+  const synced = (cart?.items ?? []).every((i) => cartQuantity(i.productId) === i.quantity);
+  const discounts = synced ? (cart?.discounts ?? []) : [];
+  const discount = discounts.reduce((s, d) => s + d.amount, 0);
+  const goods = total - discount;
+  // Расонидан: аз FreeDeliveryFrom ва зиёд (баъд аз тахфиф) — ройгон (ҳисоби ниҳоӣ дар сервер)
   const freeFrom = cart?.freeDeliveryFrom ?? 200;
-  const deliveryFee = total >= freeFrom ? 0 : (cart?.deliveryPrice ?? 0);
-  const remaining = Math.max(0, freeFrom - total);
+  const deliveryFee = goods >= freeFrom ? 0 : (cart?.deliveryPrice ?? 0);
+  const remaining = Math.max(0, freeFrom - goods);
 
   async function placeOrder(e: FormEvent) {
     e.preventDefault();
@@ -187,7 +199,7 @@ export function CartView() {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_360px] lg:items-start">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
       <div>
         <ul className="divide-y divide-border rounded-[24px] bg-surface/60 px-3 sm:px-4">
           {items.map((item) => (
@@ -256,6 +268,17 @@ export function CartView() {
           <span>{format(t.items, { n: String(cartCount) })}</span>
           <span className="tabular-nums">{money(total)}</span>
         </div>
+        {discounts.map((d) => (
+          <div key={d.bundleId} className="mt-2 flex justify-between gap-3 text-sm font-medium text-[#1f9d55] motion-safe:animate-menu-in">
+            <span className="flex min-w-0 items-start gap-1.5">
+              <Gift size={15} strokeWidth={2.2} aria-hidden className="mt-0.5 shrink-0" />
+              <span className="min-w-0">
+                {t.bundleDiscount} «{d.name[locale] || d.name.tg}»{d.times > 1 ? ` ×${d.times}` : ""} · −{d.percent}%
+              </span>
+            </span>
+            <span className="shrink-0 tabular-nums">−{money(d.amount)}</span>
+          </div>
+        ))}
         <div className="mt-2 flex justify-between text-sm text-muted">
           <span>{tc.delivery}</span>
           <span className={deliveryFee === 0 ? "font-semibold text-[#1f9d55]" : "tabular-nums"}>
@@ -281,15 +304,18 @@ export function CartView() {
           <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-border">
             <div
               className="h-full rounded-full bg-accent transition-[width] duration-500"
-              style={{ width: `${Math.min(100, (total / freeFrom) * 100)}%` }}
+              style={{ width: `${Math.min(100, (goods / freeFrom) * 100)}%` }}
             />
           </div>
         </div>
 
         <div className="mt-3 flex items-baseline justify-between border-t border-border pt-3">
           <span className="font-semibold text-foreground">{t.total}</span>
-          <span className="text-2xl font-extrabold tracking-tight text-foreground tabular-nums">{money(total + deliveryFee)}</span>
+          <span className="text-2xl font-extrabold tracking-tight text-foreground tabular-nums">{money(goods + deliveryFee)}</span>
         </div>
+        {discount > 0 && (
+          <p className="mt-1 text-right text-xs font-semibold text-[#1f9d55]">{format(t.saved, { amount: money(discount) })}</p>
+        )}
 
         <form onSubmit={placeOrder} className="mt-5 space-y-3" noValidate>
           <label className="block">

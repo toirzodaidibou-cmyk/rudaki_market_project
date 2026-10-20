@@ -57,9 +57,22 @@ export default async function BundlePage({ params }: Props) {
             <p className="text-sm text-muted">
               {t.total} · {format(t.items, { n: String(count) })}
             </p>
-            <p className="text-3xl font-extrabold tracking-tight text-foreground tabular-nums">
-              {nf.format(b.total)} {dict.product.currency}
+            <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="text-3xl font-extrabold tracking-tight text-foreground tabular-nums">
+                {nf.format(b.total)} {dict.product.currency}
+              </span>
+              {b.discountPercent > 0 && (
+                <>
+                  <s className="text-lg text-muted tabular-nums">{nf.format(b.fullTotal)}</s>
+                  <span className="rounded-full bg-sale px-2.5 py-0.5 text-sm font-extrabold text-white">−{b.discountPercent}%</span>
+                </>
+              )}
             </p>
+            {b.discountPercent > 0 && (
+              <p className="mt-1 text-sm font-semibold text-brand-text">
+                {format(t.save, { amount: `${nf.format(b.fullTotal - b.total)} ${dict.product.currency}` })} · {t.discountHint}
+              </p>
+            )}
           </div>
           <div className="w-full sm:w-80">
             <AddBundleButton bundleId={b.id} label={t.addAll} />

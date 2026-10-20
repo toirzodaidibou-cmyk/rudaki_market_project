@@ -9,7 +9,7 @@ import { loadGuestCart, saveGuestCart, toCartLines, withQuantity } from "@/lib/g
 import type { GuestLine } from "@/lib/guestCart";
 
 /** Сабади холии меҳмон (нархи расонидан дар экрани холӣ лозим нест). */
-const EMPTY_CART: Cart = { items: [], totalQuantity: 0, totalPrice: 0, deliveryFee: 0, freeDeliveryFrom: 0, deliveryPrice: 0 };
+const EMPTY_CART: Cart = { items: [], totalQuantity: 0, totalPrice: 0, discount: 0, discounts: [], deliveryFee: 0, freeDeliveryFrom: 0, deliveryPrice: 0 };
 
 type CustomerState = {
   /** undefined — ҳанӯз санҷида мешавад; null — ворид нашудааст */

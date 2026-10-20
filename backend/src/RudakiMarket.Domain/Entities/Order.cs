@@ -32,6 +32,13 @@ public sealed class Order
 
     /// <summary>Нархи молҳо (бе расонидан).</summary>
     public decimal Subtotal { get; set; }
+
+    /// <summary>Тахфифи маҷмӯаҳо (0 — нест). Total = Subtotal − Discount + DeliveryFee.</summary>
+    public decimal Discount { get; set; }
+
+    /// <summary>Номҳои маҷмӯаҳои тахфифдор (масалан "Дастархони чой ×2"), барои паём ва админ.</summary>
+    public string? DiscountNote { get; set; }
+
     public decimal DeliveryFee { get; set; }
     public decimal Total { get; set; }
 

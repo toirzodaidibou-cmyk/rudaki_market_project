@@ -11,6 +11,11 @@ const LANGS = [
   { key: 'uz', label: 'Ӯзбекӣ' },
 ] as const
 
+const MAX_DISCOUNT = 50
+
+/** Нарх бо тахфиф — ҳамон яклухткунӣ, ки дар сервер (BundleDiscounts.DiscountedTotal). */
+const discounted = (total: number, percent: number) => total - Math.round(total * percent) / 100
+
 /** Муқова: суратҳои аслии то 4 моли маҷмӯа (2×2). */
 function BundleCover({ thumbs, size = 64 }: { thumbs: (string | null)[]; size?: number }) {
   const pics = thumbs.filter((t): t is string => !!t).slice(0, 4)
@@ -57,6 +62,7 @@ export function BundlesPage() {
         name: b.name,
         description: b.description,
         emoji: b.emoji,
+        discountPercent: b.discountPercent,
         sortOrder: b.sortOrder,
         isActive,
         items: b.items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
@@ -95,9 +101,22 @@ export function BundlesPage() {
               <div className="flex items-start gap-3">
                 <BundleCover thumbs={b.items.map((i) => i.thumb)} />
                 <div className="min-w-0 flex-1">
-                  <p className="font-bold">{b.name.tg}</p>
+                  <p className="flex flex-wrap items-center gap-2 font-bold">
+                    {b.name.tg}
+                    {b.discountPercent > 0 && (
+                      <span className="rounded-full bg-danger px-2 py-0.5 text-xs font-extrabold text-white">−{b.discountPercent}%</span>
+                    )}
+                  </p>
                   <p className="text-sm text-muted">
-                    {b.items.length} мол · {formatPrice(b.total)} {b.isActive ? '' : '· пинҳон'}
+                    {b.items.length} мол ·{' '}
+                    {b.discountPercent > 0 ? (
+                      <>
+                        <s>{formatPrice(b.total)}</s> <b className="text-foreground">{formatPrice(discounted(b.total, b.discountPercent))}</b>
+                      </>
+                    ) : (
+                      formatPrice(b.total)
+                    )}{' '}
+                    {b.isActive ? '' : '· пинҳон'}
                   </p>
                 </div>
                 <Switch
@@ -142,6 +161,7 @@ function BundleForm({ bundle, onClose, onSaved }: { bundle: Bundle | null; onClo
   const [description, setDescription] = useState<LocalizedNames>(bundle?.description ?? empty)
   // Майдони emoji дар API боқӣ мемонад (дар сайт ва админ акнун ба ҷояш суратҳои молҳо)
   const emoji = bundle?.emoji ?? '🧺'
+  const [discountPercent, setDiscountPercent] = useState(bundle?.discountPercent ?? 0)
   const [sortOrder, setSortOrder] = useState(bundle?.sortOrder ?? 100)
   const [isActive, setIsActive] = useState(bundle?.isActive ?? true)
   const [lines, setLines] = useState<Line[]>(
@@ -184,7 +204,7 @@ function BundleForm({ bundle, onClose, onSaved }: { bundle: Bundle | null; onClo
   async function save() {
     setSaving(true)
     setErrors({})
-    const data = { name, description, emoji, sortOrder, isActive, items: lines.map((l) => ({ productId: l.productId, quantity: l.quantity })) }
+    const data = { name, description, emoji, discountPercent, sortOrder, isActive, items: lines.map((l) => ({ productId: l.productId, quantity: l.quantity })) }
     try {
       if (bundle) await api.bundles.update(bundle.id, data)
       else await api.bundles.create(data)
@@ -210,7 +230,16 @@ function BundleForm({ bundle, onClose, onSaved }: { bundle: Bundle | null; onClo
       size="lg"
       footer={
         <>
-          <span className="mr-auto self-center text-sm font-bold tabular-nums">Ҳамагӣ: {formatPrice(total)}</span>
+          <span className="mr-auto self-center text-sm font-bold tabular-nums">
+            Ҳамагӣ:{' '}
+            {discountPercent > 0 ? (
+              <>
+                <s className="font-normal text-muted">{formatPrice(total)}</s> {formatPrice(discounted(total, discountPercent))}
+              </>
+            ) : (
+              formatPrice(total)
+            )}
+          </span>
           <Button variant="secondary" onClick={onClose}>
             Бекор
           </Button>
@@ -242,6 +271,33 @@ function BundleForm({ bundle, onClose, onSaved }: { bundle: Bundle | null; onClo
               <input value={description[l.key]} onChange={(e) => setDescription({ ...description, [l.key]: e.target.value })} className={input} maxLength={300} />
             </label>
           ))}
+        </div>
+
+        <div className="rounded-2xl bg-surface-2 p-4">
+          <label className="flex flex-wrap items-center gap-3 text-sm font-semibold">
+            Тахфиф
+            <span className="relative">
+              <input
+                type="number"
+                min={0}
+                max={MAX_DISCOUNT}
+                value={discountPercent}
+                onChange={(e) => setDiscountPercent(Math.max(0, Math.min(MAX_DISCOUNT, Math.round(Number(e.target.value) || 0))))}
+                className={`${input} w-24 bg-surface pr-7`}
+              />
+              <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-muted">%</span>
+            </span>
+            {discountPercent > 0 && total > 0 && (
+              <span className="font-normal text-muted">
+                Мизоҷ {formatPrice(total - discounted(total, discountPercent))} сарфа мекунад
+              </span>
+            )}
+          </label>
+          <p className="mt-1.5 text-xs text-muted">
+            0 — бе тахфиф (то {MAX_DISCOUNT}%). Тахфиф худкор дар сабад ҳисоб мешавад, вақте ки ҳамаи молҳои маҷмӯа бо ҳамин миқдор
+            дар сабад ҳастанд — фарқ надорад, бо тугмаи «Ҳамаашро ба сабад» ё як-як.
+          </p>
+          {errors.discountPercent && <p className="mt-1 text-xs text-danger">{errors.discountPercent[0]}</p>}
         </div>
 
         <div className="flex flex-wrap items-center gap-6">

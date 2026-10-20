@@ -57,8 +57,8 @@ export function CheckoutOptions({
   const dayLabel = (offset: number, date: string) =>
     offset === 0 ? tc.today : offset === 1 ? tc.tomorrow : date.split("-").reverse().slice(0, 2).join(".");
   const current = options.days[day];
-  const chip = (active: boolean) =>
-    `rounded-xl border-2 px-3 py-2 text-sm font-semibold transition-colors ${
+  const chip = (active: boolean, padding = "px-3") =>
+    `rounded-xl border-2 ${padding} py-2 text-sm font-semibold transition-colors ${
       active ? "border-accent bg-accent/15 text-foreground" : "border-border bg-background text-foreground hover:border-accent/50"
     }`;
   const payLabel: Record<string, string> = { cash: tc.payCash, alif: tc.payAlif, dc: tc.payDc, korti_milli: tc.payKortiMilli };
@@ -93,7 +93,7 @@ export function CheckoutOptions({
             </div>
             <div className="grid grid-cols-3 gap-2">
               {current?.slots.map((s) => (
-                <button key={s.start} type="button" onClick={() => onDelivery(s.start)} aria-pressed={delivery === s.start} className={`${chip(delivery === s.start)} tabular-nums`}>
+                <button key={s.start} type="button" onClick={() => onDelivery(s.start)} aria-pressed={delivery === s.start} className={`${chip(delivery === s.start, "px-1 sm:px-3")} tabular-nums`}>
                   {s.from}–{s.to}
                 </button>
               ))}

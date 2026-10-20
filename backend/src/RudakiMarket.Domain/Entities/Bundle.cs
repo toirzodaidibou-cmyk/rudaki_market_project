@@ -21,6 +21,12 @@ public sealed class Bundle
     /// <summary>Аломати корт (emoji), масалан "🍵".</summary>
     public string Emoji { get; set; } = "🧺";
 
+    /// <summary>
+    /// Тахфиф (0–50 %): вақте ки дар сабад ҳамаи молҳои маҷмӯа бо миқдори лозимӣ ҳастанд,
+    /// аз нархи онҳо ҳамин фоиз кам мешавад. 0 — бе тахфиф.
+    /// </summary>
+    public int DiscountPercent { get; set; }
+
     public int SortOrder { get; set; }
     public bool IsActive { get; set; } = true;
     public DateTimeOffset CreatedAt { get; set; }

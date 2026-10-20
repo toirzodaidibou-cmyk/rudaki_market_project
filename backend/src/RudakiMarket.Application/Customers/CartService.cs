@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RudakiMarket.Application.Abstractions;
+using RudakiMarket.Application.Bundles;
 using RudakiMarket.Application.Categories;
 using RudakiMarket.Application.Common;
 using RudakiMarket.Application.Orders;
@@ -11,10 +12,14 @@ namespace RudakiMarket.Application.Customers;
 public sealed record CartItemDto(
     int ProductId, LocalizedNames Name, decimal Price, decimal? OldPrice, string? SizeLabel, string? Image, int Quantity, bool Available);
 
-/// <param name="DeliveryFee">Нархи расонидан барои ҳамин сабад (0 — ройгон)</param>
+/// <param name="TotalPrice">Нархи молҳо бе тахфиф</param>
+/// <param name="Discount">Тахфифи маҷмӯаҳо (ҷамъи Discounts)</param>
+/// <param name="DeliveryFee">Нархи расонидан барои ҳамин сабад (0 — ройгон), аз маблағи баъд аз тахфиф</param>
 /// <param name="FreeDeliveryFrom">Аз ин маблағ расонидан ройгон аст</param>
 /// <param name="DeliveryPrice">Нархи расонидан, вақте ки ройгон нест (барои ҳисоби фаврӣ дар сайт)</param>
-public sealed record CartDto(IReadOnlyList<CartItemDto> Items, int TotalQuantity, decimal TotalPrice, decimal DeliveryFee, decimal FreeDeliveryFrom, decimal DeliveryPrice);
+public sealed record CartDto(
+    IReadOnlyList<CartItemDto> Items, int TotalQuantity, decimal TotalPrice, decimal Discount,
+    IReadOnlyList<AppliedBundleDiscount> Discounts, decimal DeliveryFee, decimal FreeDeliveryFrom, decimal DeliveryPrice);
 
 /// <summary>Сатри сабади меҳмон (аз браузер).</summary>
 public sealed record CartLineInput(int ProductId, int Quantity);
@@ -23,7 +28,7 @@ public sealed record CartLineInput(int ProductId, int Quantity);
 public sealed record ReorderResult(CartDto Cart, IReadOnlyList<string> Unavailable);
 
 /// <summary>Сабади мизоҷ. Нарх ҳамеша аз база (нархи ҷорӣ), на аз браузер.</summary>
-public sealed class CartService(IAppDbContext db, DeliveryOptions delivery, TimeProvider clock)
+public sealed class CartService(IAppDbContext db, DeliveryOptions delivery, BundleDiscounts discounts, TimeProvider clock)
 {
     public const int MaxQuantity = 99;
     public const int MaxItems = 200;
@@ -41,14 +46,17 @@ public sealed class CartService(IAppDbContext db, DeliveryOptions delivery, Time
                 c.Quantity,
                 c.Product.IsActive && c.Product.Category!.IsActive))
             .ToListAsync(ct);
-        return Summarize(items);
+        return await SummarizeAsync(items, ct);
     }
 
-    private CartDto Summarize(IReadOnlyList<CartItemDto> items)
+    private async Task<CartDto> SummarizeAsync(IReadOnlyList<CartItemDto> items, CancellationToken ct)
     {
         var available = items.Where(i => i.Available).ToList();
         var subtotal = available.Sum(i => i.Price * i.Quantity);
-        return new CartDto(items, available.Sum(i => i.Quantity), subtotal, delivery.FeeFor(subtotal), delivery.FreeDeliveryFrom, delivery.DeliveryFee);
+        var applied = await discounts.CalculateAsync(available.Select(i => new DiscountLine(i.ProductId, i.Price, i.Quantity)).ToList(), ct);
+        var discount = applied.Sum(d => d.Amount);
+        return new CartDto(items, available.Sum(i => i.Quantity), subtotal, discount, applied,
+            delivery.FeeFor(subtotal - discount), delivery.FreeDeliveryFrom, delivery.DeliveryFee);
     }
 
     /// <summary>Сатрҳои браузер → то 200 моли гуногун, миқдор 1–99 (сатрҳои нодуруст партофта мешаванд).</summary>
@@ -83,7 +91,7 @@ public sealed class CartService(IAppDbContext db, DeliveryOptions delivery, Time
         foreach (var l in lines)
             if (products.TryGetValue(l.ProductId, out var p))
                 items.Add(new CartItemDto(p.Id, p.Name, p.Price, p.OldPrice, p.SizeLabel, p.Image, l.Quantity, p.Available));
-        return Summarize(items);
+        return await SummarizeAsync(items, ct);
     }
 
     /// <summary>
@@ -237,6 +245,6 @@ public sealed class CartService(IAppDbContext db, DeliveryOptions delivery, Time
     public async Task<CartDto> ClearAsync(int customerId, CancellationToken ct)
     {
         await db.CartItems.Where(c => c.CustomerId == customerId).ExecuteDeleteAsync(ct);
-        return new CartDto([], 0, 0, delivery.FeeFor(0), delivery.FreeDeliveryFrom, delivery.DeliveryFee);
+        return new CartDto([], 0, 0, 0, [], delivery.FeeFor(0), delivery.FreeDeliveryFrom, delivery.DeliveryFee);
     }
 }

@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using RudakiMarket.Application.Abstractions;
+using RudakiMarket.Application.Bundles;
 using RudakiMarket.Application.Common;
 using RudakiMarket.Domain.Entities;
 
@@ -17,7 +18,7 @@ public sealed record DeliveryOptions(decimal FreeDeliveryFrom, decimal DeliveryF
 
 /// <param name="WhatsAppUrl">wa.me/{рақами фурӯшанда}?text={фармоиш} — мизоҷ паёми тайёрро мефиристад</param>
 /// <param name="OwnerNotified">true — паём ба фурӯшанда худкор (сервер) фиристода шуд</param>
-public sealed record OrderPlaced(int Number, decimal Subtotal, decimal DeliveryFee, decimal Total, string WhatsAppUrl, bool OwnerNotified);
+public sealed record OrderPlaced(int Number, decimal Subtotal, decimal Discount, decimal DeliveryFee, decimal Total, string WhatsAppUrl, bool OwnerNotified);
 
 /// <summary>
 /// Огоҳ кардани фурӯшанда дар бораи фармоиши нав (масалан, WhatsApp тавассути CallMeBot).
@@ -39,10 +40,11 @@ public sealed record OrderItemDto(string Name, string? SizeLabel, decimal Price,
 public sealed record CustomerOrderDto(
     int Number, DateTimeOffset CreatedAt, string Status, string Address, string? Comment,
     DateTimeOffset? DeliveryFrom, DateTimeOffset? DeliveryTo, string PaymentMethod,
-    decimal Subtotal, decimal DeliveryFee, decimal Total, IReadOnlyList<OrderItemDto> Items);
+    decimal Subtotal, decimal Discount, decimal DeliveryFee, decimal Total, IReadOnlyList<OrderItemDto> Items);
 
 public sealed class OrderService(
-    IAppDbContext db, DeliveryOptions delivery, DeliverySchedule schedule, IOrderNotifier notifier, ICustomerNotifier customers, TimeProvider clock)
+    IAppDbContext db, DeliveryOptions delivery, DeliverySchedule schedule, BundleDiscounts discounts,
+    IOrderNotifier notifier, ICustomerNotifier customers, TimeProvider clock)
 {
     public const int OrdersPageSize = 20;
 
@@ -58,7 +60,7 @@ public sealed class OrderService(
             .Select(o => new CustomerOrderDto(
                 o.Id, o.CreatedAt, o.Status.ToString().ToLower(), o.Address, o.Comment,
                 o.DeliveryFrom, o.DeliveryTo, o.PaymentMethod == PaymentMethod.Alif ? "alif" : o.PaymentMethod == PaymentMethod.Dc ? "dc" : o.PaymentMethod == PaymentMethod.KortiMilli ? "korti_milli" : "cash",
-                o.Subtotal, o.DeliveryFee, o.Total,
+                o.Subtotal, o.Discount, o.DeliveryFee, o.Total,
                 o.Items.OrderBy(i => i.Id).Select(i => new OrderItemDto(
                     i.Name, i.SizeLabel, i.Price, i.Quantity, i.LineTotal,
                     // Сурати хурди мол (агар мол то ҳол бошад)
@@ -142,8 +144,14 @@ public sealed class OrderService(
             });
         }
         order.Subtotal = order.Items.Sum(i => i.LineTotal);
-        order.DeliveryFee = delivery.FeeFor(order.Subtotal);
-        order.Total = order.Subtotal + order.DeliveryFee;
+        var applied = await discounts.CalculateAsync(lines.Select(l => new DiscountLine(l.ProductId, l.Price, l.Quantity)).ToList(), ct);
+        order.Discount = applied.Sum(d => d.Amount);
+        order.DiscountNote = applied.Count == 0
+            ? null
+            : string.Join(", ", applied.Select(d => d.Times > 1 ? $"{d.Name.Tg} ×{d.Times}" : d.Name.Tg));
+        if (order.DiscountNote?.Length > 500) order.DiscountNote = order.DiscountNote[..500];
+        order.DeliveryFee = delivery.FeeFor(order.Subtotal - order.Discount);
+        order.Total = order.Subtotal - order.Discount + order.DeliveryFee;
 
         db.Orders.Add(order);
         await db.SaveChangesAsync(ct); // рақами фармоиш барои паёмҳо
@@ -168,7 +176,7 @@ public sealed class OrderService(
     {
         var owner = new string(delivery.OwnerWhatsApp.Where(char.IsAsciiDigit).ToArray());
         var waUrl = $"https://wa.me/{owner}?text={Uri.EscapeDataString(FormatMessage(order))}";
-        return new OrderPlaced(order.Id, order.Subtotal, order.DeliveryFee, order.Total, waUrl, ownerNotified);
+        return new OrderPlaced(order.Id, order.Subtotal, order.Discount, order.DeliveryFee, order.Total, waUrl, ownerNotified);
     }
 
     private static string M(decimal v) => v.ToString("N2", Money) + " с.";
@@ -192,6 +200,7 @@ public sealed class OrderService(
         }
         sb.AppendLine();
         sb.AppendLine($"Молҳо: {M(order.Subtotal)}");
+        if (order.Discount > 0) sb.AppendLine($"🎁 Тахфифи маҷмӯа ({order.DiscountNote}): −{M(order.Discount)}");
         sb.AppendLine(order.DeliveryFee == 0 ? "🚚 Расонидан: ройгон" : $"🚚 Расонидан: {M(order.DeliveryFee)}");
         sb.Append($"💰 Ҳамагӣ: {M(order.Total)}");
         return sb.ToString();

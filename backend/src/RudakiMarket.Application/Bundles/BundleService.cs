@@ -8,26 +8,29 @@ using RudakiMarket.Domain.Entities;
 namespace RudakiMarket.Application.Bundles;
 
 /// <summary>Корти маҷмӯа дар сайт: нарх — ҷамъи нархҳои ҷории молҳои дар фурӯш буда.</summary>
+/// <param name="Total">Нарх бо тахфиф</param>
+/// <param name="FullTotal">Нарх бе тахфиф (ҷамъи молҳо)</param>
+/// <param name="DiscountPercent">0 — тахфиф нест (ё яке аз молҳо дар фурӯш нест)</param>
 public sealed record PublicBundleDto(
     int Id, LocalizedNames Name, LocalizedNames Description, string Emoji,
-    decimal Total, int ItemCount, IReadOnlyList<string> Images);
+    decimal Total, decimal FullTotal, int DiscountPercent, int ItemCount, IReadOnlyList<string> Images);
 
 public sealed record PublicBundleItemDto(PublicProductDto Product, int Quantity);
 
 public sealed record PublicBundleDetailDto(
     int Id, LocalizedNames Name, LocalizedNames Description, string Emoji,
-    decimal Total, IReadOnlyList<PublicBundleItemDto> Items);
+    decimal Total, decimal FullTotal, int DiscountPercent, IReadOnlyList<PublicBundleItemDto> Items);
 
 public sealed record BundleItemRequest(int ProductId, int Quantity);
 
 public sealed record SaveBundleRequest(
-    LocalizedNames Name, LocalizedNames? Description, string? Emoji, int SortOrder, bool IsActive,
+    LocalizedNames Name, LocalizedNames? Description, string? Emoji, int DiscountPercent, int SortOrder, bool IsActive,
     IReadOnlyList<BundleItemRequest>? Items);
 
 public sealed record AdminBundleItemDto(int ProductId, LocalizedNames Name, string? SizeLabel, decimal Price, bool IsActive, string? Thumb, int Quantity);
 
 public sealed record AdminBundleDto(
-    int Id, LocalizedNames Name, LocalizedNames Description, string Emoji, int SortOrder, bool IsActive,
+    int Id, LocalizedNames Name, LocalizedNames Description, string Emoji, int DiscountPercent, int SortOrder, bool IsActive,
     decimal Total, IReadOnlyList<AdminBundleItemDto> Items);
 
 /// <summary>Маҷмӯаҳо: "Дастархони чой", "Ош барои 10 нафар" — якчанд мол бо як тугма ба сабад.</summary>
@@ -48,6 +51,8 @@ public sealed class BundleService(IAppDbContext db, ISiteCache siteCache, TimePr
             .Select(b => new
             {
                 b.Id, b.NameTg, b.NameRu, b.NameEn, b.NameUz, b.DescriptionTg, b.DescriptionRu, b.DescriptionEn, b.DescriptionUz, b.Emoji,
+                // Тахфиф танҳо вақте ки ҳамаи молҳо дар фурӯшанд (вагарна маҷмӯаро пурра ҷамъ кардан мумкин нест)
+                Percent = b.Items.All(i => i.Product!.IsActive && i.Product.Category!.IsActive) ? b.DiscountPercent : 0,
                 Items = b.Items
                     .Where(i => i.Product!.IsActive && i.Product.Category!.IsActive)
                     .OrderBy(i => i.SortOrder)
@@ -62,7 +67,8 @@ public sealed class BundleService(IAppDbContext db, ISiteCache siteCache, TimePr
         return rows.Where(b => b.Items.Count > 0).Select(b => new PublicBundleDto(
             b.Id, new LocalizedNames(b.NameTg, b.NameRu, b.NameEn, b.NameUz),
             new LocalizedNames(b.DescriptionTg ?? "", b.DescriptionRu ?? "", b.DescriptionEn ?? "", b.DescriptionUz ?? ""),
-            b.Emoji, b.Items.Sum(i => i.Price * i.Quantity), b.Items.Sum(i => i.Quantity),
+            b.Emoji, BundleDiscounts.DiscountedTotal(b.Items.Sum(i => i.Price * i.Quantity), b.Percent), b.Items.Sum(i => i.Price * i.Quantity),
+            b.Percent, b.Items.Sum(i => i.Quantity),
             b.Items.Where(i => i.Thumb != null).Select(i => i.Thumb!).Take(4).ToList())).ToList();
     }
 
@@ -73,6 +79,7 @@ public sealed class BundleService(IAppDbContext db, ISiteCache siteCache, TimePr
             .Select(x => new
             {
                 x.Id, x.NameTg, x.NameRu, x.NameEn, x.NameUz, x.DescriptionTg, x.DescriptionRu, x.DescriptionEn, x.DescriptionUz, x.Emoji,
+                Percent = x.Items.All(i => i.Product!.IsActive && i.Product.Category!.IsActive) ? x.DiscountPercent : 0,
                 Items = x.Items
                     .Where(i => i.Product!.IsActive && i.Product.Category!.IsActive)
                     .OrderBy(i => i.SortOrder)
@@ -88,7 +95,8 @@ public sealed class BundleService(IAppDbContext db, ISiteCache siteCache, TimePr
         return Result<PublicBundleDetailDto>.Ok(new PublicBundleDetailDto(
             b.Id, new LocalizedNames(b.NameTg, b.NameRu, b.NameEn, b.NameUz),
             new LocalizedNames(b.DescriptionTg ?? "", b.DescriptionRu ?? "", b.DescriptionEn ?? "", b.DescriptionUz ?? ""),
-            b.Emoji, b.Items.Sum(i => i.Product.Price * i.Quantity), b.Items));
+            b.Emoji, BundleDiscounts.DiscountedTotal(b.Items.Sum(i => i.Product.Price * i.Quantity), b.Percent),
+            b.Items.Sum(i => i.Product.Price * i.Quantity), b.Percent, b.Items));
     }
 
     // --- Админ ---
@@ -155,7 +163,7 @@ public sealed class BundleService(IAppDbContext db, ISiteCache siteCache, TimePr
         return new AdminBundleDto(
             b.Id, new LocalizedNames(b.NameTg, b.NameRu, b.NameEn, b.NameUz),
             new LocalizedNames(b.DescriptionTg ?? "", b.DescriptionRu ?? "", b.DescriptionEn ?? "", b.DescriptionUz ?? ""),
-            b.Emoji, b.SortOrder, b.IsActive, items.Where(i => i.IsActive).Sum(i => i.Price * i.Quantity), items);
+            b.Emoji, b.DiscountPercent, b.SortOrder, b.IsActive, items.Where(i => i.IsActive).Sum(i => i.Price * i.Quantity), items);
     }
 
     private static void Apply(Bundle b, SaveBundleRequest r, DateTimeOffset now)
@@ -172,6 +180,7 @@ public sealed class BundleService(IAppDbContext db, ISiteCache siteCache, TimePr
         b.DescriptionEn = D(r.Description?.En);
         b.DescriptionUz = D(r.Description?.Uz);
         b.Emoji = string.IsNullOrWhiteSpace(r.Emoji) ? "🧺" : r.Emoji.Trim();
+        b.DiscountPercent = r.DiscountPercent;
         b.SortOrder = r.SortOrder;
         b.IsActive = r.IsActive;
         b.UpdatedAt = now;
@@ -189,6 +198,7 @@ public sealed class BundleService(IAppDbContext db, ISiteCache siteCache, TimePr
         foreach (var (key, v) in new[] { ("description.tg", r.Description?.Tg), ("description.ru", r.Description?.Ru), ("description.en", r.Description?.En), ("description.uz", r.Description?.Uz) })
             if (v is { Length: > MaxDescriptionLength }) errors[key] = [$"То {MaxDescriptionLength} аломат."];
         if (r.Emoji is { Length: > 16 }) errors["emoji"] = ["Як emoji."];
+        if (r.DiscountPercent is < 0 or > BundleDiscounts.MaxPercent) errors["discountPercent"] = [$"Тахфиф аз 0 то {BundleDiscounts.MaxPercent} %."];
 
         var items = r.Items ?? [];
         if (items.Count == 0) errors["items"] = ["Ақаллан як мол илова кунед."];

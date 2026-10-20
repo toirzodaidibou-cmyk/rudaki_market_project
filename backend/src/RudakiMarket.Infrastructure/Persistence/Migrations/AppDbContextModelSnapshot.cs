@@ -265,6 +265,10 @@ namespace RudakiMarket.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(300)")
                         .HasColumnName("description_uz");
 
+                    b.Property<int>("DiscountPercent")
+                        .HasColumnType("integer")
+                        .HasColumnName("discount_percent");
+
                     b.Property<string>("Emoji")
                         .IsRequired()
                         .HasMaxLength(16)
@@ -606,6 +610,16 @@ namespace RudakiMarket.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("DeliveryTo")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("delivery_to");
+
+                    b.Property<decimal>("Discount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("discount");
+
+                    b.Property<string>("DiscountNote")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("discount_note");
 
                     b.Property<int>("PaymentMethod")
                         .HasColumnType("integer")

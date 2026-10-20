@@ -276,6 +276,12 @@ export function ProfileView() {
                           <span>{t.goods}</span>
                           <span className="tabular-nums">{money(o.subtotal)}</span>
                         </div>
+                        {o.discount > 0 && (
+                          <div className="flex justify-between font-medium text-[#1f9d55]">
+                            <span>{dict.cart.bundleDiscount}</span>
+                            <span className="tabular-nums">−{money(o.discount)}</span>
+                          </div>
+                        )}
                         <div className="flex justify-between text-muted">
                           <span>{dict.checkout.delivery}</span>
                           <span className={o.deliveryFee === 0 ? "font-semibold text-[#1f9d55]" : "tabular-nums"}>

@@ -23,13 +23,21 @@ export function BundleCard({ bundle, index, lang, dict }: { bundle: Bundle; inde
       className="group flex h-full flex-col rounded-[24px] p-4 text-[#1d1a2b] transition-transform active:scale-[0.98]"
       style={{ background: GRADIENTS[index % GRADIENTS.length] }}
     >
-      <BundleCover images={bundle.images} className="h-20 w-20" />
+      <div className="flex items-start justify-between gap-2">
+        <BundleCover images={bundle.images} className="h-20 w-20" />
+        {bundle.discountPercent > 0 && (
+          <span className="rounded-full bg-[#ff4d4f] px-2.5 py-1 text-sm font-extrabold text-white shadow-sm">−{bundle.discountPercent}%</span>
+        )}
+      </div>
       <h3 className="mt-3 text-lg leading-tight font-extrabold">{bundle.name[lang] || bundle.name.tg}</h3>
       <p className="mt-1 line-clamp-2 text-sm text-[#1d1a2b]/70">{bundle.description[lang] || bundle.description.tg}</p>
       <div className="mt-auto flex items-center justify-between pt-3">
         <span className="text-sm">
           <span className="text-[#1d1a2b]/60">{format(dict.bundles.items, { n: String(bundle.itemCount) })} · </span>
-          <span className="font-extrabold">
+          {bundle.discountPercent > 0 && (
+            <s className="mr-1 text-[#1d1a2b]/50 tabular-nums">{nf.format(bundle.fullTotal)}</s>
+          )}
+          <span className="font-extrabold tabular-nums">
             {nf.format(bundle.total)} {dict.product.currency}
           </span>
         </span>

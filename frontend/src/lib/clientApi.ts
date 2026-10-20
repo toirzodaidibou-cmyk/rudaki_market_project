@@ -17,11 +17,23 @@ export type CartItem = {
   /** false — мол пинҳон шудааст (дар маблағ ҳисоб намешавад) */
   available: boolean;
 };
+/** Тахфифи як маҷмӯа дар сабад: чанд маротиба пурра ҷамъ шуд ва чанд сомонӣ. */
+export type BundleDiscount = {
+  bundleId: number;
+  name: Record<"tg" | "ru" | "en" | "uz", string>;
+  percent: number;
+  times: number;
+  amount: number;
+};
 export type Cart = {
   items: CartItem[];
   totalQuantity: number;
+  /** Нархи молҳо бе тахфиф */
   totalPrice: number;
-  /** Расонидан барои ҳамин сабад (0 — ройгон) */
+  /** Тахфифи маҷмӯаҳо (ҷамъи discounts) */
+  discount: number;
+  discounts: BundleDiscount[];
+  /** Расонидан барои ҳамин сабад (0 — ройгон), аз маблағи баъд аз тахфиф */
   deliveryFee: number;
   /** Аз ин маблағ расонидан ройгон */
   freeDeliveryFrom: number;
@@ -41,6 +53,7 @@ export type CustomerOrder = {
   deliveryTo: string | null;
   paymentMethod: string;
   subtotal: number;
+  discount: number;
   deliveryFee: number;
   total: number;
   items: OrderItem[];
@@ -48,6 +61,7 @@ export type CustomerOrder = {
 export type OrderPlaced = {
   number: number;
   subtotal: number;
+  discount: number;
   deliveryFee: number;
   total: number;
   /** wa.me/{рақами мағоза}?text={фармоиш} */

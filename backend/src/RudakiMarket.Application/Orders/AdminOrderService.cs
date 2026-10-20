@@ -17,7 +17,7 @@ public sealed record AdminOrderDto(
     int Number, DateTimeOffset CreatedAt, string Status, DateTimeOffset? StatusUpdatedAt,
     string Phone, string Address, string? Comment,
     DateTimeOffset? DeliveryFrom, DateTimeOffset? DeliveryTo, string PaymentMethod,
-    decimal Subtotal, decimal DeliveryFee, decimal Total,
+    decimal Subtotal, decimal Discount, string? DiscountNote, decimal DeliveryFee, decimal Total,
     IReadOnlyList<AdminOrderItemDto> Items,
     IReadOnlyList<string> NextStatuses);
 
@@ -87,7 +87,7 @@ public sealed class AdminOrderService(IAppDbContext db, ICustomerNotifier custom
         var o = await db.Orders.AsNoTracking().Where(x => x.Id == id)
             .Select(x => new
             {
-                x.Id, x.CreatedAt, x.Status, x.StatusUpdatedAt, x.Phone, x.Address, x.Comment, x.Subtotal, x.DeliveryFee, x.Total,
+                x.Id, x.CreatedAt, x.Status, x.StatusUpdatedAt, x.Phone, x.Address, x.Comment, x.Subtotal, x.Discount, x.DiscountNote, x.DeliveryFee, x.Total,
                 x.DeliveryFrom, x.DeliveryTo, x.PaymentMethod,
                 Items = x.Items.OrderBy(i => i.Id).Select(i => new AdminOrderItemDto(
                     i.ProductId, i.Name, i.SizeLabel, i.Price, i.Quantity, i.LineTotal,
@@ -99,7 +99,7 @@ public sealed class AdminOrderService(IAppDbContext db, ICustomerNotifier custom
         return Result<AdminOrderDto>.Ok(new AdminOrderDto(
             o.Id, o.CreatedAt, Name(o.Status), o.StatusUpdatedAt, o.Phone, o.Address, o.Comment,
             o.DeliveryFrom, o.DeliveryTo, DeliverySchedule.Name(o.PaymentMethod),
-            o.Subtotal, o.DeliveryFee, o.Total, o.Items, Transitions[o.Status].Select(Name).ToList()));
+            o.Subtotal, o.Discount, o.DiscountNote, o.DeliveryFee, o.Total, o.Items, Transitions[o.Status].Select(Name).ToList()));
     }
 
     /// <summary>Ҳолати навро мегузорад, агар гузариш иҷозат бошад (масалан, "Расонида шуд"-ро "Нав" кардан мумкин нест).</summary>

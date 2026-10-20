@@ -88,8 +88,11 @@ export type Bundle = {
   name: LocalizedNames
   description: LocalizedNames
   emoji: string
+  /** 0–50: тахфиф, вақте ки ҳамаи молҳои маҷмӯа дар сабад ҳастанд */
+  discountPercent: number
   sortOrder: number
   isActive: boolean
+  /** Ҷамъи нархи молҳо (бе тахфиф) */
   total: number
   items: BundleItem[]
 }
@@ -98,6 +101,7 @@ export type SaveBundleRequest = {
   name: LocalizedNames
   description: LocalizedNames
   emoji: string
+  discountPercent: number
   sortOrder: number
   isActive: boolean
   items: { productId: number; quantity: number }[]
@@ -186,6 +190,9 @@ export type Order = {
   deliveryTo: string | null
   paymentMethod: string
   subtotal: number
+  /** Тахфифи маҷмӯаҳо (0 — нест) */
+  discount: number
+  discountNote: string | null
   deliveryFee: number
   total: number
   items: OrderItem[]

@@ -152,7 +152,9 @@
     "unavailable": "Hozircha mavjud emas",
     "increase": "Koʻpaytirish",
     "decrease": "Kamaytirish",
-    "perItem": "{price} / dona"
+    "perItem": "{price} / dona",
+    "bundleDiscount": "Toʻplam chegirmasi",
+    "saved": "Tejovingiz: {amount}"
   },
   "checkout": {
     "delivery": "Yetkazib berish",
@@ -288,7 +290,9 @@
     "back": "Bosh sahifa",
     "inside": "To‘plamda",
     "total": "Jami",
-    "error": "Xatolik. Qayta urinib ko‘ring."
+    "error": "Xatolik. Qayta urinib ko‘ring.",
+    "save": "Tejov {amount}",
+    "discountHint": "Chegirma savatda avtomatik hisoblanadi"
   },
   "info": {
     "tagline": "Rudakiy tumanidagi onlayn oziq-ovqat doʻkoni. Eshikkacha yetkazib berish.",

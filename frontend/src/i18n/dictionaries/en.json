@@ -152,7 +152,9 @@
     "unavailable": "Currently unavailable",
     "increase": "Increase",
     "decrease": "Decrease",
-    "perItem": "{price} / pc"
+    "perItem": "{price} / pc",
+    "bundleDiscount": "Bundle discount",
+    "saved": "You save {amount}"
   },
   "checkout": {
     "delivery": "Delivery",
@@ -288,7 +290,9 @@
     "back": "Home",
     "inside": "In this bundle",
     "total": "Total",
-    "error": "Something went wrong. Try again."
+    "error": "Something went wrong. Try again.",
+    "save": "Save {amount}",
+    "discountHint": "The discount is applied automatically in the cart"
   },
   "info": {
     "tagline": "Online grocery store in Rudaki district. Delivery to your door.",

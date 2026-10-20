@@ -23,9 +23,10 @@ public static class CustomerMessages
     public static string Placed(Order order, string deliveryTg) =>
         $"🛒 Фармоиши №{order.Id} қабул шуд!\n" +
         $"Ҳамагӣ: {M(order.Total)} · {deliveryTg}\n" +
+        (order.Discount > 0 ? $"Сарфаи шумо: {M(order.Discount)}\n" : "") +
         "Мо ба зудӣ онро тасдиқ мекунем.\n\n" +
         $"🛒 Заказ №{order.Id} принят!\n" +
-        $"Итого: {M(order.Total)}. Скоро подтвердим.";
+        $"Итого: {M(order.Total)}." + (order.Discount > 0 ? $" Ваша экономия: {M(order.Discount)}." : "") + " Скоро подтвердим.";
 
     /// <param name="storePhone">Рақами мағоза (барои бекор шудан — «занг занед»)</param>
     public static string? StatusChanged(int number, OrderStatus status, string storePhone) => status switch
