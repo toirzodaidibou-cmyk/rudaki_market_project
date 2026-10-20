@@ -101,6 +101,11 @@ builder.Services.AddSingleton(new DeliveryOptions(
     builder.Configuration.GetValue("Orders:FreeDeliveryFrom", 200m),
     builder.Configuration.GetValue("Orders:DeliveryFee", 10m),
     ownerWhatsApp));
+// Корти бонусӣ: фоиз аз ҳар харид (пешфарз 1 % — 1000 с. → 10 с.)
+var loyaltyPercent = builder.Configuration.GetValue("Loyalty:Percent", 1m);
+if (loyaltyPercent is < 0 or > 20)
+    throw new InvalidOperationException("Loyalty:Percent бояд аз 0 то 20 бошад.");
+builder.Services.AddSingleton(new LoyaltyOptions(loyaltyPercent));
 
 // Вақти расонидан (соатҳои кор, вақтҳо) ва тарзҳои пардохт — appsettings "Delivery"
 var schedule = builder.Configuration.GetSection("Delivery").Get<DeliveryScheduleOptions>() ?? new DeliveryScheduleOptions();

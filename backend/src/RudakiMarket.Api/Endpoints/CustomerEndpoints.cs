@@ -122,6 +122,15 @@ internal static class CustomerEndpoints
             .RequireCors(Cors.Site)
             .RequireAuthorization(AuthSchemes.Customer);
 
+        // Корти бонусӣ (профил)
+        app.MapGet("/api/loyalty", async (ClaimsPrincipal user, LoyaltyService s, HttpContext http, CancellationToken ct) =>
+            {
+                http.Response.Headers.CacheControl = "no-store";
+                return await s.GetAsync(CustomerId(user), ct) is { } card ? Results.Ok(card) : Results.NotFound();
+            })
+            .RequireCors(Cors.Site)
+            .RequireAuthorization(AuthSchemes.Customer);
+
         // Фармоиш аз сабад → база + паём барои WhatsApp-и фурӯшанда
         app.MapPost("/api/orders", async (PlaceOrderRequest req, ClaimsPrincipal user, OrderService s, CancellationToken ct) =>
                 (await s.PlaceAsync(CustomerId(user), req.Address, req.Comment, req.DeliveryStart, req.PaymentMethod, ct, req.RequestId)).ToHttp(Results.Ok))

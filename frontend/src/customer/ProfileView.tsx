@@ -10,6 +10,7 @@ import { ChevronDownIcon, ProfileSolidIcon } from "@/components/ui/icons";
 import { useCustomer } from "@/customer/CustomerProvider";
 import { PaymentLogo } from "@/customer/PaymentLogo";
 import { LoginForm } from "@/customer/LoginForm";
+import { LoyaltyCard } from "@/customer/LoyaltyCard";
 import { format, localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/I18nProvider";
 import { clientApi, clientFileUrl, formatPhone } from "@/lib/clientApi";
@@ -158,6 +159,11 @@ export function ProfileView() {
         </div>
       </div>
 
+      {/* Корти бонусии Рӯдакӣ */}
+      <div className="mt-5">
+        <LoyaltyCard />
+      </div>
+
       <h2 className="mt-8 mb-3 px-1 text-xl font-extrabold tracking-tight text-foreground">{t.myOrders}</h2>
 
       {failed ? (
@@ -292,6 +298,12 @@ export function ProfileView() {
                           <span>{dict.cart.total}</span>
                           <span className="tabular-nums">{money(o.total)}</span>
                         </div>
+                        {o.bonus > 0 && (
+                          <div className="flex justify-between text-xs font-semibold text-[#1f9d55]">
+                            <span>{t.bonus}</span>
+                            <span className="tabular-nums">+{money(o.bonus)}</span>
+                          </div>
+                        )}
                       </div>
     
                       <div className="mt-3 rounded-xl bg-background px-3 py-2 text-xs text-muted">

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using RudakiMarket.Application.Abstractions;
 using RudakiMarket.Application.Bundles;
 using RudakiMarket.Application.Common;
+using RudakiMarket.Application.Customers;
 using RudakiMarket.Domain.Entities;
 
 namespace RudakiMarket.Application.Orders;
@@ -18,7 +19,8 @@ public sealed record DeliveryOptions(decimal FreeDeliveryFrom, decimal DeliveryF
 
 /// <param name="WhatsAppUrl">wa.me/{рақами фурӯшанда}?text={фармоиш} — мизоҷ паёми тайёрро мефиристад</param>
 /// <param name="OwnerNotified">true — паём ба фурӯшанда худкор (сервер) фиристода шуд</param>
-public sealed record OrderPlaced(int Number, decimal Subtotal, decimal Discount, decimal DeliveryFee, decimal Total, string WhatsAppUrl, bool OwnerNotified);
+/// <param name="Bonus">Бонуси корти Рӯдакӣ барои ин фармоиш (пас аз «Расонида шуд» ба баланс меравад)</param>
+public sealed record OrderPlaced(int Number, decimal Subtotal, decimal Discount, decimal DeliveryFee, decimal Total, decimal Bonus, string WhatsAppUrl, bool OwnerNotified);
 
 /// <summary>
 /// Огоҳ кардани фурӯшанда дар бораи фармоиши нав (масалан, WhatsApp тавассути CallMeBot).
@@ -40,10 +42,14 @@ public sealed record OrderItemDto(string Name, string? SizeLabel, decimal Price,
 public sealed record CustomerOrderDto(
     int Number, DateTimeOffset CreatedAt, string Status, string Address, string? Comment,
     DateTimeOffset? DeliveryFrom, DateTimeOffset? DeliveryTo, string PaymentMethod,
-    decimal Subtotal, decimal Discount, decimal DeliveryFee, decimal Total, IReadOnlyList<OrderItemDto> Items);
+    decimal Subtotal, decimal Discount, decimal DeliveryFee, decimal Total, IReadOnlyList<OrderItemDto> Items)
+{
+    /// <summary>Бонус барои ин фармоиш (0 — бекор шуд).</summary>
+    public decimal Bonus { get; init; }
+}
 
 public sealed class OrderService(
-    IAppDbContext db, DeliveryOptions delivery, DeliverySchedule schedule, BundleDiscounts discounts,
+    IAppDbContext db, DeliveryOptions delivery, DeliverySchedule schedule, BundleDiscounts discounts, LoyaltyOptions loyalty,
     IOrderNotifier notifier, ICustomerNotifier customers, TimeProvider clock)
 {
     public const int OrdersPageSize = 20;
@@ -67,7 +73,8 @@ public sealed class OrderService(
                     db.ProductImages.Where(img => img.ProductId == i.ProductId).OrderBy(img => img.SortOrder)
                         .Select(img => img.ThumbPath).FirstOrDefault())).ToList()))
             .ToListAsync(ct);
-        return new PagedResult<CustomerOrderDto>(orders, total, page, OrdersPageSize);
+        var withBonus = orders.Select(o => o with { Bonus = o.Status == "cancelled" ? 0 : loyalty.BonusFor(o.Subtotal - o.Discount) }).ToList();
+        return new PagedResult<CustomerOrderDto>(withBonus, total, page, OrdersPageSize);
     }
 
     private const int MaxAddressLength = 500;
@@ -176,7 +183,8 @@ public sealed class OrderService(
     {
         var owner = new string(delivery.OwnerWhatsApp.Where(char.IsAsciiDigit).ToArray());
         var waUrl = $"https://wa.me/{owner}?text={Uri.EscapeDataString(FormatMessage(order))}";
-        return new OrderPlaced(order.Id, order.Subtotal, order.Discount, order.DeliveryFee, order.Total, waUrl, ownerNotified);
+        return new OrderPlaced(order.Id, order.Subtotal, order.Discount, order.DeliveryFee, order.Total,
+            loyalty.BonusFor(order.Subtotal - order.Discount), waUrl, ownerNotified);
     }
 
     private static string M(decimal v) => v.ToString("N2", Money) + " с.";

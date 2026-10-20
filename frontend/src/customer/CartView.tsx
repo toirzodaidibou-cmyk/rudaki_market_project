@@ -119,6 +119,11 @@ export function CartView() {
             <span className="tabular-nums">{money(placed.total)}</span>
           </div>
         </div>
+        {placed.bonus > 0 && (
+          <p className="mt-3 rounded-xl bg-[#19b25c]/10 px-3 py-2 text-sm font-semibold text-[#1f9d55]">
+            {format(tc.bonusEarned, { amount: money(placed.bonus) })}
+          </p>
+        )}
         <a
           href={placed.whatsAppUrl}
           target="_blank"

@@ -193,7 +193,8 @@
     "payDc": "Dushanbe City",
     "payKortiMilli": "Korti Milli",
     "payHint": "Pay on delivery",
-    "closedNow": "The store is closed now — choose a delivery time."
+    "closedNow": "The store is closed now — choose a delivery time.",
+    "bonusEarned": "+{amount} bonus on your Rudaki Card (after delivery)"
   },
   "profile": {
     "title": "Profile",
@@ -214,7 +215,8 @@
     "itemsCount": "{n} pcs",
     "reorder": "Buy again",
     "reorderUnavailable": "Not available now: {names}",
-    "reorderError": "Something went wrong. Please try again."
+    "reorderError": "Something went wrong. Please try again.",
+    "bonus": "Bonus"
   },
   "map": {
     "title": "Delivery area",
@@ -339,5 +341,12 @@
       "map": "Show on map"
     },
     "install": "Install app"
+  },
+  "loyalty": {
+    "title": "Rudaki Card",
+    "bonus": "Bonus",
+    "rate": "{p}% back",
+    "pending": "+{amount} after delivery",
+    "hint": "Get {p}% of every purchase back as bonus — credited after delivery."
   }
 }

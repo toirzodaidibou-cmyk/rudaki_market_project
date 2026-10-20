@@ -40,6 +40,19 @@ export type Cart = {
   /** Нархи расонидан, вақте ки ройгон нест */
   deliveryPrice: number;
 };
+/** Корти бонусии Рӯдакӣ (профил). */
+export type LoyaltyCard = {
+  /** "RM 0000 0002" */
+  cardNumber: string;
+  phone: string;
+  /** Бонуси ҷамъшуда (фармоишҳои «Расонида шуд») */
+  balance: number;
+  /** Бонуси оянда (фармоишҳои ҳанӯз расонида нашуда) */
+  pending: number;
+  /** Фоиз аз ҳар харид */
+  percent: number;
+  purchases: number;
+};
 export type OrderItem = { name: string; sizeLabel: string | null; price: number; quantity: number; lineTotal: number; image: string | null };
 export type CustomerOrder = {
   number: number;
@@ -56,6 +69,8 @@ export type CustomerOrder = {
   discount: number;
   deliveryFee: number;
   total: number;
+  /** Бонус барои ин фармоиш (0 — бекор шуд) */
+  bonus: number;
   items: OrderItem[];
 };
 export type OrderPlaced = {
@@ -64,6 +79,8 @@ export type OrderPlaced = {
   discount: number;
   deliveryFee: number;
   total: number;
+  /** Бонуси корти Рӯдакӣ барои ин фармоиш (пас аз расонидан) */
+  bonus: number;
   /** wa.me/{рақами мағоза}?text={фармоиш} */
   whatsAppUrl: string;
   ownerNotified: boolean;
@@ -126,6 +143,7 @@ export const clientApi = {
   addFavorite: (id: number) => request<void>(`/api/favorites/${id}`, "PUT"),
   removeFavorite: (id: number) => request<void>(`/api/favorites/${id}`, "DELETE"),
   cart: () => request<Cart>("/api/cart"),
+  loyalty: () => request<LoyaltyCard>("/api/loyalty"),
   /** "Ҳамаашро ба сабад": молҳои маҷмӯа. */
   addBundle: (bundleId: number) =>
     request<{ cart: Cart; unavailable: string[] }>(`/api/cart/bundle/${bundleId}`, "POST"),

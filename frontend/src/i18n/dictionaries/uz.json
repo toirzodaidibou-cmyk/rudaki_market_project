@@ -193,7 +193,8 @@
     "payDc": "Dushanbe City",
     "payKortiMilli": "Korti Milli",
     "payHint": "Qabul qilganda to‘lov",
-    "closedNow": "Do‘kon hozir yopiq — yetkazish vaqtini tanlang."
+    "closedNow": "Do‘kon hozir yopiq — yetkazish vaqtini tanlang.",
+    "bonusEarned": "+{amount} bonus Rudaki kartasiga (yetkazilgandan soʻng)"
   },
   "profile": {
     "title": "Profil",
@@ -214,7 +215,8 @@
     "itemsCount": "{n} dona",
     "reorder": "Yana sotib olish",
     "reorderUnavailable": "Hozir sotuvda yo‘q: {names}",
-    "reorderError": "Xatolik. Qayta urinib ko‘ring."
+    "reorderError": "Xatolik. Qayta urinib ko‘ring.",
+    "bonus": "Bonus"
   },
   "map": {
     "title": "Yetkazib berish hududi",
@@ -339,5 +341,12 @@
       "map": "Xaritada koʻrish"
     },
     "install": "Ilovani oʻrnatish"
+  },
+  "loyalty": {
+    "title": "Rudaki kartasi",
+    "bonus": "Bonus",
+    "rate": "{p}% bonus",
+    "pending": "+{amount} yetkazilgandan soʻng",
+    "hint": "Har bir xariddan {p}% bonus kartaga — buyurtma yetkazilgandan soʻng."
   }
 }
