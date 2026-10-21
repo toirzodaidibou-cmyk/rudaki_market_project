@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using RudakiMarket.Application.Assistant;
 using RudakiMarket.Application.Auth;
 using RudakiMarket.Application.Banners;
 using RudakiMarket.Application.Bundles;
@@ -32,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<PriceSheetService>();
         services.AddScoped<ReportService>();
         services.AddScoped<BannerService>();
+        services.AddScoped<AssistantService>();
         return services;
     }
 }

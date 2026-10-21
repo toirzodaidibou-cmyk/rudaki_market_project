@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RudakiMarket.Application.Abstractions;
+using RudakiMarket.Infrastructure.Assistant;
 using RudakiMarket.Application.Orders;
 using RudakiMarket.Application.Prices;
 using RudakiMarket.Infrastructure.Images;
@@ -114,6 +115,21 @@ public static class DependencyInjection
 
         // Паёмҳои навбати база (фурӯшанда ва мизоҷ) — дар замина, бо бозкӯшиш; бозоғозии сервер онҳоро гум намекунад
         services.AddHostedService<OutboxWorker>();
+
+        // Ёрдамчии AI (Assistant:ApiKey; пешфарз — Google Gemini). Бе калид ёрдамчӣ хомӯш аст.
+        var assistantUrl = config["Assistant:BaseUrl"] is { Length: > 0 } url ? url : "https://generativelanguage.googleapis.com/v1beta/openai/";
+        // Gemini: «фикр кардан»-и кӯтоҳ (дақиқтар) — пешфарз "low"; барои хидмати дигар танҳо агар танзим шуда бошад
+        var isGemini = assistantUrl.Contains("generativelanguage.googleapis.com", StringComparison.OrdinalIgnoreCase);
+        var reasoning = config["Assistant:ReasoningEffort"] is { Length: > 0 } effort ? effort : isGemini ? "low" : null;
+        var assistant = new ChatModelOptions(
+            assistantUrl.EndsWith('/') ? assistantUrl : assistantUrl + "/",
+            config["Assistant:ApiKey"],
+            config["Assistant:Model"] is { Length: > 0 } model ? model : "gemini-3.8-flash",
+            config.GetValue("Assistant:MaxTokens", 4096),
+            reasoning == "default" ? null : reasoning);
+        services.AddHttpClient(OpenAiChatModel.HttpClientName, c => c.Timeout = TimeSpan.FromSeconds(45));
+        services.AddSingleton<IChatModel>(sp => new OpenAiChatModel(
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient(OpenAiChatModel.HttpClientName), assistant));
 
         return services;
     }

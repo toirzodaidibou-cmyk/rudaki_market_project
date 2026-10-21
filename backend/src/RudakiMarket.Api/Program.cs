@@ -154,6 +154,8 @@ builder.Services.AddRateLimiter(o =>
     o.AddPolicy(CustomerEndpoints.CodeRequestRateLimit, ctx => PerIp(ctx, 5, TimeSpan.FromMinutes(10)));
     o.AddPolicy(CustomerEndpoints.CodeVerifyRateLimit, ctx => PerIp(ctx, 10, TimeSpan.FromMinutes(1)));
     o.AddPolicy(CustomerEndpoints.OrderRateLimit, ctx => PerIp(ctx, 10, TimeSpan.FromMinutes(10)));
+    // Ёрдамчии AI — ҳар паём ба хидмати AI дархост аст (маҳдудияти ройгон / пул)
+    o.AddPolicy(AssistantEndpoints.RateLimit, ctx => PerIp(ctx, 30, TimeSpan.FromMinutes(10)));
 });
 
 var app = builder.Build();
@@ -251,5 +253,6 @@ app.MapAdminPriceEndpoints();
 app.MapAdminReportEndpoints();
 app.MapAdminLoyaltyEndpoints();
 app.MapBannerEndpoints();
+app.MapAssistantEndpoints();
 
 app.Run();

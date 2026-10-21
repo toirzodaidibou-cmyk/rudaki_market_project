@@ -362,5 +362,40 @@
     "rate": "{p}% back",
     "pending": "+{amount} after delivery",
     "hint": "Get {p}% of every purchase back as bonus — credited after delivery."
+  },
+  "assistant": {
+    "open": "AI assistant",
+    "title": "Rudaki assistant",
+    "subtitle": "Finds products and prepares your order",
+    "greeting": "Hello! I'm the RUDAKI MARKET assistant. Tell me what you need — I'll find the products, add them to your cart, ask for your address and prepare the order for you to confirm.",
+    "examples": [
+      "1 Coca-Cola 1 litre, 2 kg apples and 2 kg pomegranates",
+      "How much is delivery?",
+      "Something sweet for tea"
+    ],
+    "placeholder": "Write what you need…",
+    "send": "Send",
+    "thinking": "Searching…",
+    "cartUpdated": "Cart updated",
+    "openCart": "Open cart",
+    "checkoutTitle": "Order to confirm",
+    "address": "Address",
+    "time": "Time",
+    "payment": "Payment",
+    "phone": "Phone",
+    "phoneAfterLogin": "your registered number (after login)",
+    "bonus": "With bonus",
+    "total": "Total (with delivery)",
+    "confirm": "Confirm and send order",
+    "placed": "Order #{n} received!",
+    "placedHint": "We'll call you at {phone} shortly.",
+    "cartChanged": "The cart changed after the order was prepared — check it in the Cart and confirm the order there.",
+    "error": "The assistant can't answer right now. Please try again a bit later.",
+    "rate": "Too many messages — please write again in a few minutes.",
+    "newChat": "New chat",
+    "close": "Close",
+    "disclaimer": "AI can make mistakes — check the products and total before confirming.",
+    "busy": "The assistant is busy right now — please try again in a minute.",
+    "cartTitle": "Your cart"
   }
 }

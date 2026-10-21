@@ -175,9 +175,45 @@ export const clientApi = {
    */
   placeOrder: (address: string, comment: string, deliveryStart: string | null, paymentMethod: string, requestId: string, useBonus = false) =>
     request<OrderPlaced>("/api/orders", "POST", { address, comment, deliveryStart, paymentMethod, requestId, useBonus }),
+  /** Ёрдамчии AI танзим шудааст? (бе калид — тугма нишон дода намешавад) */
+  assistantStatus: () => request<{ enabled: boolean }>("/api/assistant/status"),
+  assistantChat: (messages: AssistantTurn[], cart: CartLine[], locale: string) =>
+    request<AssistantReply>("/api/assistant/chat", "POST", { messages, cart, locale }),
 };
 
 export type CartLine = { productId: number; quantity: number };
+
+export type AssistantTurn = { role: "user" | "assistant"; text: string };
+/** Фармоише, ки ёрдамчӣ омода кард — мизоҷ бо тугма тасдиқ мекунад. */
+export type AssistantCheckout = {
+  address: string;
+  comment: string | null;
+  /** null — «ҳарчи зудтар» */
+  deliveryStart: string | null;
+  deliveryLabel: string;
+  paymentMethod: string;
+  useBonus: boolean;
+  /** Сабад ҳангоми омода кардан */
+  lines: CartLine[];
+};
+type Names = Record<"tg" | "ru" | "en" | "uz", string>;
+/** Корти мол дар чат — нарх аз база. */
+export type AssistantProduct = { id: number; name: Names; price: number; oldPrice: number | null; sizeLabel: string | null; image: string | null };
+/** Сабад бо маблағҳои ҳисобкардаи сервер (ҳамон қоидаҳои фармоиш). */
+export type AssistantCart = {
+  items: { productId: number; name: Names; sizeLabel: string | null; price: number; quantity: number }[];
+  subtotal: number;
+  discount: number;
+  deliveryFee: number;
+  total: number;
+};
+export type AssistantReply = {
+  text: string;
+  /** Сабади нав ё null — бетағйир */
+  cart: AssistantCart | null;
+  products: AssistantProduct[];
+  checkout: AssistantCheckout | null;
+};
 
 /** UUID v4. crypto.randomUUID танҳо дар HTTPS/localhost аст — дар http-и шабакаи дохилӣ getRandomValues. */
 export function newRequestId(): string {

@@ -8,6 +8,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { NavProgress } from "@/components/layout/NavProgress";
 import { PwaRegister } from "@/components/layout/Pwa";
+import { AssistantChat } from "@/customer/AssistantChat";
 import { CustomerProvider } from "@/customer/CustomerProvider";
 import { hasLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
@@ -87,6 +88,7 @@ export default async function RootLayout({
             <Footer lang={lang} dict={dict} />
             <PwaRegister />
             <BottomNav />
+            <AssistantChat />
           </CustomerProvider>
         </I18nProvider>
       </body>

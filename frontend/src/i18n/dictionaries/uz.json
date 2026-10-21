@@ -362,5 +362,40 @@
     "rate": "{p}% bonus",
     "pending": "+{amount} yetkazilgandan soʻng",
     "hint": "Har bir xariddan {p}% bonus kartaga — buyurtma yetkazilgandan soʻng."
+  },
+  "assistant": {
+    "open": "AI yordamchi",
+    "title": "Rudakiy yordamchisi",
+    "subtitle": "Mahsulotlarni topadi va buyurtma tayyorlaydi",
+    "greeting": "Assalomu alaykum! Men RUDAKI MARKET yordamchisiman. Nima kerakligini yozing — mahsulotlarni topib savatga solaman, manzilni soʻrayman va buyurtmani tasdiqlash uchun tayyorlayman.",
+    "examples": [
+      "1 litrli 1 ta koka-kola, 2 kg olma va 2 kg anor",
+      "Yetkazib berish qancha turadi?",
+      "Choy uchun shirinlik"
+    ],
+    "placeholder": "Nima kerakligini yozing…",
+    "send": "Yuborish",
+    "thinking": "Qidiryapman…",
+    "cartUpdated": "Savat yangilandi",
+    "openCart": "Savatni ochish",
+    "checkoutTitle": "Tasdiqlash uchun buyurtma",
+    "address": "Manzil",
+    "time": "Vaqt",
+    "payment": "Toʻlov",
+    "phone": "Raqam",
+    "phoneAfterLogin": "roʻyxatdagi raqam (kirgandan keyin)",
+    "bonus": "Bonus bilan",
+    "total": "Jami (yetkazish bilan)",
+    "confirm": "Tasdiqlash va buyurtmani yuborish",
+    "placed": "№{n} buyurtma qabul qilindi!",
+    "placedHint": "Tez orada {phone} raqamiga qoʻngʻiroq qilamiz.",
+    "cartChanged": "Buyurtma tayyorlangandan keyin savat oʻzgardi — uni «Savat»da tekshiring va buyurtmani oʻsha yerda tasdiqlang.",
+    "error": "Yordamchi hozir javob bera olmaydi. Birozdan keyin qayta urinib koʻring.",
+    "rate": "Xabarlar juda koʻp — bir necha daqiqadan keyin yozing.",
+    "newChat": "Yangi suhbat",
+    "close": "Yopish",
+    "disclaimer": "AI xato qilishi mumkin — tasdiqlashdan oldin mahsulotlar va summani tekshiring.",
+    "busy": "Yordamchi hozir band — bir daqiqadan keyin qayta yozing.",
+    "cartTitle": "Savatingiz"
   }
 }
