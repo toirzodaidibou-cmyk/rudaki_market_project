@@ -216,7 +216,7 @@ function BonusRow({ row, rank, maxBalance, index }: { row: LoyaltyRow; rank: num
       className="group rounded-2xl border border-border bg-surface p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_34px_-22px_rgba(0,0,0,0.35)] animate-slide-in"
       style={{ animationDelay: `${Math.min(index, 12) * 35}ms`, animationFillMode: 'backwards' }}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         {/* Корти хурд */}
         <div
           className="relative flex h-12 w-[76px] shrink-0 flex-col justify-between overflow-hidden rounded-xl p-1.5 text-white shadow-sm"
@@ -231,13 +231,14 @@ function BonusRow({ row, rank, maxBalance, index }: { row: LoyaltyRow; rank: num
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="truncate font-bold tabular-nums">{formatPhone(row.phone)}</p>
+          {/* Рақам ҳеҷ гоҳ бурида намешавад; дар экрани танг бонус ба сатри поён мегузарад */}
+          <p className="font-bold whitespace-nowrap tabular-nums">{formatPhone(row.phone)}</p>
           <p className="text-xs text-muted tabular-nums">
             {row.cardNumber} · аз {formatTime(row.registeredAt).split(',')[0]}
           </p>
         </div>
 
-        <div className="shrink-0 text-right">
+        <div className="shrink-0 text-right max-[440px]:basis-full max-[440px]:text-left">
           <p className={`text-xl font-extrabold tracking-tight tabular-nums ${row.balance > 0 ? 'text-success' : 'text-muted'}`}>
             {formatPrice(row.balance)}
           </p>

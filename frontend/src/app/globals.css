@@ -437,10 +437,11 @@ body {
     }
   }
 }
+/* Бе opacity: агар браузер timeline-ро нодуруст ҳисоб кунад (Safari, WebView), корт ҳеҷ гоҳ ноаён намемонад —
+   танҳо каме поёнтар ва хурдтар. */
 @keyframes rm-reveal {
   from {
-    opacity: 0;
-    transform: translateY(32px) scale(0.96);
+    transform: translateY(28px) scale(0.97);
   }
 }
 
