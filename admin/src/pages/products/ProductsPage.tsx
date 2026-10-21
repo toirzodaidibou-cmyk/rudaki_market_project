@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Camera, ImageOff } from 'lucide-react'
+import { Camera, ImageOff, RefreshCw } from 'lucide-react'
 import { ImageIcon, PencilIcon, PlusIcon, SearchIcon } from '../../components/icons'
 import { Button, Spinner, Switch, useToast } from '../../components/ui'
 import { api, ApiError, fileUrl, formatPrice, toListItem } from '../../lib/api'
 import type { Category, PhotoFilter, Product, ProductListItem } from '../../lib/api'
+import { PhotoReplaceModal } from './PhotoReplaceModal'
 import { PriceExcel } from './PriceExcel'
 import { ProductForm } from './ProductForm'
 
@@ -105,6 +106,24 @@ export function ProductsPage() {
     toast('success', isNew ? `«${product.name.tg}» илова шуд` : 'Тағйирот захира шуд')
   }
 
+  // Ёрдамчии «Иваз кардани сурат»: навбат — молҳои бо сурати муваққатӣ дар рӯйхати ҳозира
+  const [replace, setReplace] = useState<{ queue: ProductListItem[]; index: number } | null>(null)
+  function openReplace(fromId?: number) {
+    const queue = (items ?? []).filter((x) => x.temporaryPhoto)
+    if (queue.length === 0) return
+    setReplace({ queue, index: Math.max(0, queue.findIndex((x) => x.id === fromId)) })
+  }
+  function onPhotoReplaced(product: Product) {
+    const item = toListItem(product)
+    // Дар филтри «Сурати муваққатӣ» мол аз рӯйхат мебарояд; дар дигар филтрҳо — нав мешавад
+    if (photo === 'temporary') {
+      setItems((list) => (list ?? []).filter((x) => x.id !== item.id))
+      setTotal((t) => Math.max(0, t - 1))
+    } else {
+      setItems((list) => (list ?? []).map((x) => (x.id === item.id ? item : x)))
+    }
+  }
+
   async function toggleActive(item: ProductListItem, isActive: boolean) {
     setTogglingId(item.id)
     try {
@@ -196,7 +215,14 @@ export function ProductsPage() {
           </button>
         ))}
         {photo === 'temporary' && (
-          <span className="text-xs text-muted">Пурфурӯшҳо аввал — аввал онҳоро аксбардорӣ кунед («Акс гирифтан» дар формаи мол).</span>
+          <>
+            <span className="text-xs text-muted">Пурфурӯшҳо аввал — сурати онҳоро аввал иваз кунед.</span>
+            {items && items.some((x) => x.temporaryPhoto) && (
+              <Button onClick={() => openReplace()} className="ml-auto">
+                <RefreshCw size={16} /> Иваз кардан пай дар пай
+              </Button>
+            )}
+          </>
         )}
       </div>
 
@@ -279,6 +305,16 @@ export function ProductsPage() {
                     label={p.isActive ? 'Дар сайт' : 'Пинҳон'}
                   />
                   {/* Нест кардан нест — мол танҳо пинҳон мешавад (тугмаи «Дар сайт»), то маълумот гум нашавад */}
+                  {p.temporaryPhoto && (
+                    <button
+                      type="button"
+                      onClick={() => openReplace(p.id)}
+                      title="Иваз кардани сурат"
+                      className="ml-auto inline-flex h-8 items-center gap-1 rounded-lg bg-[#f59e0b]/15 px-2 text-xs font-bold text-[#b45309] hover:bg-[#f59e0b]/25 dark:text-amber-300"
+                    >
+                      <RefreshCw size={13} strokeWidth={2.5} /> Сурат
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => openEdit(p.id)}
@@ -300,6 +336,15 @@ export function ProductsPage() {
             </div>
           )}
         </>
+      )}
+
+      {replace && (
+        <PhotoReplaceModal
+          queue={replace.queue}
+          startIndex={replace.index}
+          onReplaced={onPhotoReplaced}
+          onClose={() => setReplace(null)}
+        />
       )}
 
       {formOpen && (

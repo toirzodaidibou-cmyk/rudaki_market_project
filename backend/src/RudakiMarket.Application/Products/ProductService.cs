@@ -292,6 +292,57 @@ public sealed class ProductService(IAppDbContext db, IFileStorage files, IImageP
         return Result<ProductDto>.Ok(ToDto(product));
     }
 
+    /// <summary>
+    /// Ҳамаи суратҳои молро бо суратҳои нав иваз мекунад ва нишони «сурати муваққатӣ»-ро хориҷ мекунад
+    /// (ёрдамчии «Иваз кардани сурат» дар админ). Аввал ҳама санҷида мешаванд — агар яке нодуруст бошад, ҳеҷ чиз иваз намешавад.
+    /// Файлҳои кӯҳна баъд аз сабти база нест мешаванд.
+    /// </summary>
+    public async Task<Result<ProductDto>> ReplaceImagesAsync(int id, IReadOnlyList<UploadFile> uploads, CancellationToken ct)
+    {
+        var product = await db.Products.Include(x => x.Images).FirstOrDefaultAsync(x => x.Id == id, ct);
+        if (product is null) return Result<ProductDto>.NotFound();
+        if (uploads.Count == 0) return Result<ProductDto>.Invalid("images", "Ягон сурат интихоб нашудааст.");
+        if (uploads.Count > MaxImages) return Result<ProductDto>.Invalid("images", $"Ҳар мол то {MaxImages} сурат дошта метавонад.");
+
+        var processed = new List<ProcessedImage>();
+        foreach (var upload in uploads)
+        {
+            if (upload.Content.Length > MaxImageBytes)
+                return Result<ProductDto>.Invalid("images", $"«{upload.FileName}»: андоза бояд то 5 MB бошад.");
+            var image = images.Process(upload.Content);
+            if (image is null)
+                return Result<ProductDto>.Invalid("images", $"«{upload.FileName}» сурат нест ё вайрон аст.");
+            processed.Add(image);
+        }
+
+        var old = product.Images.ToList();
+        foreach (var image in old)
+        {
+            product.Images.Remove(image);
+            db.ProductImages.Remove(image);
+        }
+        var order = 0;
+        foreach (var image in processed)
+        {
+            product.Images.Add(new ProductImage
+            {
+                Path = await files.SaveAsync(new MemoryStream(image.Main), "products", "webp", ct),
+                ThumbPath = await files.SaveAsync(new MemoryStream(image.Thumb), "products", "webp", ct),
+                SortOrder = order++,
+            });
+        }
+        product.TemporaryPhoto = false;
+        product.UpdatedAt = clock.GetUtcNow();
+        await db.SaveChangesAsync(ct);
+        await siteCache.InvalidateAsync([SiteCacheTags.Products], ct);
+        foreach (var image in old)
+        {
+            await files.DeleteAsync(image.Path, ct);
+            await files.DeleteAsync(image.ThumbPath, ct);
+        }
+        return Result<ProductDto>.Ok(ToDto(product));
+    }
+
     public async Task<Result<ProductDto>> DeleteImageAsync(int id, int imageId, CancellationToken ct)
     {
         var product = await db.Products.Include(x => x.Images).FirstOrDefaultAsync(x => x.Id == id, ct);

@@ -68,19 +68,17 @@ internal static class ProductEndpoints
         // Суратҳо: multipart/form-data, майдони "images" (як ё якчанд файл)
         group.MapPost("/{id:int}/images", async (int id, IFormFileCollection images, ProductService s, CancellationToken ct) =>
             {
-                var uploads = new List<UploadFile>();
-                foreach (var file in images)
-                {
-                    if (file.Length > ProductService.MaxImageBytes)
-                        return Results.ValidationProblem(new Dictionary<string, string[]>
-                        {
-                            ["images"] = [$"«{file.FileName}»: андоза бояд то 5 MB бошад."],
-                        });
-                    using var buffer = new MemoryStream();
-                    await file.CopyToAsync(buffer, ct);
-                    uploads.Add(new UploadFile(buffer.ToArray(), file.FileName));
-                }
-                return (await s.AddImagesAsync(id, uploads, ct)).ToHttp(Results.Ok);
+                var (uploads, error) = await ReadUploadsAsync(images, ct);
+                return error ?? (await s.AddImagesAsync(id, uploads, ct)).ToHttp(Results.Ok);
+            })
+            .DisableAntiforgery()
+            .WithMetadata(new RequestSizeLimitAttribute(ProductService.MaxImages * ProductService.MaxImageBytes + 1024 * 1024));
+
+        // Ҳамаи суратҳоро иваз кардан ва нишони «сурати муваққатӣ»-ро хориҷ кардан (ёрдамчии «Иваз кардани сурат»)
+        group.MapPost("/{id:int}/images/replace", async (int id, IFormFileCollection images, ProductService s, CancellationToken ct) =>
+            {
+                var (uploads, error) = await ReadUploadsAsync(images, ct);
+                return error ?? (await s.ReplaceImagesAsync(id, uploads, ct)).ToHttp(Results.Ok);
             })
             .DisableAntiforgery()
             .WithMetadata(new RequestSizeLimitAttribute(ProductService.MaxImages * ProductService.MaxImageBytes + 1024 * 1024));
@@ -92,5 +90,23 @@ internal static class ProductEndpoints
             (await s.ReorderImagesAsync(id, req.ImageIds ?? [], ct)).ToHttp(Results.Ok));
 
         return app;
+    }
+
+    /// <summary>Файлҳои multipart → UploadFile; файли зиёда аз 5 MB — хатои 400.</summary>
+    private static async Task<(List<UploadFile> Uploads, IResult? Error)> ReadUploadsAsync(IFormFileCollection images, CancellationToken ct)
+    {
+        var uploads = new List<UploadFile>();
+        foreach (var file in images)
+        {
+            if (file.Length > ProductService.MaxImageBytes)
+                return (uploads, Results.ValidationProblem(new Dictionary<string, string[]>
+                {
+                    ["images"] = [$"«{file.FileName}»: андоза бояд то 5 MB бошад."],
+                }));
+            using var buffer = new MemoryStream();
+            await file.CopyToAsync(buffer, ct);
+            uploads.Add(new UploadFile(buffer.ToArray(), file.FileName));
+        }
+        return (uploads, null);
     }
 }

@@ -5,10 +5,9 @@ import { ArrowLeftIcon, ArrowRightIcon, UploadIcon, XIcon } from '../../componen
 import { Button, Modal, Switch } from '../../components/ui'
 import { api, ApiError, fileUrl } from '../../lib/api'
 import type { Category, LocalizedNames, Product } from '../../lib/api'
+import { IMAGE_TYPES, MAX_IMAGE_BYTES, prepareImage } from '../../lib/images'
 
 const MAX_IMAGES = 8
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024
-const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 const emptyNames: LocalizedNames = { tg: '', ru: '', en: '', uz: '' }
 
 const languages: { key: keyof LocalizedNames; label: string; placeholder: string }[] = [
@@ -34,35 +33,6 @@ type Props = {
 
 /** "12,50" / "12.5" → 12.5; холӣ ё нодуруст → NaN */
 const parsePrice = (s: string) => (s.trim() === '' ? NaN : Number(s.replace(',', '.').replace(/\s/g, '')))
-
-const MAX_SIDE = 2000
-const KEEP_AS_IS_BYTES = 2.5 * 1024 * 1024
-
-/**
- * Акси камераи телефон (3–8 MB, баъзан HEIC) дар худи браузер то 2000px ва JPEG хурд карда мешавад —
- * бор кардан тез ва аз ҳадди 5 MB-и сервер намегузарад. Файлҳои хурди PNG/JPEG/WebP — бетағйир.
- */
-async function prepareImage(file: File): Promise<File | null> {
-  if (IMAGE_TYPES.includes(file.type) && file.size <= KEEP_AS_IS_BYTES) return file
-  try {
-    const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' })
-    const scale = Math.min(1, MAX_SIDE / Math.max(bitmap.width, bitmap.height))
-    const canvas = document.createElement('canvas')
-    canvas.width = Math.round(bitmap.width * scale)
-    canvas.height = Math.round(bitmap.height * scale)
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return null
-    ctx.fillStyle = '#fff' // PNG-и шаффоф → заминаи сафед
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
-    bitmap.close()
-    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.9))
-    if (!blob) return null
-    return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' })
-  } catch {
-    return null // браузер ин форматро намехонад
-  }
-}
 
 export function ProductForm({ open, product, categories, defaultCategoryId, onClose, onSaved }: Props) {
   const formId = useId()

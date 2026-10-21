@@ -389,6 +389,12 @@ export const api = {
       for (const f of files) form.append('images', f)
       return request<Product>(`/api/admin/products/${id}/images`, { method: 'POST', body: form })
     },
+    /** Ҳамаи суратҳоро иваз мекунад ва нишони «сурати муваққатӣ»-ро хориҷ мекунад. */
+    replaceImages: (id: number, files: File[]) => {
+      const form = new FormData()
+      for (const f of files) form.append('images', f)
+      return request<Product>(`/api/admin/products/${id}/images/replace`, { method: 'POST', body: form })
+    },
     deleteImage: (id: number, imageId: number) =>
       request<Product>(`/api/admin/products/${id}/images/${imageId}`, { method: 'DELETE' }),
     reorderImages: (id: number, imageIds: number[]) =>
