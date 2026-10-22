@@ -36,7 +36,7 @@ public sealed class OpenAiChatModel(HttpClient http, ChatModelOptions options) :
         {
             var text = (e.InnerException is { } inner ? $"{e.Message} | {inner.GetType().Name}: {inner.Message}" : e.Message)
                 .Replace(options.ApiKey ?? "\0", "***");
-            LastError = $"{DateTimeOffset.UtcNow:yyyy-MM-dd HH:mm:ss}Z {options.Model}: {text[..Math.Min(text.Length, 400)]}";
+            LastError = $"{DateTimeOffset.UtcNow:yyyy-MM-dd HH:mm:ss}Z {options.Model}: {text[..Math.Min(text.Length, 1500)]}";
             throw;
         }
     }
@@ -129,7 +129,7 @@ public sealed class OpenAiChatModel(HttpClient http, ChatModelOptions options) :
             {
                 // Матни хато калидро дар бар намегирад; танҳо оғозаш барои log
                 var error = await response.Content.ReadAsStringAsync(ct);
-                var message = $"AI: HTTP {(int)response.StatusCode} {error[..Math.Min(error.Length, 300)]}";
+                var message = $"AI: HTTP {(int)response.StatusCode} {error[..Math.Min(error.Length, 1500)]}";
                 if (response.StatusCode == HttpStatusCode.TooManyRequests)
                 {
                     var busy = new ChatModelException(message, busy: true);

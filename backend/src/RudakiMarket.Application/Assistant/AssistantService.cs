@@ -93,6 +93,11 @@ public sealed class AssistantService(
         var messages = new List<ChatMessage> { new("system", await SystemPromptAsync(customerId, request.Locale, state, ct)) };
         messages.AddRange(turns.Select(t => new ChatMessage(t.Role, t.Text.Trim())));
 
+        // Мизоҷ дароз интизор намешавад: ҳамаи даврҳои AI якҷоя — то TimeBudget, баъд «банд, баъдтар нависед»
+        using var budget = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        budget.CancelAfter(TimeBudget);
+        var outer = ct;
+        ct = budget.Token;
         try
         {
             for (var round = 0; round < MaxRounds; round++)
@@ -122,8 +127,15 @@ public sealed class AssistantService(
             logger.LogWarning(e, "Ёрдамчии AI ҷавоб надод");
             return Result<AssistantReply>.Invalid("assistant", e.Busy ? "assistant_busy" : "assistant_unavailable");
         }
+        catch (OperationCanceledException) when (!outer.IsCancellationRequested)
+        {
+            logger.LogWarning("Ёрдамчии AI дар {Seconds} сония ҷавоб надод", TimeBudget.TotalSeconds);
+            return Result<AssistantReply>.Invalid("assistant", "assistant_busy");
+        }
         return Result<AssistantReply>.Invalid("assistant", "assistant_unavailable");
     }
+
+    private static readonly TimeSpan TimeBudget = TimeSpan.FromSeconds(45);
 
     /// <summary>
     /// Маблағҳои матн бо маълумот санҷида мешаванд. Маблағи бофта — як бор аз модел ислоҳ талаб мешавад;
