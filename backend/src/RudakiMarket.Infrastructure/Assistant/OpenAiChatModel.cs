@@ -37,6 +37,11 @@ public sealed class OpenAiChatModel(HttpClient http, ChatModelOptions options) :
             {
                 await Task.Delay(TimeSpan.FromMilliseconds(800), ct);
             }
+            // Ҳадди дақиқаи нусхаи ройгон: агар хидмат «баъд аз N сония» гӯяд (то 20 с) — як бор интизор ва такрор
+            catch (ChatModelException e) when (attempt == 1 && e.Busy && e.Data["retryAfter"] is int seconds && seconds <= MaxBusyWaitSeconds)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(Math.Max(1, seconds)), ct);
+            }
         }
     }
 
@@ -64,6 +69,16 @@ public sealed class OpenAiChatModel(HttpClient http, ChatModelOptions options) :
             }).ToArray());
         }
         return body;
+    }
+
+    private const int MaxBusyWaitSeconds = 20;
+
+    /// <summary>Чанд сония интизор шудан: сарлавҳаи Retry-After ё «retryDelay»: "23s" дар матни хатои Gemini.</summary>
+    private static int? RetryAfterSeconds(HttpResponseMessage response, string error)
+    {
+        if (response.Headers.RetryAfter?.Delta is { } delta) return (int)Math.Ceiling(delta.TotalSeconds);
+        var m = System.Text.RegularExpressions.Regex.Match(error, "\"retryDelay\"\\s*:\\s*\"(\\d+)(?:\\.\\d+)?s\"");
+        return m.Success && int.TryParse(m.Groups[1].Value, out var s) ? s : null;
     }
 
     private static ChatModelException Transient(string message, Exception? inner = null)
@@ -98,7 +113,12 @@ public sealed class OpenAiChatModel(HttpClient http, ChatModelOptions options) :
                 // Матни хато калидро дар бар намегирад; танҳо оғозаш барои log
                 var error = await response.Content.ReadAsStringAsync(ct);
                 var message = $"AI: HTTP {(int)response.StatusCode} {error[..Math.Min(error.Length, 300)]}";
-                if (response.StatusCode == HttpStatusCode.TooManyRequests) throw new ChatModelException(message, busy: true);
+                if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                {
+                    var busy = new ChatModelException(message, busy: true);
+                    if (RetryAfterSeconds(response, error) is { } wait) busy.Data["retryAfter"] = wait;
+                    throw busy;
+                }
                 if ((int)response.StatusCode is 500 or 502 or 503 or 504) throw Transient(message);
                 throw new ChatModelException(message);
             }
@@ -120,7 +140,8 @@ public sealed class OpenAiChatModel(HttpClient http, ChatModelOptions options) :
                         var args = fn.TryGetProperty("arguments", out var a)
                             ? a.ValueKind == JsonValueKind.String ? a.GetString() ?? "{}" : a.GetRawText()
                             : "{}";
-                        calls.Add(new ChatToolCall(id, fn.GetProperty("name").GetString() ?? "", args));
+                        var extra = call.TryGetProperty("extra_content", out var ex) && ex.ValueKind == JsonValueKind.Object ? ex.GetRawText() : null;
+                        calls.Add(new ChatToolCall(id, fn.GetProperty("name").GetString() ?? "", args, extra));
                     }
                 }
                 return new ChatCompletion(content, calls);
@@ -137,11 +158,16 @@ public sealed class OpenAiChatModel(HttpClient http, ChatModelOptions options) :
         var node = new JsonObject { ["role"] = m.Role, ["content"] = m.Content ?? "" };
         if (m.ToolCalls is { Count: > 0 })
         {
-            node["tool_calls"] = new JsonArray(m.ToolCalls.Select(c => (JsonNode)new JsonObject
+            node["tool_calls"] = new JsonArray(m.ToolCalls.Select(c =>
             {
-                ["id"] = c.Id,
-                ["type"] = "function",
-                ["function"] = new JsonObject { ["name"] = c.Name, ["arguments"] = c.Arguments },
+                var call = new JsonObject
+                {
+                    ["id"] = c.Id,
+                    ["type"] = "function",
+                    ["function"] = new JsonObject { ["name"] = c.Name, ["arguments"] = c.Arguments },
+                };
+                if (c.Extra is not null) call["extra_content"] = JsonNode.Parse(c.Extra);
+                return (JsonNode)call;
             }).ToArray());
         }
         if (m.ToolCallId is not null) node["tool_call_id"] = m.ToolCallId;

@@ -6,7 +6,11 @@ namespace RudakiMarket.Application.Abstractions;
 public sealed record ChatTool(string Name, string Description, JsonElement Parameters);
 
 /// <param name="Arguments">JSON-и аргументҳо (матн, тавре модел навишт)</param>
-public sealed record ChatToolCall(string Id, string Name, string Arguments);
+/// <param name="Extra">
+/// маълумоти иловагии хидмат, ки бояд айнан баргардонида шавад (Gemini 3: «extra_content» бо thought_signature —
+/// бе он даври навбатӣ хато медиҳад); null — нест
+/// </param>
+public sealed record ChatToolCall(string Id, string Name, string Arguments, string? Extra = null);
 
 /// <param name="Role">system | user | assistant | tool</param>
 /// <param name="ToolCalls">танҳо барои assistant: амалҳое, ки модел хост</param>
