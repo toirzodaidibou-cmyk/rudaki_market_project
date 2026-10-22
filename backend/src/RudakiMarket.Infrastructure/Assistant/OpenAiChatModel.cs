@@ -22,18 +22,26 @@ public sealed class OpenAiChatModel(HttpClient http, ChatModelOptions options) :
 {
     public const string HttpClientName = "assistant";
 
-    public bool IsEnabled => !string.IsNullOrWhiteSpace(options.ApiKey);
+    // Ҳадди рӯзона тамом шуд (хидмат «баъд аз N соат» гуфт) — то ин вақт дархост фиристода намешавад ва тугма пинҳон аст
+    private DateTimeOffset pausedUntil;
+    private static readonly TimeSpan PauseThreshold = TimeSpan.FromMinutes(5);
+
+    public bool IsEnabled => !string.IsNullOrWhiteSpace(options.ApiKey) && DateTimeOffset.UtcNow >= pausedUntil;
 
     public string? LastError { get; private set; }
 
     public async Task<ChatCompletion> CompleteAsync(IReadOnlyList<ChatMessage> messages, IReadOnlyList<ChatTool> tools, CancellationToken ct)
     {
+        if (DateTimeOffset.UtcNow < pausedUntil)
+            throw new ChatModelException($"AI: ҳадди хидмат тамом шуд, то {pausedUntil:yyyy-MM-dd HH:mm}Z", busy: true);
         try
         {
             return await CompleteWithRetryAsync(messages, tools, ct);
         }
         catch (ChatModelException e)
         {
+            if (e.Busy && e.Data["retryAfter"] is int seconds && TimeSpan.FromSeconds(seconds) > PauseThreshold)
+                pausedUntil = DateTimeOffset.UtcNow.AddSeconds(seconds);
             var text = (e.InnerException is { } inner ? $"{e.Message} | {inner.GetType().Name}: {inner.Message}" : e.Message)
                 .Replace(options.ApiKey ?? "\0", "***");
             LastError = $"{DateTimeOffset.UtcNow:yyyy-MM-dd HH:mm:ss}Z {options.Model}: {text[..Math.Min(text.Length, 1500)]}";

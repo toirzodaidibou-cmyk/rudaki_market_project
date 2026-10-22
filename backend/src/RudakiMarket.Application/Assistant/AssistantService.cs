@@ -72,7 +72,8 @@ public sealed class AssistantService(
 
     public async Task<Result<AssistantReply>> ChatAsync(int? customerId, AssistantRequest request, CancellationToken ct)
     {
-        if (!model.IsEnabled) return Result<AssistantReply>.NotFound();
+        // Калид нест ё ҳадди рӯзонаи хидмат тамом шуд (тугма дар сайт пинҳон аст; равзанаи кушода — «банд»)
+        if (!model.IsEnabled) return Result<AssistantReply>.Invalid("assistant", "assistant_busy");
 
         var turns = (request.Messages ?? [])
             .Where(m => m.Role is "user" or "assistant" && !string.IsNullOrWhiteSpace(m.Text))
