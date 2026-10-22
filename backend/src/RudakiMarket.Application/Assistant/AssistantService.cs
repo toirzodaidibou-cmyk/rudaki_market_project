@@ -67,6 +67,9 @@ public sealed class AssistantService(
 
     public bool IsEnabled => model.IsEnabled;
 
+    /// <inheritdoc cref="IChatModel.LastError"/>
+    public string? LastError => model.LastError;
+
     public async Task<Result<AssistantReply>> ChatAsync(int? customerId, AssistantRequest request, CancellationToken ct)
     {
         if (!model.IsEnabled) return Result<AssistantReply>.NotFound();

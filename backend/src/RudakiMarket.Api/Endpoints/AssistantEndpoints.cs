@@ -14,7 +14,8 @@ internal static class AssistantEndpoints
         var group = app.MapGroup("/api/assistant").RequireCors(Cors.Site);
 
         // Сайт тугмаи ёрдамчиро танҳо вақте нишон медиҳад, ки калиди AI танзим шуда бошад
-        group.MapGet("/status", (AssistantService s) => Results.Ok(new { enabled = s.IsEnabled }));
+        // lastError — охирин хатои хидмати AI (бе калид), барои ташхис
+        group.MapGet("/status", (AssistantService s) => Results.Ok(new { enabled = s.IsEnabled, lastError = s.LastError }));
 
         group.MapPost("/chat", async (AssistantRequest req, AssistantService s, HttpContext http, CancellationToken ct) =>
             {

@@ -24,7 +24,24 @@ public sealed class OpenAiChatModel(HttpClient http, ChatModelOptions options) :
 
     public bool IsEnabled => !string.IsNullOrWhiteSpace(options.ApiKey);
 
+    public string? LastError { get; private set; }
+
     public async Task<ChatCompletion> CompleteAsync(IReadOnlyList<ChatMessage> messages, IReadOnlyList<ChatTool> tools, CancellationToken ct)
+    {
+        try
+        {
+            return await CompleteWithRetryAsync(messages, tools, ct);
+        }
+        catch (ChatModelException e)
+        {
+            var text = (e.InnerException is { } inner ? $"{e.Message} | {inner.GetType().Name}: {inner.Message}" : e.Message)
+                .Replace(options.ApiKey ?? "\0", "***");
+            LastError = $"{DateTimeOffset.UtcNow:yyyy-MM-dd HH:mm:ss}Z {options.Model}: {text[..Math.Min(text.Length, 400)]}";
+            throw;
+        }
+    }
+
+    private async Task<ChatCompletion> CompleteWithRetryAsync(IReadOnlyList<ChatMessage> messages, IReadOnlyList<ChatTool> tools, CancellationToken ct)
     {
         var body = Body(messages, tools).ToJsonString();
         for (var attempt = 1; ; attempt++)

@@ -27,6 +27,9 @@ public interface IChatModel
     /// <summary>false — калиди AI танзим нашудааст (ёрдамчӣ дар сайт нишон дода намешавад).</summary>
     bool IsEnabled { get; }
 
+    /// <summary>Охирин хатои хидмати AI (вақт ва матни кӯтоҳ, бе калид) — барои ташхис; null — хато набуд.</summary>
+    string? LastError { get; }
+
     /// <exception cref="ChatModelException">модел ҷавоб надод ё ҷавоби нодуруст</exception>
     Task<ChatCompletion> CompleteAsync(IReadOnlyList<ChatMessage> messages, IReadOnlyList<ChatTool> tools, CancellationToken ct);
 }
